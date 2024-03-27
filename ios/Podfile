@@ -39,6 +39,8 @@ target 'omw_front' do
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
+  pod 'NMapsMap'
+  
   target 'omw_frontTests' do
     inherit! :complete
     # Pods for testing
