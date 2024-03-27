@@ -1,4 +1,4 @@
-package com.omw_front
+package com.omw.omw_front
 
 import android.app.Application
 import com.facebook.react.PackageList

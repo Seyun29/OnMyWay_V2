@@ -74,9 +74,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace "com.omw_front"
+    namespace "com.omw.omw_front"
     defaultConfig {
-        applicationId "com.omw_front"
+        applicationId "com.omw.omw_front"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

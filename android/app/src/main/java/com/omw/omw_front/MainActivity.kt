@@ -1,4 +1,4 @@
-package com.omw_front
+package com.omw.omw_front
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate
