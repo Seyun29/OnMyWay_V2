@@ -6,18 +6,9 @@
  */
 
 import React, {useEffect} from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
 import SplashScreen from 'react-native-splash-screen';
+import RootStackNavigation from './src/navigations';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -26,7 +17,7 @@ function App(): React.JSX.Element {
     }, 1500);
   }, []);
 
-  return <SafeAreaView></SafeAreaView>;
+  return <RootStackNavigation />;
 }
 
 export default App;
