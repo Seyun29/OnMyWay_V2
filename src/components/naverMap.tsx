@@ -1,15 +1,6 @@
 import NaverMapView, {Marker, Path} from 'react-native-nmap';
 import React from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  Dimensions,
-  Text,
-  useColorScheme,
-  View,
-  Modal,
-} from 'react-native';
+import {View} from 'react-native';
 import {dummyData} from '../dummy/data';
 
 export default function NaverMap() {
