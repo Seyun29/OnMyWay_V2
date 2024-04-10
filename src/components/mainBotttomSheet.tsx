@@ -1,12 +1,12 @@
-import React, {useCallback, useEffect, useMemo, useRef} from 'react';
-import {View, Text, StyleSheet, Button} from 'react-native';
-import BottomSheet, {
+import React, {useEffect, useMemo, useRef} from 'react';
+import {View, Text} from 'react-native';
+import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilValue} from 'recoil';
 import {modalState} from '../atoms/modalState';
 
 export default function MainBottomSheet() {
