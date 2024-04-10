@@ -13,7 +13,6 @@ export default function RootStackNavigation() {
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Test" component={TestScreen} />
-        {/* 추가 스크린은 여기에 계속해서 등록하면 됩니다. */}
       </Stack.Navigator>
     </NavigationContainer>
   );

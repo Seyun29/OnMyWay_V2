@@ -10,14 +10,11 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../atoms/modalState';
 
 export default function MainBottomSheet() {
-  // ref
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const modalVisible = useRecoilValue<boolean>(modalState);
 
-  // variables
   const snapPoints = useMemo(() => ['25%', '50%'], []);
 
-  // callbacks
   useEffect(() => {
     if (modalVisible) {
       bottomSheetModalRef.current?.present(); // 모달 가시성이 true일 때 모달 표시
@@ -26,7 +23,6 @@ export default function MainBottomSheet() {
     }
   }, [modalVisible]);
 
-  // renders
   return (
     <GestureHandlerRootView className="flex-1">
       <BottomSheetModalProvider>
