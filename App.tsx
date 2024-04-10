@@ -9,6 +9,7 @@ import React, {useEffect} from 'react';
 
 import SplashScreen from 'react-native-splash-screen';
 import RootStackNavigation from './src/navigations';
+import {RecoilRoot} from 'recoil';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -17,7 +18,11 @@ function App(): React.JSX.Element {
     }, 1500);
   }, []);
 
-  return <RootStackNavigation />;
+  return (
+    <RecoilRoot>
+      <RootStackNavigation />
+    </RecoilRoot>
+  );
 }
 
 export default App;

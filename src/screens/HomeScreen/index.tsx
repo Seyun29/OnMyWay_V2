@@ -1,9 +1,11 @@
-import {Button, Text, View} from 'react-native';
+import React from 'react';
+import {Button, Text, View, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import NaverMap from '../../components/naverMap';
 import MainBottomSheet from '../../components/mainBotttomSheet';
-
+import {useRecoilState} from 'recoil';
+import {modalState} from '../../atoms/modalState';
 export type RootStackParam = {
   Home: undefined;
   Test: undefined;
@@ -11,15 +13,27 @@ export type RootStackParam = {
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+  const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
   return (
-    <View style={{flex: 1}}>
-      <NaverMap />
+    <View className="flex-1">
+      <View className="flex-1">
+        <View className="flex-1">
+          <NaverMap />
+        </View>
+        <View className="top-[70px] absolute w-full h-[50px] items-center px-[2.5%]">
+          <View className="bg-white w-full h-full justify-center items-start pl-5 rounded-md shadow-md">
+            <Text>검색</Text>
+          </View>
+        </View>
+        <View className="absolute bottom-0 left-0 h-[50%] w-full">
+          <MainBottomSheet />
+        </View>
+      </View>
       <Button
-        title="Go to TestScreen"
-        onPress={() => navigation.navigate('Test')}
+        title="open modal"
+        onPress={() => setModalVisible(!modalVisible)}
       />
-      <MainBottomSheet />
     </View>
   );
 };
