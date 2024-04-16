@@ -1,4 +1,4 @@
-# dotenv
+# exclude dotenv
 .env
 
 # OSX
