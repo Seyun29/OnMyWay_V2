@@ -17,6 +17,7 @@
     "react": "18.2.0",
     "react-native": "0.73.6",
     "react-native-dotenv": "^3.4.11",
+    "react-native-drawer-layout": "^3.3.0",
     "react-native-gesture-handler": "^2.16.0",
     "react-native-nmap": "https://github.com/zerocho/react-native-naver-map",
     "react-native-reanimated": "^3.8.1",
