@@ -6,6 +6,8 @@ import NaverMap from '../../components/naverMap';
 import MainBottomSheet from '../../components/mainBotttomSheet';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
+import MainHeader from '../../components/headers/mainHeader';
+import {SafeAreaView} from 'react-native-safe-area-context';
 export type RootStackParam = {
   Home: undefined;
   Test: undefined;
@@ -16,15 +18,13 @@ export const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
   return (
-    <View className="flex-1">
+    <SafeAreaView className="flex-1 bg-white w-full h-full">
       <View className="flex-1">
         <View className="flex-1">
           <NaverMap />
         </View>
-        <View className="top-[70px] absolute w-full h-[50px] items-center px-[2.5%]">
-          <View className="bg-white w-full h-full justify-center items-start pl-5 rounded-md shadow-md">
-            <Text>검색</Text>
-          </View>
+        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
+          <MainHeader />
         </View>
         <View className="absolute bottom-0 left-0 h-[50%] w-full">
           <MainBottomSheet />
@@ -34,6 +34,6 @@ export const HomeScreen = () => {
         title="open modal"
         onPress={() => setModalVisible(!modalVisible)}
       />
-    </View>
+    </SafeAreaView>
   );
 };
