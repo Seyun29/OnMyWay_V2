@@ -16,7 +16,7 @@ export type RootStackParam = {
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
-
+  // const [modalVisible, setModalVisible] = useState<boolean>(false);
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
       <View className="flex-1">
@@ -26,13 +26,19 @@ export const HomeScreen = () => {
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader />
         </View>
-        <View className="absolute bottom-0 left-0 h-[50%] w-full">
-          <MainBottomSheet />
-        </View>
+        {modalVisible && (
+          <View className="absolute bottom-0 left-0 h-1/4 w-full">
+            <MainBottomSheet />
+          </View>
+        )}
       </View>
       <Button
         title="open modal"
-        onPress={() => setModalVisible(!modalVisible)}
+        onPress={() => {
+          console.log('current :', modalVisible);
+          console.log('tobe : ', !modalVisible);
+          setModalVisible(!modalVisible);
+        }}
       />
     </SafeAreaView>
   );
