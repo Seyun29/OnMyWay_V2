@@ -6,7 +6,7 @@
  */
 
 import React, {useEffect} from 'react';
-
+import 'react-native-gesture-handler';
 import SplashScreen from 'react-native-splash-screen';
 import RootStackNavigation from './src/navigations';
 import {RecoilRoot} from 'recoil';
