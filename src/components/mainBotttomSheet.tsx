@@ -16,7 +16,6 @@ export default function MainBottomSheet() {
   const snapPoints = useMemo(() => ['100%', '100%'], []);
 
   useEffect(() => {
-    console.log('modalVisible :', modalVisible);
     if (modalVisible) {
       bottomSheetModalRef.current?.present(); // 모달 가시성이 true일 때 모달 표시
     } else {
