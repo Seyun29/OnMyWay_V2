@@ -25,13 +25,10 @@ export default function NaverMap() {
           height: '100%',
         }}
         zoomControl={false}
-        center={{
-          zoom: 10,
-          latitude: 37.7645235587621,
-          longitude: 128.899627553491,
-        }}
+        center={{...ANAM, zoom: 14}}
         onMapClick={e => setModalVisible(false)}
-        // showsMyLocationButton
+        scaleBar
+        mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
         <OmwMarker coordList={[ANAM, BOMUN, GANGNEUNG, BUSAN]} />
         <Path color="#04c75b" coordinates={coordinates} />
