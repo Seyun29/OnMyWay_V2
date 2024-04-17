@@ -8,12 +8,13 @@ import {useRecoilState} from 'recoil';
 import {modalState} from '../atoms/modalState';
 import {Coordinate} from '../config/types/coordinate';
 import Geolocation from '@react-native-community/geolocation';
+import {curPositionState} from '../atoms/curPositionState';
 
 export default function NaverMap() {
   //use SetModalVisible from recoil
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
-  const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
-
+  const [curPosition, setCurPosition] =
+    useRecoilState<Coordinate>(curPositionState);
   const coordinates = dummyData.path.map(item => {
     return {
       latitude: item[1],
@@ -32,7 +33,7 @@ export default function NaverMap() {
       console.error, //FIXME: 현위치 가져오기에 실패한경우 alert + 권한 확인 묻기 등 예외처리
       {enableHighAccuracy: true, timeout: 20000, maximumAge: 1000},
     );
-  }, []);
+  }, [setCurPosition]);
 
   useEffect(() => {
     //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
