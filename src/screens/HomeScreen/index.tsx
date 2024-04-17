@@ -34,7 +34,7 @@ export const HomeScreen = () => {
         )}
       </View>
       <Button
-        title="Test Button"
+        title="Modal Test"
         onPress={() => setModalVisible(!modalVisible)}
       />
     </SafeAreaView>
