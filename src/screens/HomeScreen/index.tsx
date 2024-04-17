@@ -32,10 +32,10 @@ export const HomeScreen = () => {
           </View>
         )}
       </View>
-      <Button
+      {/* <Button
         title="open modal"
         onPress={() => setModalVisible(!modalVisible)}
-      />
+      /> */}
     </SafeAreaView>
   );
 };
