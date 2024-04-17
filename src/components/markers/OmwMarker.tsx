@@ -11,11 +11,9 @@ import {curPositionState} from '../../atoms/curPositionState';
 import {markerList} from '../../config/consts/image';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
-  //using dummydata as of now
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
-  //TODO: customize marker design here
   //TODO: use different PNGs according to whether they are start, end, stopover & categories & open or closed
-  //TODO: move & zoom smoothly to the selected marker
+  //TODO: move & zoom smoothly to the selected marker, 'zoom level' is also required to be updated.
 
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
