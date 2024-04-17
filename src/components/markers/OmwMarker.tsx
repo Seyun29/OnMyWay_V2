@@ -5,15 +5,15 @@ import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
+  //using dummydata as of now
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
   //TODO: customize marker design here
   //TODO: use different PNGs according to whether they are start, end, stopover & categories & open or closed
-  //using dummydata as of now
+  //TODO: move & zoom smoothly to the selected marker
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [selected, setSelected] = useState<number>(0);
   const markerOnClick = (index: number) => {
-    //TODO: close modal and unselect the marker when touching outside the modal, EXCEPT for scrolling the map !!
-    //FIXME: pass proper states to bottommodalsheets
+    //FIXME: pass proper states to bottommodalsheets (should be defined in recoil global state)
     setModalVisible(true);
     setSelected(index);
   };

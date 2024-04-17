@@ -8,6 +8,7 @@ import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
+
 export type RootStackParam = {
   Home: undefined;
   Test: undefined;
@@ -32,10 +33,10 @@ export const HomeScreen = () => {
           </View>
         )}
       </View>
-      {/* <Button
-        title="open modal"
+      <Button
+        title="Test Button"
         onPress={() => setModalVisible(!modalVisible)}
-      /> */}
+      />
     </SafeAreaView>
   );
 };
