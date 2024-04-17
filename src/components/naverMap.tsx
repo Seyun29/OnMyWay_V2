@@ -2,6 +2,8 @@ import NaverMapView, {Marker, Path} from 'react-native-nmap';
 import React from 'react';
 import {View} from 'react-native';
 import {dummyData} from '../dummy/data';
+import OmwMarker from './markers/OmwMarker';
+import {ANAM, BOMUN, BUSAN, GANGNEUNG} from '../dummy/coord'; //using dummy as of now
 
 export default function NaverMap() {
   const coordinates = dummyData.path.map(item => {
@@ -23,16 +25,7 @@ export default function NaverMap() {
           latitude: 37.7645235587621,
           longitude: 128.899627553491,
         }}>
-        {/* <Marker
-          coordinate={{
-            latitude: 37.7645235587621,
-            longitude: 128.899627553491,
-          }}
-          width={30}
-          height={30}
-          // anchor={{x: 0.5, y: 0.5}}
-          image={require('./src/assets/dot.png')}
-        /> */}
+        <OmwMarker coordList={[ANAM, BOMUN, GANGNEUNG, BUSAN]} />
         <Path color="#04c75b" coordinates={coordinates} />
       </NaverMapView>
     </View>
