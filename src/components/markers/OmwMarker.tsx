@@ -38,6 +38,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
           onClick={() => {
             markerOnClick(index);
           }}
+          // caption={{text: '경유'}} //FIXME: add appropriate captions to each markers
           // anchor={{x: 0.5, y: 0.5}}
           // image={require('./src/assets/dot.png')} //FIXME: use different images for different categories
         />
