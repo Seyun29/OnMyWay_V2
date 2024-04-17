@@ -8,6 +8,7 @@ import {
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {curPositionState} from '../../atoms/curPositionState';
+import {markerList} from '../../config/consts/image';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //using dummydata as of now
@@ -41,23 +42,28 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
 
   return (
     <>
-      {coordList.map((item: CoordDetail, index: number) => (
-        <Marker
-          key={index}
-          coordinate={{
-            latitude: item.latitude,
-            longitude: item.longitude,
-          }}
-          width={index === selected ? 30 : 20}
-          height={index === selected ? 45 : 30}
-          onClick={() => {
-            markerOnClick(item, index);
-          }}
-          // caption={{text: '경유'}} //FIXME: add appropriate captions to each markers
-          // anchor={{x: 0.5, y: 0.5}}
-          // image={require('./src/assets/dot.png')} //FIXME: use different images for different categories
-        />
-      ))}
+      {coordList.map((item: CoordDetail, index: number) => {
+        let markerImage = markerList.basic.default;
+        if (item.isOpen) markerImage = markerList.basic.on;
+        else if (item.isClosed) markerImage = markerList.basic.off;
+        return (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            width={index === selected ? 35 : 21}
+            height={index === selected ? 45 : 27}
+            onClick={() => {
+              markerOnClick(item, index);
+            }}
+            anchor={{x: 0.5, y: 1}} //FIXME: set anchor
+            image={markerImage}
+            //FIXME: use different images for different categories
+          />
+        );
+      })}
     </>
   );
 }
