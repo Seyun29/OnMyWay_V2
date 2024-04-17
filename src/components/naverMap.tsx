@@ -3,9 +3,10 @@ import React from 'react';
 import {View} from 'react-native';
 import {dummyData} from '../dummy/data';
 import OmwMarker from './markers/OmwMarker';
-import {ANAM, BOMUN, BUSAN, GANGNEUNG} from '../dummy/coord'; //using dummy as of now
+import {ANAM} from '../dummy/coord'; //using dummy as of now
 import {useRecoilState} from 'recoil';
 import {modalState} from '../atoms/modalState';
+import {DUMMY_COORD_DETAILS} from '../dummy/coordDetail';
 
 export default function NaverMap() {
   //use SetModalVisible from recoil
@@ -30,7 +31,7 @@ export default function NaverMap() {
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
-        <OmwMarker coordList={[ANAM, BOMUN, GANGNEUNG, BUSAN]} />
+        <OmwMarker coordList={DUMMY_COORD_DETAILS} />
         <Path color="#04c75b" coordinates={coordinates} />
       </NaverMapView>
     </View>

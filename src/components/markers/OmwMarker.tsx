@@ -3,6 +3,7 @@ import {Marker} from 'react-native-nmap';
 import {CoordDetail, OmWMarkerProps} from '../../config/types/coordinate';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
+import {markerList} from '../../config/consts/image';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //using dummydata as of now
@@ -26,22 +27,28 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
 
   return (
     <>
-      {coordList.map((item: CoordDetail, index: number) => (
-        <Marker
-          key={index}
-          coordinate={{
-            latitude: item.latitude,
-            longitude: item.longitude,
-          }}
-          width={index === selected ? 30 : 20}
-          height={index === selected ? 45 : 30}
-          onClick={() => {
-            markerOnClick(index);
-          }}
-          // anchor={{x: 0.5, y: 0.5}}
-          // image={require('./src/assets/dot.png')} //FIXME: use different images for different categories
-        />
-      ))}
+      {coordList.map((item: CoordDetail, index: number) => {
+        let markerImage = markerList.basic.default;
+        if (item.isOpen) markerImage = markerList.basic.on;
+        else if (item.isClosed) markerImage = markerList.basic.off;
+        return (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: item.latitude,
+              longitude: item.longitude,
+            }}
+            width={index === selected ? 35 : 21}
+            height={index === selected ? 45 : 27}
+            onClick={() => {
+              markerOnClick(index);
+            }}
+            // anchor={{x: 0, y: 1}} //FIXME: set anchor
+            image={markerImage}
+            //FIXME: use different images for different categories
+          />
+        );
+      })}
     </>
   );
 }
