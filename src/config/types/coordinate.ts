@@ -5,7 +5,8 @@ export interface Coordinate {
 
 export interface CoordDetail extends Coordinate {
   //FIXME: add other properties here
-  open?: boolean;
+  isOpen?: boolean;
+  isClosed?: boolean; //else, if will be 'default' marker
   category?: string; //FIXME: add enum for category
 }
 
