@@ -1,8 +1,13 @@
 import React, {useState, useEffect} from 'react';
 import {Marker} from 'react-native-nmap';
-import {CoordDetail, OmWMarkerProps} from '../../config/types/coordinate';
+import {
+  CoordDetail,
+  Coordinate,
+  OmWMarkerProps,
+} from '../../config/types/coordinate';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
+import {curPositionState} from '../../atoms/curPositionState';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //using dummydata as of now
@@ -10,12 +15,22 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
   //TODO: customize marker design here
   //TODO: use different PNGs according to whether they are start, end, stopover & categories & open or closed
   //TODO: move & zoom smoothly to the selected marker
+
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
+
+  const [curPosition, setCurPosition] =
+    useRecoilState<Coordinate>(curPositionState);
+
   const [selected, setSelected] = useState<number>(0);
-  const markerOnClick = (index: number) => {
+
+  const markerOnClick = (item: CoordDetail, index: number) => {
     //FIXME: pass proper states to bottommodalsheets (should be defined in recoil global state)
     setModalVisible(true);
     setSelected(index);
+    setCurPosition({
+      latitude: item.latitude,
+      longitude: item.longitude,
+    });
   };
 
   useEffect(() => {
@@ -36,7 +51,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
           width={index === selected ? 30 : 20}
           height={index === selected ? 45 : 30}
           onClick={() => {
-            markerOnClick(index);
+            markerOnClick(item, index);
           }}
           // caption={{text: '경유'}} //FIXME: add appropriate captions to each markers
           // anchor={{x: 0.5, y: 0.5}}
