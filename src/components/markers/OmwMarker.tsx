@@ -43,7 +43,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
             onClick={() => {
               markerOnClick(index);
             }}
-            // anchor={{x: 0, y: 1}} //FIXME: set anchor
+            anchor={{x: 0.5, y: 1}} //FIXME: set anchor
             image={markerImage}
             //FIXME: use different images for different categories
           />
