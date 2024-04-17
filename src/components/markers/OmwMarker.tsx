@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Marker} from 'react-native-nmap';
 import {CoordDetail, OmWMarkerProps} from '../../config/types/coordinate';
 import {useRecoilState} from 'recoil';
@@ -17,6 +17,13 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
     setModalVisible(true);
     setSelected(index);
   };
+
+  useEffect(() => {
+    if (!modalVisible) {
+      setSelected(-1);
+    }
+  }, [modalVisible]);
+
   return (
     <>
       {coordList.map((item: CoordDetail, index: number) => (
