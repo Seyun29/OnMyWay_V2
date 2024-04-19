@@ -10,6 +10,7 @@ import {Coordinate} from '../config/types/coordinate';
 import Geolocation from '@react-native-community/geolocation';
 import {curPositionState} from '../atoms/curPositionState';
 import {DUMMY_COORD_DETAILS} from '../dummy/coordDetail';
+import {markerCurPosUndirected} from '../config/consts/image';
 
 export default function NaverMap() {
   //use SetModalVisible from recoil
@@ -54,6 +55,12 @@ export default function NaverMap() {
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
+        <Marker
+          coordinate={curPosition}
+          width={35}
+          height={45}
+          image={markerCurPosUndirected}
+        />
         <OmwMarker coordList={DUMMY_COORD_DETAILS} />
         <Path color="#04c75b" coordinates={coordinates} />
       </NaverMapView>
