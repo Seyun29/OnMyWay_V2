@@ -9,6 +9,10 @@ import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {curPositionState} from '../../atoms/curPositionState';
 import {markerList} from '../../config/consts/image';
+import {
+  markerCurPosDirected,
+  markerCurPosUnDirected,
+} from '../../config/consts/image';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)

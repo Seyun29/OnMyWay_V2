@@ -9,3 +9,7 @@ export const markerList = {
     on: markerBasicOn,
   },
 };
+
+//below two are red (in default) - alternatives : blue
+export const markerCurPosDirected = require('../../assets/images/markers/markerCurPosDirected.png');
+export const markerCurPosUnDirected = require('../../assets/images/markers/markerCurPosUnDirected.png');
