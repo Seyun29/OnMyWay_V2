@@ -10,6 +10,7 @@ const CurPosMarker = ({curPosition}: {curPosition: Coordinate}) => {
       width={30}
       height={30}
       image={markerCurPosUndirected}
+      zIndex={300} //FIXME: adjust zIndex
     />
   );
 };
