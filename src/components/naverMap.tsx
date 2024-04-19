@@ -1,5 +1,5 @@
-import NaverMapView, {Marker, Path} from 'react-native-nmap';
-import React, {useCallback, useEffect, useState} from 'react';
+import NaverMapView, {Path} from 'react-native-nmap';
+import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {dummyData} from '../dummy/data';
 import OmwMarker from './markers/OmwMarker';
@@ -9,9 +9,9 @@ import {modalState} from '../atoms/modalState';
 import {Center, Coordinate} from '../config/types/coordinate';
 import {mapCenterState} from '../atoms/mapCenterState';
 import {DUMMY_COORD_DETAILS} from '../dummy/coordDetail';
-import {markerCurPosUndirected} from '../config/consts/image';
 import {getCurPosition} from '../config/helpers/location';
 import CurPosMarker from './markers/CurPosMarker';
+import CurPosButton from './buttons/CurPosButton';
 
 export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
@@ -28,11 +28,14 @@ export default function NaverMap() {
     try {
       const curPos = await getCurPosition();
       setCurPosition(curPos);
-      setCenter({...curPos, zoom: 14});
+      setCenter({...curPosition, zoom: 15}); //Cheat Shortcut for fixing centering bug
+      setCenter({...curPosition, zoom: 13});
     } catch (error) {
       console.error(error);
     }
   };
+
+  console.log('center : ', center);
 
   useEffect(() => {
     //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
@@ -50,12 +53,29 @@ export default function NaverMap() {
         zoomControl={false}
         center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
         onMapClick={e => setModalVisible(false)}
+        onCameraChange={e => {
+          const newCenter = {
+            longitude: e.longitude,
+            latitude: e.latitude,
+            zoom: e.zoom,
+          };
+          console.log('oldCenter : ', center);
+          console.log('newCenter : ', newCenter);
+          // console.log(
+          //   newCenter,
+          //   center,
+          //   JSON.stringify(newCenter) !== JSON.stringify(center),
+          // );
+          // if (JSON.stringify(newCenter) !== JSON.stringify(center))
+          //   setCenter(newCenter);
+        }}
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
         <CurPosMarker curPosition={curPosition} />
         <OmwMarker coordList={DUMMY_COORD_DETAILS} />
         <Path color="#04c75b" coordinates={coordinates} />
+        <CurPosButton onPress={setCurPos} />
       </NaverMapView>
     </View>
   );
