@@ -53,22 +53,6 @@ export default function NaverMap() {
         zoomControl={false}
         center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
         onMapClick={e => setModalVisible(false)}
-        onCameraChange={e => {
-          const newCenter = {
-            longitude: e.longitude,
-            latitude: e.latitude,
-            zoom: e.zoom,
-          };
-          console.log('oldCenter : ', center);
-          console.log('newCenter : ', newCenter);
-          // console.log(
-          //   newCenter,
-          //   center,
-          //   JSON.stringify(newCenter) !== JSON.stringify(center),
-          // );
-          // if (JSON.stringify(newCenter) !== JSON.stringify(center))
-          //   setCenter(newCenter);
-        }}
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
