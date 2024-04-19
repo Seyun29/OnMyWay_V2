@@ -11,6 +11,7 @@ import {mapCenterState} from '../atoms/mapCenterState';
 import {DUMMY_COORD_DETAILS} from '../dummy/coordDetail';
 import {markerCurPosUndirected} from '../config/consts/image';
 import {getCurPosition} from '../config/helpers/location';
+import CurPosMarker from './markers/CurPosMarker';
 
 export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
@@ -52,12 +53,7 @@ export default function NaverMap() {
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       >
-        <Marker
-          coordinate={curPosition}
-          width={30}
-          height={30}
-          image={markerCurPosUndirected}
-        />
+        <CurPosMarker curPosition={curPosition} />
         <OmwMarker coordList={DUMMY_COORD_DETAILS} />
         <Path color="#04c75b" coordinates={coordinates} />
       </NaverMapView>
