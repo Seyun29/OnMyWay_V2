@@ -1,18 +1,15 @@
 import React, {useState, useEffect} from 'react';
 import {Marker} from 'react-native-nmap';
 import {
+  Center,
   CoordDetail,
   Coordinate,
   OmWMarkerProps,
 } from '../../config/types/coordinate';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
-import {curPositionState} from '../../atoms/curPositionState';
+import {mapCenterState} from '../../atoms/mapCenterState';
 import {markerList} from '../../config/consts/image';
-import {
-  markerCurPosDirected,
-  markerCurPosUnDirected,
-} from '../../config/consts/image';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
@@ -21,8 +18,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
 
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
-  const [curPosition, setCurPosition] =
-    useRecoilState<Coordinate>(curPositionState);
+  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
 
   const [selected, setSelected] = useState<number>(0);
 
@@ -30,10 +26,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
     //FIXME: pass proper states to bottommodalsheets (should be defined in recoil global state)
     setModalVisible(true);
     setSelected(index);
-    setCurPosition({
-      latitude: item.latitude,
-      longitude: item.longitude,
-    });
+    setCenter({...center, latitude: item.latitude, longitude: item.longitude});
   };
 
   useEffect(() => {
