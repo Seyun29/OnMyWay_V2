@@ -14,3 +14,7 @@ export interface OmWMarkerProps {
   //TODO: add more props here
   coordList: CoordDetail[];
 }
+
+export interface Center extends Coordinate {
+  zoom: number;
+}
