@@ -48,8 +48,8 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
               latitude: item.latitude,
               longitude: item.longitude,
             }}
-            width={index === selected ? 35 : 21}
-            height={index === selected ? 45 : 27}
+            width={index === selected ? 32 : 21}
+            height={index === selected ? 41 : 27}
             onClick={() => {
               markerOnClick(item, index);
             }}
