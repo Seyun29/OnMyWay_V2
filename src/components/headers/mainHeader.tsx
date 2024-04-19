@@ -1,10 +1,11 @@
 import React, {useState, useEffect} from 'react';
 import {
-  Button,
   Pressable,
   TextInput,
   View,
   LayoutAnimation,
+  Text,
+  TouchableOpacity,
 } from 'react-native';
 import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import AddStopOverSVG from '../../assets/images/addStopOver.svg';
@@ -87,6 +88,13 @@ export default function MainHeader() {
           <ChangeDirectionSVG height={'24px'} width={'24px'} />
         </Pressable>
       </View>
+      <TouchableOpacity
+        className="self-center"
+        onPress={() => setIsRough(!isRough)}>
+        <Text className="text-black">
+          {isRough ? 'Expand Test' : 'Shrink Test'}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
