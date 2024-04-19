@@ -35,8 +35,6 @@ export default function NaverMap() {
     }
   };
 
-  console.log('center : ', center);
-
   useEffect(() => {
     //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
     setCurPos();
@@ -58,7 +56,10 @@ export default function NaverMap() {
       >
         <CurPosMarker curPosition={curPosition} />
         <OmwMarker coordList={DUMMY_COORD_DETAILS} />
-        <Path color="#04c75b" coordinates={coordinates} />
+        <Path
+          color="#04c75b"
+          coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
+        />
         <CurPosButton onPress={setCurPos} />
       </NaverMapView>
     </View>
