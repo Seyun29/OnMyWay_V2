@@ -10,6 +10,7 @@ import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
 import SelectOnMapHeader from '../../components/headers/selectOnMapHeader';
+import SelectMap from '../../components/maps/selectMap';
 
 export const SelectMapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
@@ -19,8 +20,14 @@ export const SelectMapScreen = () => {
       <View className="flex-1">
         <SelectOnMapHeader />
         <View className="flex-1">
-          <NaverMap />
+          <SelectMap />
         </View>
+        <Button
+          title="확인"
+          onPress={() => {
+            console.log('click me ');
+          }}
+        />
       </View>
     </SafeAreaView>
   );
