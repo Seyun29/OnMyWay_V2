@@ -2,16 +2,13 @@ import React from 'react';
 import {Button, Text, View, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import NaverMap from '../../components/naverMap';
+import NaverMap from '../../components/maps/naverMap';
 import MainBottomSheet from '../../components/mainBotttomSheet';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
-export type RootStackParam = {
-  Home: undefined;
-  Test: undefined;
-};
+import {RootStackParam} from '../../navigations';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
@@ -26,13 +23,15 @@ export const HomeScreen = () => {
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader />
         </View>
-        <View className="absolute bottom-0 left-0 h-[50%] w-full">
-          <MainBottomSheet />
-        </View>
+        {modalVisible && (
+          <View className="absolute bottom-0 left-0 h-1/4 w-full">
+            <MainBottomSheet />
+          </View>
+        )}
       </View>
       <Button
-        title="open modal"
-        onPress={() => setModalVisible(!modalVisible)}
+        title="지도에서 선택 Test"
+        onPress={() => navigation.navigate('SelectMap')}
       />
     </SafeAreaView>
   );

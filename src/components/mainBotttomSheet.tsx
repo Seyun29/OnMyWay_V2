@@ -6,14 +6,14 @@ import {
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {useRecoilValue} from 'recoil';
+import {useRecoilState} from 'recoil';
 import {modalState} from '../atoms/modalState';
 
 export default function MainBottomSheet() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-  const modalVisible = useRecoilValue<boolean>(modalState);
+  const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
-  const snapPoints = useMemo(() => ['25%', '50%'], []);
+  const snapPoints = useMemo(() => ['100%', '100%'], []);
 
   useEffect(() => {
     if (modalVisible) {
@@ -29,7 +29,8 @@ export default function MainBottomSheet() {
         <BottomSheetModal
           ref={bottomSheetModalRef}
           index={1}
-          snapPoints={snapPoints}>
+          snapPoints={snapPoints}
+          onDismiss={() => setModalVisible(false)}>
           <View className="flex-1 items-center">
             <BottomSheetView>
               <Text>TestModal</Text>

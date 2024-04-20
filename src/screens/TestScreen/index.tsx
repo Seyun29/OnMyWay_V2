@@ -1,11 +1,8 @@
+import React from 'react';
 import {Button, Text, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-
-export type RootStackParam = {
-  Home: undefined;
-  Test: undefined;
-};
+import {RootStackParam} from '../../navigations';
 
 export const TestScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
