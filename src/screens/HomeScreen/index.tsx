@@ -29,16 +29,10 @@ export const HomeScreen = () => {
           </View>
         )}
       </View>
-      <View className="flex-row justify-around">
-        <Button
-          title="Modal Test"
-          onPress={() => setModalVisible(!modalVisible)}
-        />
-        <Button
-          title="지도에서 선택 Test"
-          onPress={() => navigation.navigate('SelectMap')}
-        />
-      </View>
+      <Button
+        title="지도에서 선택 Test"
+        onPress={() => navigation.navigate('SelectMap')}
+      />
     </SafeAreaView>
   );
 };
