@@ -7,8 +7,8 @@ const CurPosMarker = ({curPosition}: {curPosition: Coordinate}) => {
   return (
     <Marker
       coordinate={curPosition}
-      width={30}
-      height={30}
+      width={25}
+      height={25}
       image={markerCurPosUndirected}
       zIndex={300} //FIXME: adjust zIndex
     />

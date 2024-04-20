@@ -11,6 +11,7 @@ import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import AddStopOverSVG from '../../assets/images/addStopOver.svg';
 import ChangeDirectionSVG from '../../assets/images/changeDirection.svg';
 import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
+import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {useRecoilState} from 'recoil';
 
@@ -46,9 +47,9 @@ export default function MainHeader() {
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View className="w-full flex-row justify-between align-center">
-        <MenuIconSVG height={'24px'} width={'24px'} />
-        <HeaderLogoSVG height={'24px'} />
-        <View className="w-[24px] h-[24px]" />
+        <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={'24px'} />
+        <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
+        <View className={`w-[24px] h-[${HEADER_LOGO_HEIGHT}]`} />
       </View>
       <View className="relative flex-row items-center justify-between w-full pr-[16px]">
         <View className="flex-col w-full pr-[10px]">
