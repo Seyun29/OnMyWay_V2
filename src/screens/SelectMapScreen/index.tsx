@@ -10,7 +10,7 @@ import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
 
-export const HomeScreen = () => {
+export const SelectMapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
@@ -29,16 +29,10 @@ export const HomeScreen = () => {
           </View>
         )}
       </View>
-      <View className="flex-row justify-around">
-        <Button
-          title="Modal Test"
-          onPress={() => setModalVisible(!modalVisible)}
-        />
-        <Button
-          title="지도에서 선택 Test"
-          onPress={() => navigation.navigate('SelectMap')}
-        />
-      </View>
+      <Button
+        title="Modal Test"
+        onPress={() => setModalVisible(!modalVisible)}
+      />
     </SafeAreaView>
   );
 };
