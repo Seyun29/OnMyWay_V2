@@ -9,30 +9,19 @@ import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
+import SelectOnMapHeader from '../../components/headers/selectOnMapHeader';
 
 export const SelectMapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-  const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
       <View className="flex-1">
+        <SelectOnMapHeader />
         <View className="flex-1">
           <NaverMap />
         </View>
-        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-          <MainHeader />
-        </View>
-        {modalVisible && (
-          <View className="absolute bottom-0 left-0 h-1/4 w-full">
-            <MainBottomSheet />
-          </View>
-        )}
       </View>
-      <Button
-        title="Modal Test"
-        onPress={() => setModalVisible(!modalVisible)}
-      />
     </SafeAreaView>
   );
 };
