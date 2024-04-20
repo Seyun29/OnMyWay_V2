@@ -2,7 +2,7 @@ import React from 'react';
 import {Button, Text, View, StyleSheet} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import NaverMap from '../../components/naverMap';
+import NaverMap from '../../components/maps/naverMap';
 import MainBottomSheet from '../../components/mainBotttomSheet';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
