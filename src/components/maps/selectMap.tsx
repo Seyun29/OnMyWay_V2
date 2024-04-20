@@ -1,14 +1,16 @@
-import React, {useState} from 'react';
+import React from 'react';
 import NaverMapView from 'react-native-nmap';
-import {Button, View} from 'react-native';
-import {useRecoilValue} from 'recoil';
+import {View} from 'react-native';
 import {Center, Coordinate} from '../../config/types/coordinate';
-import {lastCenterState} from '../../atoms/lastCenterState';
 import SelectMarker from '../../assets/images/markers/selectMarker.svg';
 
-export default function SelectMap() {
-  const lastCenter = useRecoilValue<Center>(lastCenterState);
-  const [coord, setCoord] = useState<Coordinate>(lastCenter);
+export default function SelectMap({
+  lastCenter,
+  setCoord,
+}: {
+  lastCenter: Center;
+  setCoord: (coord: Coordinate) => void;
+}) {
   return (
     <View className="relative w-full h-full">
       <NaverMapView
