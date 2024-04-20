@@ -9,30 +9,42 @@ import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
+import {Drawer} from 'react-native-drawer-layout';
+import {drawerState} from '../../atoms/drawerState';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
-      <View className="flex-1">
+      <Drawer
+        open={isDrawerOpen}
+        onOpen={() => setIsDrawerOpen(true)}
+        onClose={() => setIsDrawerOpen(false)}
+        drawerType="front"
+        renderDrawerContent={() => {
+          return <Text>Drawer content</Text>;
+        }}>
         <View className="flex-1">
-          <NaverMap />
-        </View>
-        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-          <MainHeader />
-        </View>
-        {modalVisible && (
-          <View className="absolute bottom-0 left-0 h-1/4 w-full">
-            <MainBottomSheet />
+          <View className="flex-1">
+            <NaverMap />
           </View>
-        )}
-      </View>
-      <Button
-        title="지도에서 선택 Test"
-        onPress={() => navigation.navigate('SelectMap')}
-      />
+          <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
+            <MainHeader />
+          </View>
+          {modalVisible && (
+            <View className="absolute bottom-0 left-0 h-1/4 w-full">
+              <MainBottomSheet />
+            </View>
+          )}
+        </View>
+        <Button
+          title="지도에서 선택 Test"
+          onPress={() => navigation.navigate('SelectMap')}
+        />
+      </Drawer>
     </SafeAreaView>
   );
 };

@@ -14,6 +14,7 @@ import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
 import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {useRecoilState} from 'recoil';
+import {drawerState} from '../../atoms/drawerState';
 
 export default function MainHeader() {
   const [text1, setText1] = useState<string>('');
@@ -21,11 +22,16 @@ export default function MainHeader() {
 
   // const [isRough, setIsRough] = useState<boolean>(true);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
+  const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
   const handlePress = () => {
     const temp = text1;
     setText1(text2);
     setText2(temp);
+  };
+
+  const handlePressMenu = () => {
+    setIsDrawerOpen(!isDrawerOpen);
   };
 
   useEffect(() => {
@@ -47,7 +53,10 @@ export default function MainHeader() {
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View className="w-full flex-row justify-between align-center">
-        <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={'24px'} />
+        <Pressable onPress={handlePressMenu}>
+          <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={'24px'} />
+        </Pressable>
+
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
         <View className={`w-[24px] h-[${HEADER_LOGO_HEIGHT}]`} />
       </View>
