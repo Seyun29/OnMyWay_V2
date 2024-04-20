@@ -1,5 +1,5 @@
 import React from 'react';
-import {Text, TouchableOpacity} from 'react-native';
+import {Image, Text, TouchableOpacity} from 'react-native';
 import CurPosButtonSVG from '../../assets/images/curPosButton.svg';
 
 export default function CurPosButton({onPress}: {onPress: () => void}) {
@@ -8,10 +8,13 @@ export default function CurPosButton({onPress}: {onPress: () => void}) {
       className="absolute right-2.5 bottom-2.5"
       onPress={onPress}
       activeOpacity={0.2}>
-      <CurPosButtonSVG height="50px" width="50px" />
-      {/* <Text className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white font-bold">
-        ㅎㅇ
-      </Text> */}
+      {/* <CurPosButtonSVG height="50px" width="50px" /> 
+      FIXME: SVG not working properly, using PNG for now
+      */}
+      <Image
+        className="w-12 h-12"
+        source={require('../../assets/images/curPosButton.png')}
+      />
     </TouchableOpacity>
   );
 }
