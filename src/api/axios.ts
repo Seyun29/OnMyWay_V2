@@ -1,7 +1,7 @@
 import axios, {AxiosError} from 'axios';
 import {BASE_URL} from '../config/consts/api';
 
-const axiosInstance = axios.create({
+export const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 20000,
   headers: {
