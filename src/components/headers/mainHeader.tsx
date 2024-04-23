@@ -69,9 +69,9 @@ export default function MainHeader() {
             <InputBox
               children={
                 <View className="flex-1 flex-row justify-around">
-                  <Text>{nav.start}</Text>
+                  <Text>{nav.start?.name}</Text>
                   <RightArrow height={'15px'} width={'15px'} />
-                  <Text>{nav.end}</Text>
+                  <Text>{nav.end?.name}</Text>
                 </View>
               }
               onPress={() => {
@@ -92,7 +92,7 @@ export default function MainHeader() {
                 </TouchableOpacity>
               )}
               <InputBox
-                text={nav.start}
+                text={nav.start?.name}
                 altText={'출발지 입력'}
                 onPress={() => {
                   console.log('navigate here! (출발지 입력/수정)');
@@ -102,7 +102,7 @@ export default function MainHeader() {
               {nav.wayPoints.map((wayPoint, idx) => (
                 <InputBox
                   key={idx}
-                  text={wayPoint}
+                  text={wayPoint?.name}
                   altText={'경유지 입력'}
                   onPress={() => console.log('navigate here! (경유지 수정)')}
                   children={
@@ -117,7 +117,7 @@ export default function MainHeader() {
                 />
               ))}
               <InputBox
-                text={nav.end}
+                text={nav.end?.name}
                 altText={'도착지 입력'}
                 onPress={() => {
                   console.log('navigate here! (도착지 입력/수정)');

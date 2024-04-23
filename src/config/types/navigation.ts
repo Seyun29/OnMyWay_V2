@@ -1,5 +1,12 @@
+import {Coordinate} from './coordinate';
+
+type NavDetail = {
+  name: string;
+  coordinate: Coordinate;
+};
+
 export interface Navigation {
-  start: string | null;
-  wayPoints: string[];
-  end: string | null;
+  start: NavDetail | null;
+  wayPoints: NavDetail[];
+  end: NavDetail | null;
 }

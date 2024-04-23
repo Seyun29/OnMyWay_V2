@@ -3,3 +3,4 @@ import {SERVER_BASEURL} from '@env';
 
 export const BASE_URL = SERVER_BASEURL;
 export const COORD_TO_ADDRESS = '/map/get-address';
+export const PLACE_QUERY = '/map/keyword-search';

@@ -7,10 +7,34 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
 import InputBoxEditable from './inputBoxEditable';
 import CancelSVG from '../../assets/images/cancel.svg';
+import {placeQuery} from '../../api/placeQuery';
 
-export default function PlaceInputHeader() {
+export default function PlaceInputHeader({
+  setResultList,
+  setIsResult,
+}: {
+  setResultList: any;
+  setIsResult: any;
+}) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [nav, setNav] = useRecoilState(navigationState);
+  const handleSubmit = async (query: string) => {
+    console.log('handleSubmit');
+    if (query.length === 0) return;
+    const response = await placeQuery(query);
+    //FIXME: Exception handling required here
+    const newList = response.map((res: any) => ({
+      placeName: res.place_name,
+      addressName: res.address_name,
+      roadAddressName: res.road_address_name,
+      coordinate: {
+        latitude: res.y,
+        longitude: res.x,
+      },
+    }));
+    setResultList(newList);
+    setIsResult(true);
+  };
   return (
     <View
       style={{
@@ -25,7 +49,7 @@ export default function PlaceInputHeader() {
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View className="relative w-full flex-row items-center justify-around">
-        <InputBoxEditable text={nav.start} altText={'출발지 입력'} />
+        <InputBoxEditable handleSubmit={handleSubmit} />
         <TouchableOpacity
           onPress={() => {
             navigation.goBack();
