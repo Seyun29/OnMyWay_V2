@@ -11,11 +11,12 @@
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^4.6.1",
+    "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-native-community/geolocation": "^3.2.1",
     "@react-navigation/native": "^6.1.17",
     "@react-navigation/native-stack": "^6.9.26",
-    "axios": "^1.6.8",
     "@types/react-native-dotenv": "^0.2.2",
+    "axios": "^1.6.8",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-native": "0.73.6",
