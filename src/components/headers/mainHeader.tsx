@@ -22,12 +22,15 @@ import useNavReverse from '../../hooks/useNavReverse';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
+import {whichNavState} from '../../atoms/whichNavState';
+import {WhichNav} from '../../config/types/navigation';
 
 export default function MainHeader() {
   //FIXME: utilize components outside
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const reverseNav = useNavReverse();
   const [nav, setNav] = useRecoilState(navigationState);
+  const [whichNav, setWhichNav] = useRecoilState<WhichNav>(whichNavState);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
@@ -75,8 +78,7 @@ export default function MainHeader() {
                 </View>
               }
               onPress={() => {
-                console.log('navigate to PlaceInputScreen.tsx');
-                navigation.navigate('PlaceInput');
+                setIsRough(false);
               }}
             />
           ) : (
@@ -85,7 +87,7 @@ export default function MainHeader() {
                 <TouchableOpacity
                   className="absolute z-10 right-[20px] top-0 transform translate-y-[29px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
                   onPress={() => {
-                    console.log('add stopover here');
+                    setWhichNav('newWayPoint');
                     navigation.navigate('PlaceInput');
                   }}>
                   <AddStopOverSVG height={'18px'} width={'18px'} />
@@ -95,7 +97,7 @@ export default function MainHeader() {
                 text={nav.start?.name}
                 altText={'출발지 입력'}
                 onPress={() => {
-                  console.log('navigate here! (출발지 입력/수정)');
+                  setWhichNav('start');
                   navigation.navigate('PlaceInput');
                 }}
               />
@@ -104,7 +106,11 @@ export default function MainHeader() {
                   key={idx}
                   text={wayPoint?.name}
                   altText={'경유지 입력'}
-                  onPress={() => console.log('navigate here! (경유지 수정)')}
+                  onPress={() => {
+                    //FIXME: type issue
+                    setWhichNav(`editWayPoint${idx + 1}`);
+                    navigation.navigate('PlaceInput');
+                  }}
                   children={
                     <TouchableOpacity
                       className="absolute z-10 right-[15px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
@@ -120,7 +126,7 @@ export default function MainHeader() {
                 text={nav.end?.name}
                 altText={'도착지 입력'}
                 onPress={() => {
-                  console.log('navigate here! (도착지 입력/수정)');
+                  setWhichNav('end');
                   navigation.navigate('PlaceInput');
                 }}
                 children={
@@ -128,9 +134,7 @@ export default function MainHeader() {
                     <TouchableOpacity
                       className="absolute z-10 right-[15px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
                       onPress={() => {
-                        console.log(
-                          'navigate to PlaceInputScreen (경유지 추가)',
-                        );
+                        setWhichNav('newWayPoint');
                         navigation.navigate('PlaceInput');
                       }}>
                       <AddStopOverSVG height={'18px'} width={'18px'} />
@@ -145,13 +149,13 @@ export default function MainHeader() {
           <ChangeDirectionSVG height={'24px'} width={'24px'} />
         </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        className="self-center"
-        onPress={() => setIsRough(!isRough)}>
-        <Text className="text-black">
-          {isRough ? 'Expand Test' : 'Shrink Test'}
-        </Text>
-      </TouchableOpacity>
+      {!isRough && (
+        <TouchableOpacity
+          className="self-center"
+          onPress={() => setIsRough(!isRough)}>
+          <Text className="text-black">Shrink Test</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

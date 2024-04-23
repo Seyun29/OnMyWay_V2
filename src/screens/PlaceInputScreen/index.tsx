@@ -10,10 +10,12 @@ import {
 import PlaceInputHeader from '../../components/headers/placeInputHeader';
 import NoHistorySVG from '../../assets/images/noHistory.svg';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {navigationState} from '../../atoms/navigationState';
+
 import {useNavigation} from '@react-navigation/native';
 import {Coordinate} from '../../config/types/coordinate';
+import {whichNavState} from '../../atoms/whichNavState';
 
 // const store = async () => {
 //   try {
@@ -46,7 +48,81 @@ export default function PlaceInputScreen() {
   const [resultList, setResultList] = useState([]);
   const [isResult, setIsResult] = useState<boolean>(false);
   const [nav, setNav] = useRecoilState(navigationState);
+  const whichNav = useRecoilValue(whichNavState);
   const navigation = useNavigation();
+
+  console.log('resultList: ', resultList);
+
+  const handlePress = (result: any) => {
+    switch (whichNav) {
+      case 'start':
+        setNav(prev => {
+          return {
+            ...prev,
+            start: {
+              name: result?.placeName,
+              coordinate: result?.coordinate,
+            },
+          };
+        });
+        break;
+      case 'end':
+        setNav(prev => {
+          return {
+            ...prev,
+            end: {
+              name: result?.placeName,
+              coordinate: result?.coordinate,
+            },
+          };
+        });
+        break;
+      case 'editWayPoint1':
+        setNav(prev => {
+          const newWayPoint = {
+            name: result?.placeName,
+            coordinate: result?.coordinate,
+          };
+          return {
+            ...prev,
+            wayPoints:
+              prev.wayPoints.length === 2
+                ? [newWayPoint, prev.wayPoints[1]]
+                : [newWayPoint],
+          };
+        });
+        break;
+      case 'editWayPoint2':
+        setNav(prev => {
+          return {
+            ...prev,
+            wayPoints: [
+              prev.wayPoints[0],
+              {
+                name: result?.placeName,
+                coordinate: result?.coordinate,
+              },
+            ],
+          };
+        });
+        break;
+      case 'newWayPoint':
+        setNav(prev => {
+          return {
+            ...prev,
+            wayPoints: [
+              ...prev.wayPoints,
+              {
+                name: result?.placeName,
+                coordinate: result?.coordinate,
+              },
+            ],
+          };
+        });
+        break;
+    }
+    navigation.goBack();
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
@@ -64,26 +140,20 @@ export default function PlaceInputScreen() {
           className="flex-1 justify-center items-center"
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           {isResult ? (
-            resultList.map((result, idx) => (
-              //FIXME: add type, Scrollable, add designs
-              <Pressable
-                onPress={() => {
-                  console.log(result);
-                  setNav(prev => {
-                    return {
-                      ...prev,
-                      start: {
-                        name: result?.placeName,
-                        coordinate: result?.coordinate,
-                      },
-                    };
-                  });
-                  navigation.goBack();
-                  console.log(nav);
-                }}>
-                <Text key={idx}>{result?.placeName}</Text>
-              </Pressable>
-            ))
+            resultList.length > 0 ? (
+              resultList.map((result, idx) => (
+                //FIXME: add type, Scrollable, add designs
+                <Pressable
+                  key={idx}
+                  onPress={() => {
+                    handlePress(result);
+                  }}>
+                  <Text className="mb-1 text-xl">{result?.placeName}</Text>
+                </Pressable>
+              ))
+            ) : (
+              <Text>검색 결과가 없습니다.</Text>
+            )
           ) : (
             <NoHistorySVG height={130} width={130} />
           )}

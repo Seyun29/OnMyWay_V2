@@ -1,7 +1,5 @@
 import React from 'react';
-import {Button, Text, TouchableOpacity, View} from 'react-native';
-import {navigationState} from '../../atoms/navigationState';
-import {useRecoilState} from 'recoil';
+import {Button, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
@@ -17,10 +15,10 @@ export default function PlaceInputHeader({
   setIsResult: any;
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-  const [nav, setNav] = useRecoilState(navigationState);
   const handleSubmit = async (query: string) => {
     console.log('handleSubmit');
     if (query.length === 0) return;
+    //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
     const response = await placeQuery(query);
     //FIXME: Exception handling required here
     const newList = response.map((res: any) => ({

@@ -5,7 +5,6 @@ import {HomeScreen} from '../screens/HomeScreen';
 import {TestScreen} from '../screens/TestScreen';
 import {SelectMapScreen} from '../screens/SelectMapScreen';
 import PlaceInputScreen from '../screens/PlaceInputScreen';
-import PlaceInputDetailScreen from '../screens/PlaceInputScreen/PlaceInputDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -28,10 +27,7 @@ export default function RootStackNavigation() {
         <Stack.Screen name="SelectMap" component={SelectMapScreen} />
         {/* FIXME: add bottom-up modal like animations when screen transition */}
         <Stack.Screen name="PlaceInput" component={PlaceInputScreen} />
-        <Stack.Screen
-          name="PlaceInputDetail"
-          component={PlaceInputDetailScreen}
-        />
+
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>
     </NavigationContainer>

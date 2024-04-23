@@ -10,3 +10,10 @@ export interface Navigation {
   wayPoints: NavDetail[];
   end: NavDetail | null;
 }
+
+export type WhichNav =
+  | 'start'
+  | 'editWayPoint1'
+  | 'editWayPoint2'
+  | 'newWayPoint'
+  | 'end';
