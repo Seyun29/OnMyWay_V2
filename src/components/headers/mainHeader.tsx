@@ -1,7 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {
   Pressable,
-  TextInput,
   View,
   LayoutAnimation,
   Text,
@@ -10,32 +9,37 @@ import {
 import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import AddStopOverSVG from '../../assets/images/addStopOver.svg';
 import ChangeDirectionSVG from '../../assets/images/changeDirection.svg';
+import RemoveStopoOverSVG from '../../assets/images/removeStopOver.svg';
 import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
 import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {useRecoilState} from 'recoil';
 import {drawerState} from '../../atoms/drawerState';
+import {navigationState} from '../../atoms/navigationState';
+import InputBox from './inputBox';
+import RightArrow from '../../assets/images/rightArrow.svg';
+import useNavReverse from '../../hooks/useNavReverse';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {RootStackParam} from '../../navigations';
 
 export default function MainHeader() {
-  const [text1, setText1] = useState<string>('');
-  const [text2, setText2] = useState<string>('');
-
-  // const [isRough, setIsRough] = useState<boolean>(true);
+  //FIXME: utilize components outside
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+  const reverseNav = useNavReverse();
+  const [nav, setNav] = useRecoilState(navigationState);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
-  const handlePress = () => {
-    const temp = text1;
-    setText1(text2);
-    setText2(temp);
-  };
-
-  const handlePressMenu = () => {
-    setIsDrawerOpen(!isDrawerOpen);
+  const removeWayPoint = (idx: number) => {
+    setNav(prev => {
+      const newWayPoints = [...prev.wayPoints];
+      newWayPoints.splice(idx, 1);
+      return {...prev, wayPoints: newWayPoints};
+    });
   };
 
   useEffect(() => {
-    //apply layout animation
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [isRough]);
 
@@ -53,50 +57,93 @@ export default function MainHeader() {
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View className="w-full flex-row justify-between align-center">
-        <Pressable onPress={handlePressMenu}>
+        <Pressable onPress={() => setIsDrawerOpen(!isDrawerOpen)}>
           <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={'24px'} />
         </Pressable>
-
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
         <View className={`w-[24px] h-[${HEADER_LOGO_HEIGHT}]`} />
       </View>
       <View className="relative flex-row items-center justify-between w-full pr-[16px]">
         <View className="flex-col w-full pr-[10px]">
-          {!isRough && (
-            <View className="absolute z-10 right-[20px] top-0 transform translate-y-[29px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center">
-              <AddStopOverSVG height={'18px'} width={'18px'} />
-            </View>
-          )}
           {isRough ? (
-            <TextInput
-              placeholder="간략한 헤더 (임시)"
-              placeholderTextColor="#757575"
-              value={text1}
-              onChangeText={setText1}
-              className="text-[#3D3D3D] h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px]"
+            <InputBox
+              children={
+                <View className="flex-1 flex-row justify-around">
+                  <Text>{nav.start}</Text>
+                  <RightArrow height={'15px'} width={'15px'} />
+                  <Text>{nav.end}</Text>
+                </View>
+              }
+              onPress={() => {
+                console.log('navigate to PlaceInputScreen.tsx');
+                navigation.navigate('PlaceInput');
+              }}
             />
           ) : (
             <>
-              <TextInput
-                placeholder="출발지 입력"
-                placeholderTextColor="#757575"
-                value={text1}
-                onChangeText={setText1}
-                className="text-[#3D3D3D] h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px]"
+              {nav.wayPoints.length === 0 && (
+                <TouchableOpacity
+                  className="absolute z-10 right-[20px] top-0 transform translate-y-[29px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
+                  onPress={() => {
+                    console.log('add stopover here');
+                    navigation.navigate('PlaceInput');
+                  }}>
+                  <AddStopOverSVG height={'18px'} width={'18px'} />
+                </TouchableOpacity>
+              )}
+              <InputBox
+                text={nav.start}
+                altText={'출발지 입력'}
+                onPress={() => {
+                  console.log('navigate here! (출발지 입력/수정)');
+                  navigation.navigate('PlaceInput');
+                }}
               />
-              <TextInput
-                placeholder="도착지 입력"
-                placeholderTextColor="#757575"
-                value={text2}
-                onChangeText={setText2}
-                className="text-[#3D3D3D] h-[40px] bg-[#F2F2F2] px-[12px]"
+              {nav.wayPoints.map((wayPoint, idx) => (
+                <InputBox
+                  key={idx}
+                  text={wayPoint}
+                  altText={'경유지 입력'}
+                  onPress={() => console.log('navigate here! (경유지 수정)')}
+                  children={
+                    <TouchableOpacity
+                      className="absolute z-10 right-[15px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
+                      onPress={() => {
+                        removeWayPoint(idx);
+                      }}>
+                      <RemoveStopoOverSVG height={'20px'} width={'20px'} />
+                    </TouchableOpacity>
+                  }
+                />
+              ))}
+              <InputBox
+                text={nav.end}
+                altText={'도착지 입력'}
+                onPress={() => {
+                  console.log('navigate here! (도착지 입력/수정)');
+                  navigation.navigate('PlaceInput');
+                }}
+                children={
+                  nav.wayPoints.length === 1 && (
+                    <TouchableOpacity
+                      className="absolute z-10 right-[15px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
+                      onPress={() => {
+                        console.log(
+                          'navigate to PlaceInputScreen (경유지 추가)',
+                        );
+                        navigation.navigate('PlaceInput');
+                      }}>
+                      <AddStopOverSVG height={'18px'} width={'18px'} />
+                    </TouchableOpacity>
+                  )
+                }
               />
             </>
           )}
         </View>
-        <Pressable onPress={handlePress}>
+        <TouchableOpacity onPress={reverseNav}>
           <ChangeDirectionSVG height={'24px'} width={'24px'} />
-        </Pressable>
+        </TouchableOpacity>
       </View>
       <TouchableOpacity
         className="self-center"
