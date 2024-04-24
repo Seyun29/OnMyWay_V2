@@ -14,7 +14,6 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {navigationState} from '../../atoms/navigationState';
 
 import {useNavigation} from '@react-navigation/native';
-import {Coordinate} from '../../config/types/coordinate';
 import {whichNavState} from '../../atoms/whichNavState';
 
 // const store = async () => {
@@ -47,11 +46,9 @@ export default function PlaceInputScreen() {
   //FIXME: "검색 결과가 없습니다!!" 표시해주기!!!
   const [resultList, setResultList] = useState([]);
   const [isResult, setIsResult] = useState<boolean>(false);
-  const [nav, setNav] = useRecoilState(navigationState);
+  const [, setNav] = useRecoilState(navigationState);
   const whichNav = useRecoilValue(whichNavState);
   const navigation = useNavigation();
-
-  console.log('resultList: ', resultList);
 
   const handlePress = (result: any) => {
     switch (whichNav) {
