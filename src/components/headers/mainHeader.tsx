@@ -30,9 +30,15 @@ export default function MainHeader() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const reverseNav = useNavReverse();
   const [nav, setNav] = useRecoilState(navigationState);
-  const [whichNav, setWhichNav] = useRecoilState<WhichNav>(whichNavState);
+  const [, setWhichNav] = useRecoilState<WhichNav>(whichNavState);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
+
+  const textSize =
+    (nav.start && nav.start.name.length > 12) ||
+    (nav.end && nav.end.name.length > 12)
+      ? 'text-xs'
+      : 'text-sm';
 
   const removeWayPoint = (idx: number) => {
     setNav(prev => {
@@ -71,10 +77,10 @@ export default function MainHeader() {
           {isRough ? (
             <InputBox
               children={
-                <View className="flex-1 flex-row justify-around">
-                  <Text>{nav.start?.name}</Text>
+                <View className="flex-1 flex-row justify-around items-center overflow-hidden">
+                  <Text className={textSize}>{nav.start?.name}</Text>
                   <RightArrow height={'15px'} width={'15px'} />
-                  <Text>{nav.end?.name}</Text>
+                  <Text className={textSize}>{nav.end?.name}</Text>
                 </View>
               }
               onPress={() => {
