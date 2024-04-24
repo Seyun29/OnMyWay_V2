@@ -16,7 +16,6 @@ export default function PlaceInputHeader({
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const handleSubmit = async (query: string) => {
-    console.log('handleSubmit');
     if (query.length === 0) return;
     //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
     const response = await placeQuery(query);
