@@ -10,6 +10,11 @@ import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {markerList} from '../../config/consts/image';
+import {
+  DEFAULT_MARKER_HEIGHT,
+  DEFAULT_MARKER_WIDTH,
+  LARGE_MARKER_HEIGHT,
+} from '../../config/consts/map';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
@@ -48,8 +53,12 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
               latitude: item.latitude,
               longitude: item.longitude,
             }}
-            width={index === selected ? 32 : 21}
-            height={index === selected ? 41 : 27}
+            width={
+              index === selected ? DEFAULT_MARKER_WIDTH : DEFAULT_MARKER_WIDTH
+            }
+            height={
+              index === selected ? LARGE_MARKER_HEIGHT : DEFAULT_MARKER_HEIGHT
+            }
             onClick={() => {
               markerOnClick(item, index);
             }}
