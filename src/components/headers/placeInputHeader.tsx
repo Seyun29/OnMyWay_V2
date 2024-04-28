@@ -6,13 +6,18 @@ import {RootStackParam} from '../../navigations';
 import InputBoxEditable from './inputBoxEditable';
 import CancelSVG from '../../assets/images/cancel.svg';
 import {placeQuery} from '../../api/placeQuery';
+import SelectOnMapSVG from '../../assets/images/selectOnMap.svg';
+import CurPosInputSVG from '../../assets/images/curPosInput.svg';
+import FavoriteSVG from '../../assets/images/favorite.svg';
 
 export default function PlaceInputHeader({
   setResultList,
   setIsResult,
+  onCurPosPress,
 }: {
   setResultList: any;
   setIsResult: any;
+  onCurPosPress: () => void;
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const handleSubmit = async (query: string) => {
@@ -44,7 +49,7 @@ export default function PlaceInputHeader({
         shadowOpacity: 0.15,
         shadowRadius: 2,
       }}
-      className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
+      className="bg-white w-full justify-start items-start px-[16px] pt-[16px] ">
       <View className="relative w-full flex-row items-center justify-around">
         <InputBoxEditable handleSubmit={handleSubmit} />
         <TouchableOpacity
@@ -55,15 +60,19 @@ export default function PlaceInputHeader({
         </TouchableOpacity>
       </View>
       <View className="flex-row w-full items-center justify-between">
-        <Button title="최근검색" />
-        <Button title="즐겨찾기" />
-        <Button
-          title="지도에서 선택 Test"
+        <TouchableOpacity onPress={onCurPosPress}>
+          <CurPosInputSVG />
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <FavoriteSVG />
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={() => {
             //FIXME: pass state, setState to SelectMap screen
             navigation.navigate('SelectMap');
-          }}
-        />
+          }}>
+          <SelectOnMapSVG />
+        </TouchableOpacity>
       </View>
     </View>
   );

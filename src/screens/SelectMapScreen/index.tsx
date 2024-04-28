@@ -7,13 +7,17 @@ import {RootStackParam} from '../../navigations';
 import SelectOnMapHeader from '../../components/headers/selectOnMapHeader';
 import SelectMap from '../../components/maps/selectMap';
 import {Center, Coordinate} from '../../config/types/coordinate';
-import {useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {lastCenterState} from '../../atoms/lastCenterState';
 import {MAIN_RED_LIGHT} from '../../config/consts/style';
 import {getAddress} from '../../api/getAddress';
+import {navigationState} from '../../atoms/navigationState';
+import {whichNavState} from '../../atoms/whichNavState';
 
 export const SelectMapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+  const [, setNav] = useRecoilState(navigationState);
+  const whichNav = useRecoilValue(whichNavState);
   const lastCenter = useRecoilValue<Center>(lastCenterState);
   const [coord, setCoord] = useState<Coordinate>(lastCenter);
 
@@ -24,6 +28,54 @@ export const SelectMapScreen = () => {
     const res = await getAddress(coord);
     setRoadAddressText(res.road_address ? res.road_address : '');
     setAddressText(res.address);
+  };
+
+  const onSelect = () => {
+    //FIXME: move this funtion to outside as a hook, reuse it in other components
+    const newState = {
+      name: addressText,
+      coordinate: coord,
+    };
+    switch (whichNav) {
+      case 'start':
+        setNav(prev => ({
+          ...prev,
+          start: newState,
+        }));
+        break;
+      case 'end':
+        setNav(prev => ({
+          ...prev,
+          end: newState,
+        }));
+        break;
+      case 'editWayPoint1':
+        setNav(prev => {
+          return {
+            ...prev,
+            wayPoints:
+              prev.wayPoints.length === 2
+                ? [newState, prev.wayPoints[1]]
+                : [newState],
+          };
+        });
+        break;
+      case 'editWayPoint2':
+        setNav(prev => ({
+          ...prev,
+          wayPoints: [prev.wayPoints[0], newState],
+        }));
+        break;
+      case 'newWayPoint':
+        setNav(prev => ({
+          ...prev,
+          wayPoints: [...prev.wayPoints, newState],
+        }));
+        break;
+      default:
+        console.log('error');
+    }
+    navigation.navigate('Home');
   };
 
   useEffect(() => {
@@ -48,10 +100,7 @@ export const SelectMapScreen = () => {
             style={{
               backgroundColor: '#' + MAIN_RED_LIGHT,
             }}
-            onPress={() => {
-              navigation.goBack();
-              //FIXME: pass coordinate OR address string to parent screen!!!
-            }}>
+            onPress={onSelect}>
             <Text className="text-xl text-white font-semibold">선택</Text>
           </TouchableOpacity>
         </View>

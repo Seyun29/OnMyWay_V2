@@ -6,6 +6,7 @@ import {
   Pressable,
   Keyboard,
   Text,
+  Alert,
 } from 'react-native';
 import PlaceInputHeader from '../../components/headers/placeInputHeader';
 import NoHistorySVG from '../../assets/images/noHistory.svg';
@@ -15,6 +16,8 @@ import {navigationState} from '../../atoms/navigationState';
 
 import {useNavigation} from '@react-navigation/native';
 import {whichNavState} from '../../atoms/whichNavState';
+import {getCurPosition} from '../../config/helpers/location';
+import {getAddress} from '../../api/getAddress';
 
 // const store = async () => {
 //   try {
@@ -121,11 +124,26 @@ export default function PlaceInputScreen() {
     navigation.goBack();
   };
 
+  const onCurPosPress = async () => {
+    try {
+      const curPos = await getCurPosition();
+      const res = await getAddress(curPos);
+      handlePress({
+        placeName: res.address,
+        coordinate: curPos,
+      });
+    } catch (error) {
+      console.error(error);
+      Alert.alert('현재 위치를 가져오는데 실패했습니다.');
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
       <PlaceInputHeader
         setResultList={setResultList}
         setIsResult={setIsResult}
+        onCurPosPress={onCurPosPress}
       />
       {/* FIXME: use keyboardavoidingview only when there's NO history!!!! */}
       <Pressable
