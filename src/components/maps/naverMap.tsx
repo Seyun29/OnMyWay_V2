@@ -17,9 +17,11 @@ import {Navigation} from '../../config/types/navigation';
 import {navigationState} from '../../atoms/navigationState';
 import {DEFAULT_ZOOM, ENLARGE_ZOOM} from '../../config/consts/map';
 import NavMarker from '../markers/NavMarker';
+import {headerRoughState} from '../../atoms/headerRoughState';
 
 export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
@@ -52,6 +54,7 @@ export default function NaverMap() {
   }, []);
 
   useEffect(() => {
+    //move to corresponding location when start, end, or waypoints are updated
     if (
       JSON.stringify(nav.start) !== JSON.stringify(prevNavRef.current?.start) &&
       nav.start?.coordinate
@@ -87,13 +90,16 @@ export default function NaverMap() {
         }}
         zoomControl={false}
         center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
-        onMapClick={e => setModalVisible(false)}
+        onMapClick={e => {
+          setModalVisible(false);
+        }}
         onCameraChange={e => {
           setLastCenter({
             longitude: e.longitude,
             latitude: e.latitude,
             zoom: e.zoom,
           });
+          if (nav.start && nav.end) setIsRough(true);
         }}
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
