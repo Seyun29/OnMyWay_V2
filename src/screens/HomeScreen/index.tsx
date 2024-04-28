@@ -1,10 +1,10 @@
 import React from 'react';
-import {Button, Text, View, StyleSheet} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
-import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Text, View} from 'react-native';
+// import {useNavigation} from '@react-navigation/native';
+// import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import NaverMap from '../../components/maps/naverMap';
 import MainBottomSheet from '../../components/mainBotttomSheet';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
@@ -13,8 +13,7 @@ import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
 
 export const HomeScreen = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-  const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
+  const modalVisible = useRecoilValue<boolean>(modalState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
   return (
