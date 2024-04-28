@@ -24,6 +24,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
 import {whichNavState} from '../../atoms/whichNavState';
 import {WhichNav} from '../../config/types/navigation';
+import CancelSVG from '../../assets/images/cancel.svg';
 
 export default function MainHeader() {
   //FIXME: utilize components outside
@@ -67,13 +68,15 @@ export default function MainHeader() {
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View className="w-full flex-row justify-between align-center">
         <Pressable onPress={() => setIsDrawerOpen(!isDrawerOpen)}>
-          <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={'24px'} />
+          <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} />
         </Pressable>
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
-        <View className={`w-[24px] h-[${HEADER_LOGO_HEIGHT}]`} />
+        <TouchableOpacity>
+          <CancelSVG width={25} height={25} />
+        </TouchableOpacity>
       </View>
-      <View className="relative flex-row items-center justify-between w-full pr-[16px]">
-        <View className="flex-col w-full pr-[10px]">
+      <View className="relative flex-row items-center justify-between">
+        <View className="flex-col flex-1 pr-[10px]">
           {isRough ? (
             <InputBox
               children={
