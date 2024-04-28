@@ -40,10 +40,6 @@ export const HomeScreen = () => {
             </View>
           )}
         </View>
-        <Button
-          title="지도에서 선택 Test"
-          onPress={() => navigation.navigate('SelectMap')}
-        />
       </Drawer>
     </SafeAreaView>
   );
