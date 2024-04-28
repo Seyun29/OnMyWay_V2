@@ -165,13 +165,6 @@ export default function MainHeader() {
           <ChangeDirectionSVG height={'24px'} width={'24px'} />
         </TouchableOpacity>
       </View>
-      {!isRough && (
-        <TouchableOpacity
-          className="self-center"
-          onPress={() => setIsRough(!isRough)}>
-          <Text className="text-black">Shrink Test</Text>
-        </TouchableOpacity>
-      )}
     </View>
   );
 }
