@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   SafeAreaView,
   KeyboardAvoidingView,
@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import PlaceInputHeader from '../../components/headers/placeInputHeader';
 import NoHistorySVG from '../../assets/images/noHistory.svg';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {navigationState} from '../../atoms/navigationState';
 
@@ -18,28 +17,8 @@ import {useNavigation} from '@react-navigation/native';
 import {whichNavState} from '../../atoms/whichNavState';
 import {getCurPosition} from '../../config/helpers/location';
 import {getAddress} from '../../api/getAddress';
-
-// const store = async () => {
-//   try {
-//     await AsyncStorage.setItem('key', 'value');
-//   } catch (e) {
-//     // saving error
-//   }
-// };
-
-// const get = async () => {
-//   try {
-//     const value = await AsyncStorage.getItem('key');
-//     console.log('value: ', value);
-//     if (value !== null) {
-//       // value previously stored
-//       return value;
-//     }
-//   } catch (e) {
-//     // error reading value
-//   }
-//   return false;
-// };
+import {get, store} from '../../config/helpers/storage';
+import {RECENT_KEY} from '../../config/consts/storage';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
@@ -47,13 +26,13 @@ export default function PlaceInputScreen() {
   //FIXME: use keyboardavoidingview so that the SVG is located differently when the keyboard is open
   //TODO: use asyncstorage => Use JSON.stringify() and JSON.parse() to store and retrieve objects and arrays.
   //FIXME: "검색 결과가 없습니다!!" 표시해주기!!!
-  const [resultList, setResultList] = useState([]);
+  const [resultList, setResultList] = useState<any[]>([]);
   const [isResult, setIsResult] = useState<boolean>(false);
   const [, setNav] = useRecoilState(navigationState);
   const whichNav = useRecoilValue(whichNavState);
   const navigation = useNavigation();
 
-  const handlePress = (result: any) => {
+  const handlePress = async (result: any) => {
     switch (whichNav) {
       case 'start':
         setNav(prev => {
@@ -121,6 +100,18 @@ export default function PlaceInputScreen() {
         });
         break;
     }
+    //store to RECENT
+    const prev = await get(RECENT_KEY);
+    await store(RECENT_KEY, {
+      places: [
+        ...(prev?.places || []),
+        {
+          placeName: result?.placeName,
+          coordinate: result?.coordinate,
+        },
+      ],
+    });
+
     navigation.goBack();
   };
 
@@ -137,6 +128,18 @@ export default function PlaceInputScreen() {
       Alert.alert('현재 위치를 가져오는데 실패했습니다.');
     }
   };
+
+  const onMount = async () => {
+    const history = await get(RECENT_KEY);
+    if (history) {
+      setIsResult(true);
+      setResultList(history.places);
+    }
+  };
+
+  useEffect(() => {
+    onMount();
+  }, []);
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">

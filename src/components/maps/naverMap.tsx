@@ -55,30 +55,37 @@ export default function NaverMap() {
 
   useEffect(() => {
     //move to corresponding location when start, end, or waypoints are updated
-    if (
-      JSON.stringify(nav.start) !== JSON.stringify(prevNavRef.current?.start) &&
-      nav.start?.coordinate
-    )
-      setCenter({...nav.start.coordinate, zoom: ENLARGE_ZOOM});
-    else if (
-      JSON.stringify(nav.wayPoints) !==
-      JSON.stringify(prevNavRef.current?.wayPoints)
-    ) {
-      const wayPoints = nav.wayPoints;
-      if (wayPoints.length > 0) {
-        const newCenter = {
-          ...wayPoints[wayPoints.length - 1].coordinate,
-          zoom: ENLARGE_ZOOM,
-        };
-        setCenter(newCenter);
-      }
-    } else if (
-      JSON.stringify(nav.end) !== JSON.stringify(prevNavRef.current?.end) &&
-      nav.end?.coordinate
-    )
-      setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
+    if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
+      if (
+        JSON.stringify(nav.start) !==
+          JSON.stringify(prevNavRef.current?.start) &&
+        nav.start?.coordinate
+      ) {
+        setCenter({...nav.start.coordinate, zoom: ENLARGE_ZOOM});
+      } else if (
+        JSON.stringify(nav.wayPoints) !==
+        JSON.stringify(prevNavRef.current?.wayPoints)
+      ) {
+        const wayPoints = nav.wayPoints;
+        if (wayPoints.length > 0) {
+          const newCenter = {
+            ...wayPoints[wayPoints.length - 1].coordinate,
+            zoom: ENLARGE_ZOOM,
+          };
+          setCenter(newCenter);
+        }
+      } else if (
+        JSON.stringify(nav.end) !== JSON.stringify(prevNavRef.current?.end) &&
+        nav.end?.coordinate
+      )
+        setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
 
-    prevNavRef.current = nav;
+      prevNavRef.current = nav;
+
+      if (nav.start && nav.end) {
+        //FIXME: add path calculation API here!!!
+      } else setIsRough(false);
+    }
   }, [nav]);
 
   return (
