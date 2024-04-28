@@ -104,11 +104,11 @@ export default function PlaceInputScreen() {
     const prev = await get(RECENT_KEY);
     await store(RECENT_KEY, {
       places: [
-        ...(prev?.places || []),
         {
           placeName: result?.placeName,
           coordinate: result?.coordinate,
         },
+        ...(prev?.places || []),
       ],
     });
 

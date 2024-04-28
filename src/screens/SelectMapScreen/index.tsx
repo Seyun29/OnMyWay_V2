@@ -13,6 +13,8 @@ import {MAIN_RED_LIGHT} from '../../config/consts/style';
 import {getAddress} from '../../api/getAddress';
 import {navigationState} from '../../atoms/navigationState';
 import {whichNavState} from '../../atoms/whichNavState';
+import {RECENT_KEY} from '../../config/consts/storage';
+import {get, store} from '../../config/helpers/storage';
 
 export const SelectMapScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
@@ -30,7 +32,7 @@ export const SelectMapScreen = () => {
     setAddressText(res.address);
   };
 
-  const onSelect = () => {
+  const onSelect = async () => {
     //FIXME: move this funtion to outside as a hook, reuse it in other components
     const newState = {
       name: addressText,
@@ -73,8 +75,18 @@ export const SelectMapScreen = () => {
         }));
         break;
       default:
-        console.log('error');
+        console.log('error while selecting place on map');
     }
+    const prev = await get(RECENT_KEY);
+    await store(RECENT_KEY, {
+      places: [
+        {
+          placeName: newState.name,
+          coordinate: newState.coordinate,
+        },
+        ...(prev?.places || []),
+      ],
+    });
     navigation.navigate('Home');
   };
 
