@@ -14,6 +14,7 @@ import {
   DEFAULT_MARKER_HEIGHT,
   DEFAULT_MARKER_WIDTH,
   LARGE_MARKER_HEIGHT,
+  LARGE_MARKER_WIDTH,
 } from '../../config/consts/map';
 
 export default function OmwMarker({coordList}: OmWMarkerProps) {
@@ -54,7 +55,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
               longitude: item.longitude,
             }}
             width={
-              index === selected ? DEFAULT_MARKER_WIDTH : DEFAULT_MARKER_WIDTH
+              index === selected ? LARGE_MARKER_WIDTH : DEFAULT_MARKER_WIDTH
             }
             height={
               index === selected ? LARGE_MARKER_HEIGHT : DEFAULT_MARKER_HEIGHT
