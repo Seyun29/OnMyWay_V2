@@ -7,11 +7,11 @@ import {navigationState} from '../../atoms/navigationState';
 import {Navigation, WhichNav} from '../../config/types/navigation';
 
 const placeHolder = {
-  start: '출발지 입력',
-  end: '도착지 입력',
-  editWayPoint1: '경유지 입력',
-  editWayPoint2: '경유지 입력',
-  newWayPoint: '경유지 입력',
+  start: '출발지 검색',
+  end: '도착지 검색',
+  editWayPoint1: '경유지 검색',
+  editWayPoint2: '경유지 검색',
+  newWayPoint: '경유지 검색',
 };
 
 const initialQuery = (which: WhichNav, nav: Navigation) => {
