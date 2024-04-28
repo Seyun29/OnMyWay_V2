@@ -8,7 +8,7 @@ import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import {RootStackParam} from '../../navigations';
+// import {RootStackParam} from '../../navigations';
 import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
 
