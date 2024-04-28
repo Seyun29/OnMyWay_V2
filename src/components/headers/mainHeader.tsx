@@ -71,7 +71,14 @@ export default function MainHeader() {
           <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} />
         </Pressable>
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            setNav({
+              start: null,
+              wayPoints: [],
+              end: null,
+            });
+          }}>
           <CancelSVG width={25} height={25} />
         </TouchableOpacity>
       </View>
