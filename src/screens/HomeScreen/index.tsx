@@ -11,6 +11,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
 import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
+import KewordSearchBox from '../../components/headers/kewordSearchBox';
 
 export const HomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
@@ -44,6 +45,7 @@ export const HomeScreen = () => {
           title="지도에서 선택 Test"
           onPress={() => navigation.navigate('SelectMap')}
         />
+        <KewordSearchBox />
       </Drawer>
     </SafeAreaView>
   );
