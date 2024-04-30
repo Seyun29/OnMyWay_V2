@@ -19,6 +19,7 @@ import {getCurPosition} from '../../config/helpers/location';
 import {getAddress} from '../../api/getAddress';
 import {get, store} from '../../config/helpers/storage';
 import {RECENT_KEY} from '../../config/consts/storage';
+import Spinner from '../../components/spinner';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
@@ -28,6 +29,7 @@ export default function PlaceInputScreen() {
   //FIXME: "검색 결과가 없습니다!!" 표시해주기!!!
   const [resultList, setResultList] = useState<any[]>([]);
   const [isResult, setIsResult] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [, setNav] = useRecoilState(navigationState);
   const whichNav = useRecoilValue(whichNavState);
   const navigation = useNavigation();
@@ -147,6 +149,7 @@ export default function PlaceInputScreen() {
         setResultList={setResultList}
         setIsResult={setIsResult}
         onCurPosPress={onCurPosPress}
+        setLoading={setLoading}
       />
       {/* FIXME: use keyboardavoidingview only when there's NO history!!!! */}
       <Pressable
@@ -154,25 +157,29 @@ export default function PlaceInputScreen() {
         onPress={() => {
           Keyboard.dismiss();
         }}>
-        <KeyboardAvoidingView
-          className="flex-1 justify-center items-center"
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          enabled={!isResult || resultList.length === 0}>
-          {isResult && resultList.length > 0 ? (
-            resultList.map((result, idx) => (
-              //FIXME: add type, Scrollable, add designs
-              <Pressable
-                key={idx}
-                onPress={() => {
-                  handlePress(result);
-                }}>
-                <Text className="mb-1 text-xl">{result?.placeName}</Text>
-              </Pressable>
-            ))
-          ) : (
-            <NoHistorySVG height={130} width={130} />
-          )}
-        </KeyboardAvoidingView>
+        {loading ? (
+          <Spinner />
+        ) : (
+          <KeyboardAvoidingView
+            className="flex-1 justify-center items-center"
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            enabled={!isResult || resultList.length === 0}>
+            {isResult && resultList.length > 0 ? (
+              resultList.map((result, idx) => (
+                //FIXME: add type, Scrollable, add designs
+                <Pressable
+                  key={idx}
+                  onPress={() => {
+                    handlePress(result);
+                  }}>
+                  <Text className="mb-1 text-xl">{result?.placeName}</Text>
+                </Pressable>
+              ))
+            ) : (
+              <NoHistorySVG height={130} width={130} />
+            )}
+          </KeyboardAvoidingView>
+        )}
       </Pressable>
     </SafeAreaView>
   );
