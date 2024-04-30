@@ -18,6 +18,7 @@ import {navigationState} from '../../atoms/navigationState';
 import {DEFAULT_ZOOM, ENLARGE_ZOOM} from '../../config/consts/map';
 import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
+import FavoriteButton from '../buttons/FavoriteButton';
 
 export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
@@ -121,6 +122,7 @@ export default function NaverMap() {
           coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
         />
       </NaverMapView>
+      <FavoriteButton />
       <CurPosButton onPress={setCurPos} />
     </View>
   );

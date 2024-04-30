@@ -1,7 +1,9 @@
 import {Coordinate} from './coordinate';
 
 export interface recentPlaceDetail {
-  placeName: string;
+  placeName?: string;
+  roadAddressName?: string;
+  addressName: string;
   coordinate: Coordinate;
 }
 

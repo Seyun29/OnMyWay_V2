@@ -81,7 +81,7 @@ export const SelectMapScreen = () => {
     await store(RECENT_KEY, {
       places: [
         {
-          placeName: newState.name,
+          addressName: newState.name,
           coordinate: newState.coordinate,
         },
         ...(prev?.places || []),

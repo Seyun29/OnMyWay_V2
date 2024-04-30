@@ -7,6 +7,8 @@ import {
   Keyboard,
   Text,
   Alert,
+  View,
+  FlatList,
 } from 'react-native';
 import PlaceInputHeader from '../../components/headers/placeInputHeader';
 import NoHistorySVG from '../../assets/images/noHistory.svg';
@@ -20,6 +22,7 @@ import {getAddress} from '../../api/getAddress';
 import {get, store} from '../../config/helpers/storage';
 import {RECENT_KEY} from '../../config/consts/storage';
 import Spinner from '../../components/spinner';
+import PlaceQueryResult from '../../components/placeQueryResult';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
@@ -104,10 +107,13 @@ export default function PlaceInputScreen() {
     }
     //store to RECENT
     const prev = await get(RECENT_KEY);
+    console.log(prev);
     await store(RECENT_KEY, {
       places: [
         {
           placeName: result?.placeName,
+          addressName: result?.addressName,
+          roadAddressName: result?.roadAddressName,
           coordinate: result?.coordinate,
         },
         ...(prev?.places || []),
@@ -122,7 +128,8 @@ export default function PlaceInputScreen() {
       const curPos = await getCurPosition();
       const res = await getAddress(curPos);
       handlePress({
-        placeName: res.address,
+        addressName: res.address,
+        roadAddressName: res.roadAddress,
         coordinate: curPos,
       });
     } catch (error) {
@@ -133,6 +140,7 @@ export default function PlaceInputScreen() {
 
   const onMount = async () => {
     const history = await get(RECENT_KEY);
+    console.log(history);
     if (history) {
       setIsResult(true);
       setResultList(history.places);
@@ -161,20 +169,26 @@ export default function PlaceInputScreen() {
           <Spinner />
         ) : (
           <KeyboardAvoidingView
-            className="flex-1 justify-center items-center"
+            className="flex-1 items-center justify-center"
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             enabled={!isResult || resultList.length === 0}>
             {isResult && resultList.length > 0 ? (
-              resultList.map((result, idx) => (
-                //FIXME: add type, Scrollable, add designs
-                <Pressable
-                  key={idx}
-                  onPress={() => {
-                    handlePress(result);
-                  }}>
-                  <Text className="mb-1 text-xl">{result?.placeName}</Text>
-                </Pressable>
-              ))
+              <FlatList
+                style={{width: '100%'}}
+                data={resultList}
+                renderItem={({item: result, index: idx}) => (
+                  <PlaceQueryResult
+                    key={idx}
+                    placeName={result.placeName}
+                    roadAddressName={result.roadAddressName}
+                    addressName={result.addressName}
+                    onPress={() => {
+                      handlePress(result);
+                    }}
+                  />
+                )}
+                keyExtractor={(item, index) => index.toString()}
+              />
             ) : (
               <NoHistorySVG height={130} width={130} />
             )}
