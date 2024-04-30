@@ -106,6 +106,8 @@ export default function NaverMap() {
             latitude: e.latitude,
             zoom: e.zoom,
           });
+        }}
+        onTouch={() => {
           if (nav.start && nav.end) setIsRough(true);
         }}
         scaleBar
