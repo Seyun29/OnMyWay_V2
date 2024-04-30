@@ -1,5 +1,5 @@
 import React from 'react';
-import {Button, TouchableOpacity, View} from 'react-native';
+import {TouchableOpacity, View, Dimensions} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
@@ -9,6 +9,7 @@ import {placeQuery} from '../../api/placeQuery';
 import SelectOnMapSVG from '../../assets/images/selectOnMap.svg';
 import CurPosInputSVG from '../../assets/images/curPosInput.svg';
 import FavoriteSVG from '../../assets/images/favorite.svg';
+import Toast from 'react-native-toast-message';
 
 export default function PlaceInputHeader({
   setResultList,
@@ -24,6 +25,15 @@ export default function PlaceInputHeader({
     if (query.length === 0) return;
     //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
     const response = await placeQuery(query);
+    if (response.length === 0) {
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '검색 결과가 없습니다',
+        topOffset: Dimensions.get('window').height / 5,
+      });
+      return;
+    }
     //FIXME: Exception handling required here
     const newList = response.map((res: any) => ({
       placeName: res.place_name,
