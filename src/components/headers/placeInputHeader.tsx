@@ -1,5 +1,5 @@
 import React from 'react';
-import {TouchableOpacity, View, Dimensions} from 'react-native';
+import {TouchableOpacity, View, Dimensions, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
@@ -79,7 +79,10 @@ export default function PlaceInputHeader({
         <TouchableOpacity onPress={onCurPosPress}>
           <CurPosInputSVG />
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            Alert.alert('즐겨찾기 구현', 'setResultList, setIsResult');
+          }}>
           <FavoriteSVG />
         </TouchableOpacity>
         <TouchableOpacity

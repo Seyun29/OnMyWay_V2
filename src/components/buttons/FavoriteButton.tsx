@@ -4,13 +4,24 @@ import FavoriteFilledSVG from '../../assets/images/favoriteFilled.svg';
 import FavoriteNotFilledSVG from '../../assets/images/favoriteNotFilled.svg';
 import {FAVORITE_KEY} from '../../config/consts/storage';
 import {get, store} from '../../config/helpers/storage';
+import {Coordinate} from '../../config/types/coordinate';
 
-export default function FavoriteButton({addressName}: {addressName: string}) {
+export default function FavoriteButton({
+  placeName,
+  roadAddressName,
+  addressName,
+  coordinate,
+}: {
+  placeName?: string;
+  roadAddressName?: string;
+  addressName: string;
+  coordinate: Coordinate;
+}) {
   const [isFav, setIsFav] = useState<boolean>(false);
   const onUseEffect = async () => {
     const res = await get(FAVORITE_KEY);
     if (res) {
-      res.forEach((item, idx) => {
+      res.places.forEach((item, idx) => {
         if (item.addressName === addressName) {
           setIsFav(true);
         }
@@ -24,28 +35,39 @@ export default function FavoriteButton({addressName}: {addressName: string}) {
 
   const handlePress = async () => {
     if (isFav) {
+      //delete from favorite
       const favorites = await get(FAVORITE_KEY);
-      const newFavorites = favorites?.filter(
+      const newFavorites = favorites?.places.filter(
         item => item.addressName !== addressName,
       );
-      await store(FAVORITE_KEY, newFavorites);
+      await store(FAVORITE_KEY, {places: newFavorites || []});
       setIsFav(false);
     } else {
-      console.log('favorite button pressed');
+      const favorites = await get(FAVORITE_KEY);
+      const newFavorite = {
+        placeName,
+        roadAddressName,
+        addressName,
+        coordinate,
+      };
+      if (favorites)
+        await store(FAVORITE_KEY, {
+          places: [...favorites.places, newFavorite],
+        });
+      else await store(FAVORITE_KEY, {places: [newFavorite]});
+      setIsFav(true);
     }
   };
 
   return (
     <TouchableOpacity
-      className="absolute right-2.5 bottom-14 z-10"
       onPress={() => {
-        console.log('favorite button pressed');
-      }}
-      activeOpacity={0.2}>
+        handlePress();
+      }}>
       {isFav ? (
-        <FavoriteFilledSVG height="50px" width="50px" />
+        <FavoriteFilledSVG width={32} height={32} />
       ) : (
-        <FavoriteNotFilledSVG height="50px" width="50px" />
+        <FavoriteNotFilledSVG width={32} height={32} />
       )}
     </TouchableOpacity>
   );

@@ -23,6 +23,7 @@ import {get, store} from '../../config/helpers/storage';
 import {RECENT_KEY} from '../../config/consts/storage';
 import Spinner from '../../components/spinner';
 import PlaceQueryResult from '../../components/placeQueryResult';
+import {recentPlaceDetail} from '../../config/types/place';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
@@ -107,16 +108,22 @@ export default function PlaceInputScreen() {
     }
     //store to RECENT
     const prev = await get(RECENT_KEY);
+    const newPlaces: recentPlaceDetail[] = [];
+    //FIXME: type issue here
+    prev?.places.forEach(place => {
+      //push if the address is not already in the list
+      if (place.addressName !== result?.addressName) {
+        newPlaces.push(place);
+      }
+    });
+    newPlaces.push({
+      placeName: result?.placeName,
+      addressName: result?.addressName,
+      roadAddressName: result?.roadAddressName,
+      coordinate: result?.coordinate,
+    });
     await store(RECENT_KEY, {
-      places: [
-        {
-          placeName: result?.placeName,
-          addressName: result?.addressName,
-          roadAddressName: result?.roadAddressName,
-          coordinate: result?.coordinate,
-        },
-        ...(prev?.places || []),
-      ],
+      places: newPlaces.reverse(),
     });
 
     navigation.goBack();
@@ -180,6 +187,7 @@ export default function PlaceInputScreen() {
                     placeName={result.placeName}
                     roadAddressName={result.roadAddressName}
                     addressName={result.addressName}
+                    coordinate={result.coordinate}
                     onPress={() => {
                       handlePress(result);
                     }}
