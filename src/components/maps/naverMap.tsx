@@ -20,41 +20,44 @@ import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import FavoriteButton from '../buttons/FavoriteButton';
 
+const coordinates = dummyData.path.map(item => {
+  return {
+    latitude: item[1],
+    longitude: item[0],
+  };
+});
+
 export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
-  const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
-  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
-  const prevNavRef = useRef<Navigation | null>(null);
-
   const nav = useRecoilValue<Navigation>(navigationState);
 
-  const coordinates = dummyData.path.map(item => {
-    return {
-      latitude: item[1],
-      longitude: item[0],
-    };
-  });
+  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
+  const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
+
+  const prevNavRef = useRef<Navigation | null>(nav);
+  const isFirstMount = useRef<boolean>(true);
 
   const setCurPos = async () => {
     try {
       const curPos = await getCurPosition();
       setCurPosition(curPos);
-      setCenter({...curPosition, zoom: 12}); //Cheat Shortcut for fixing centering bug
-      setCenter({...curPosition, zoom: DEFAULT_ZOOM});
+      setCenter({...curPos, zoom: 12}); //Cheat Shortcut for fixing centering bug
+      setCenter({...curPos, zoom: DEFAULT_ZOOM});
     } catch (error) {
       console.error(error);
     }
   };
 
-  useEffect(() => {
-    //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
-    prevNavRef.current = nav;
-    setCurPos();
-  }, []);
-
-  useEffect(() => {
+  const onUseEffect = async () => {
+    if (isFirstMount.current) {
+      //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
+      await setCurPos();
+      isFirstMount.current = false;
+      prevNavRef.current = nav;
+      return;
+    }
     //move to corresponding location when start, end, or waypoints are updated
     if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
       if (
@@ -87,6 +90,11 @@ export default function NaverMap() {
         //FIXME: add path calculation API here!!!
       } else setIsRough(false);
     }
+  };
+
+  useEffect(() => {
+    //on Initial Mount only
+    onUseEffect();
   }, [nav]);
 
   return (
@@ -122,7 +130,7 @@ export default function NaverMap() {
           coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
         />
       </NaverMapView>
-      <FavoriteButton />
+      {/* <FavoriteButton /> */}
       <CurPosButton onPress={setCurPos} />
     </View>
   );

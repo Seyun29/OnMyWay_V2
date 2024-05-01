@@ -35,6 +35,7 @@ export default function MainHeader() {
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
 
+  console.log(nav);
   const textSize =
     (nav.start && nav.start.name.length > 12) ||
     (nav.end && nav.end.name.length > 12)

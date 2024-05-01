@@ -44,7 +44,7 @@ export default function PlaceInputScreen() {
           return {
             ...prev,
             start: {
-              name: result?.placeName,
+              name: result?.placeName || result?.addressName,
               coordinate: result?.coordinate,
             },
           };
@@ -55,7 +55,7 @@ export default function PlaceInputScreen() {
           return {
             ...prev,
             end: {
-              name: result?.placeName,
+              name: result?.placeName || result?.addressName,
               coordinate: result?.coordinate,
             },
           };
@@ -64,7 +64,7 @@ export default function PlaceInputScreen() {
       case 'editWayPoint1':
         setNav(prev => {
           const newWayPoint = {
-            name: result?.placeName,
+            name: result?.placeName || result?.addressName,
             coordinate: result?.coordinate,
           };
           return {
@@ -83,7 +83,7 @@ export default function PlaceInputScreen() {
             wayPoints: [
               prev.wayPoints[0],
               {
-                name: result?.placeName,
+                name: result?.placeName || result?.addressName,
                 coordinate: result?.coordinate,
               },
             ],
@@ -97,7 +97,7 @@ export default function PlaceInputScreen() {
             wayPoints: [
               ...prev.wayPoints,
               {
-                name: result?.placeName,
+                name: result?.placeName || result?.addressName,
                 coordinate: result?.coordinate,
               },
             ],
@@ -107,7 +107,6 @@ export default function PlaceInputScreen() {
     }
     //store to RECENT
     const prev = await get(RECENT_KEY);
-    console.log(prev);
     await store(RECENT_KEY, {
       places: [
         {
@@ -140,7 +139,6 @@ export default function PlaceInputScreen() {
 
   const onMount = async () => {
     const history = await get(RECENT_KEY);
-    console.log(history);
     if (history) {
       setIsResult(true);
       setResultList(history.places);

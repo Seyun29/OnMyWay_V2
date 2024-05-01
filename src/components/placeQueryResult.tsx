@@ -13,7 +13,6 @@ export default function PlaceQueryResult({
   addressName: string;
   onPress: () => void;
 }) {
-  console.log(placeName, roadAddressName, addressName);
   return (
     <View className="flex-row items-center justify-between px-[16px] py-[16px] border-b border-gray-300">
       <TouchableOpacity className="flex-1" onPress={onPress}>
