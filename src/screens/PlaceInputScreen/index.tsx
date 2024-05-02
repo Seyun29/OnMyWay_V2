@@ -199,7 +199,7 @@ export default function PlaceInputScreen() {
                     }}
                   />
                 )}
-                keyExtractor={(item, index) => index.toString()}
+                keyExtractor={(i, index) => index.toString()}
               />
             ) : (
               <NoHistorySVG height={130} width={130} />
