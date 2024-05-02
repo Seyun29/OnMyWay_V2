@@ -10,6 +10,8 @@ import SelectOnMapSVG from '../../assets/images/selectOnMap.svg';
 import CurPosInputSVG from '../../assets/images/curPosInput.svg';
 import FavoriteSVG from '../../assets/images/favorite.svg';
 import Toast from 'react-native-toast-message';
+import {get} from '../../config/helpers/storage';
+import {FAVORITE_KEY} from '../../config/consts/storage';
 
 export default function PlaceInputHeader({
   setResultList,
@@ -23,6 +25,30 @@ export default function PlaceInputHeader({
   setLoading: (loading: boolean) => void;
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+
+  const onFavoritePress = async () => {
+    const favorites = await get(FAVORITE_KEY);
+    if (favorites) {
+      if (favorites?.places.length === 0)
+        Toast.show({
+          type: 'error',
+          position: 'top',
+          text1: '즐겨찾기가 없습니다',
+          topOffset: Dimensions.get('window').height / 6,
+        });
+      else {
+        setIsResult(true);
+        setResultList(favorites.places);
+      }
+    } else
+      Toast.show({
+        type: 'error',
+        position: 'top',
+        text1: '즐겨찾기를 가져오는데 실패했습니다',
+        topOffset: Dimensions.get('window').height / 6,
+      });
+  };
+
   const handleSubmit = async (query: string) => {
     if (query.length === 0) return;
     //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
@@ -79,10 +105,7 @@ export default function PlaceInputHeader({
         <TouchableOpacity onPress={onCurPosPress}>
           <CurPosInputSVG />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            Alert.alert('즐겨찾기 구현', 'setResultList, setIsResult');
-          }}>
+        <TouchableOpacity onPress={onFavoritePress}>
           <FavoriteSVG />
         </TouchableOpacity>
         <TouchableOpacity
