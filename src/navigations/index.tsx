@@ -5,6 +5,8 @@ import {HomeScreen} from '../screens/HomeScreen';
 import {TestScreen} from '../screens/TestScreen';
 import {SelectMapScreen} from '../screens/SelectMapScreen';
 import PlaceInputScreen from '../screens/PlaceInputScreen';
+import {ShowMapScreen} from '../screens/ShowMapScreen';
+import {Coordinate} from '../config/types/coordinate';
 
 const Stack = createNativeStackNavigator();
 
@@ -12,8 +14,13 @@ export type RootStackParam = {
   Home: undefined;
   Test: undefined;
   SelectMap: undefined;
+  ShowMap: {
+    coordinate: Coordinate;
+    placeName?: string;
+    roadAddressName?: string;
+    addressName: string;
+  };
   PlaceInput: undefined;
-  PlaceInputDetail: undefined;
 };
 
 export default function RootStackNavigation() {
@@ -25,6 +32,7 @@ export default function RootStackNavigation() {
         screenOptions={{headerShown: false}}>
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="SelectMap" component={SelectMapScreen} />
+        <Stack.Screen name="ShowMap" component={ShowMapScreen} />
         {/* FIXME: add bottom-up modal like animations when screen transition */}
         <Stack.Screen name="PlaceInput" component={PlaceInputScreen} />
 

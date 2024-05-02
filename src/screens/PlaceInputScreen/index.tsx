@@ -24,6 +24,7 @@ import {RECENT_KEY} from '../../config/consts/storage';
 import Spinner from '../../components/spinner';
 import PlaceQueryResult from '../../components/placeQueryResult';
 import {recentPlaceDetail} from '../../config/types/place';
+import Toast from 'react-native-toast-message';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
@@ -140,7 +141,12 @@ export default function PlaceInputScreen() {
       });
     } catch (error) {
       console.error(error);
-      Alert.alert('현재 위치를 가져오는데 실패했습니다.');
+      Toast.show({
+        type: 'error',
+        position: 'bottom',
+        text1: '현재 위치를 가져오는데 실패했습니다',
+        topOffset: 100,
+      });
     }
   };
 
