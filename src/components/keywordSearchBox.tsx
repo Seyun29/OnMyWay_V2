@@ -5,12 +5,13 @@ import {
   Pressable,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
-import SelectRangeButtonOffSVG from '../../assets/images/selectRangeButtonOff.svg';
-import SelectRangeButtonOnSVG from '../../assets/images/selectRangeButtonOn.svg';
-import KewordSearchButtonSVG from '../../assets/images/kewordSearchButton.svg';
+import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
+import SelectRangeButtonOnSVG from '../assets/images/selectRangeButtonOn.svg';
+import KewordSearchButtonSVG from '../assets/images/kewordSearchButton.svg';
 export default function KeywordSearchBox() {
   const [value, setValue] = useState<number>(0);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
@@ -86,18 +87,18 @@ export default function KeywordSearchBox() {
         </View>
       )}
       <View className="w-full h-[56px] bg-white rounded-[12px] shadow-md flex-row items-center px-[16px] justify-between">
-        <Pressable onPress={handleSelectRangeButton} className="">
+        <TouchableOpacity onPress={handleSelectRangeButton} className="">
           {isRangeOn ? (
             <SelectRangeButtonOnSVG height={'24px'} width={'24px'} />
           ) : (
             <SelectRangeButtonOffSVG height={'24px'} width={'24px'} />
           )}
-        </Pressable>
+        </TouchableOpacity>
 
         <TextInput className="w-[80%]" placeholder="검색어 입력" autoFocus />
-        <Pressable>
+        <TouchableOpacity>
           <KewordSearchButtonSVG height={'24px'} width={'24px'} />
-        </Pressable>
+        </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
   );
