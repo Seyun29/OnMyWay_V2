@@ -22,7 +22,7 @@ export default function KeywordSearchBox() {
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       // keyboardVerticalOffset={80} // 여기서 조정합니다.
-      className="flex-1 absolute bottom-[50px] px-[16px] w-full h-fit">
+      className="flex-1 absolute bottom-5 px-[16px] w-full h-fit">
       {isRangeOn && (
         <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[12px] shadow-md">
           <View className="flex flex-col w-[85%]">
