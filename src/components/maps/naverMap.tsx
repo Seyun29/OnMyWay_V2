@@ -1,6 +1,6 @@
 import NaverMapView, {Path} from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 import {dummyData} from '../../dummy/data';
 import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
@@ -118,6 +118,7 @@ export default function NaverMap() {
         }}
         onTouch={() => {
           if (nav.start && nav.end) setIsRough(true);
+          Keyboard.dismiss();
         }}
         scaleBar
         mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
