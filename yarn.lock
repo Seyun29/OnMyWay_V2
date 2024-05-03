@@ -1590,6 +1590,11 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
+"@react-native-assets/slider@^7.2.0":
+  version "7.2.0"
+  resolved "https://registry.yarnpkg.com/@react-native-assets/slider/-/slider-7.2.0.tgz#de6e90fb336a32c8ac9249596e01ed000742202e"
+  integrity sha512-pterYK4jA/+yYwvhss/NGj+ARf3jZ5pU0NEdpxrAOJDyEjk5scdkHD5duYQ6N/GB5q3ulkZlDmbO6GB8C/lbjw==
+
 "@react-native-async-storage/async-storage@^1.23.1":
   version "1.23.1"
   resolved "https://registry.yarnpkg.com/@react-native-async-storage/async-storage/-/async-storage-1.23.1.tgz#cad3cd4fab7dacfe9838dce6ecb352f79150c883"

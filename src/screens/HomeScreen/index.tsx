@@ -11,6 +11,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 // import {RootStackParam} from '../../navigations';
 import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
+import KeywordSearchBox from '../../components/headers/keywordSearchBox';
 
 export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
@@ -39,6 +40,11 @@ export const HomeScreen = () => {
             </View>
           )}
         </View>
+        <Button
+          title="지도에서 선택 Test"
+          onPress={() => navigation.navigate('SelectMap')}
+        />
+        <KeywordSearchBox />
       </Drawer>
     </SafeAreaView>
   );
