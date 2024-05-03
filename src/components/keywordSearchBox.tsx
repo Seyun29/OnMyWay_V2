@@ -13,15 +13,15 @@ import SelectRangeButtonOnSVG from '../../assets/images/selectRangeButtonOn.svg'
 import KewordSearchButtonSVG from '../../assets/images/kewordSearchButton.svg';
 export default function KeywordSearchBox() {
   const [value, setValue] = useState<number>(0);
-  const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
+  const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
   const handleSelectRangeButton = () => {
     setIsRangeOn(!isRangeOn);
   };
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      keyboardVerticalOffset={80} // 여기서 조정합니다.
-      className="flex-1 absolute bottom-[60px] px-[16px] w-full h-fit">
+      // keyboardVerticalOffset={80} // 여기서 조정합니다.
+      className="flex-1 absolute bottom-[50px] px-[16px] w-full h-fit">
       {isRangeOn && (
         <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[12px] shadow-md">
           <View className="flex flex-col w-[85%]">
