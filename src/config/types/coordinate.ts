@@ -1,6 +1,6 @@
 export interface Coordinate {
-  latitude: number;
-  longitude: number;
+  latitude: number; //y
+  longitude: number; //x
 }
 
 export interface CoordDetail extends Coordinate {

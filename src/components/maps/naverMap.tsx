@@ -19,6 +19,8 @@ import {DEFAULT_ZOOM, ENLARGE_ZOOM} from '../../config/consts/map';
 import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import FavoriteButton from '../buttons/FavoriteButton';
+import {getRoutes} from '../../api/getRoutes';
+import Spinner from '../spinner';
 
 const coordinates = dummyData.path.map(item => {
   return {
@@ -31,6 +33,7 @@ export default function NaverMap() {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
+  const [isLoading, setLoading] = useState<boolean>(false);
   const nav = useRecoilValue<Navigation>(navigationState);
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
@@ -59,7 +62,7 @@ export default function NaverMap() {
       return;
     }
     //move to corresponding location when start, end, or waypoints are updated
-    if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
+    else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
       if (
         JSON.stringify(nav.start) !==
           JSON.stringify(prevNavRef.current?.start) &&
@@ -90,6 +93,12 @@ export default function NaverMap() {
         //FIXME: add path calculation API here!!!
       } else setIsRough(false);
     }
+
+    if (nav.start && nav.end) {
+      setLoading(true);
+      const routes = await getRoutes(nav);
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -99,40 +108,46 @@ export default function NaverMap() {
 
   return (
     <View className="relative w-full h-full">
-      <NaverMapView
-        style={{
-          width: '100%',
-          height: '100%',
-        }}
-        zoomControl={false}
-        center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
-        onMapClick={e => {
-          setModalVisible(false);
-        }}
-        onCameraChange={e => {
-          setLastCenter({
-            longitude: e.longitude,
-            latitude: e.latitude,
-            zoom: e.zoom,
-          });
-        }}
-        onTouch={() => {
-          if (nav.start && nav.end) setIsRough(true);
-          Keyboard.dismiss();
-        }}
-        scaleBar
-        mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
-      >
-        <CurPosMarker curPosition={curPosition} />
-        <OmwMarker coordList={DUMMY_COORD_DETAILS} />
-        <NavMarker />
-        <Path
-          color="#04c75b"
-          coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
-        />
-      </NaverMapView>
-      {/* <FavoriteButton /> */}
-      <CurPosButton onPress={setCurPos} />
+      {isLoading ? (
+        <Spinner />
+      ) : (
+        <>
+          <NaverMapView
+            style={{
+              width: '100%',
+              height: '100%',
+            }}
+            zoomControl={false}
+            center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
+            onMapClick={e => {
+              setModalVisible(false);
+              Keyboard.dismiss();
+            }}
+            onCameraChange={e => {
+              setLastCenter({
+                longitude: e.longitude,
+                latitude: e.latitude,
+                zoom: e.zoom,
+              });
+            }}
+            onTouch={() => {
+              if (nav.start && nav.end) setIsRough(true);
+              Keyboard.dismiss();
+            }}
+            scaleBar
+            mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
+          >
+            <CurPosMarker curPosition={curPosition} />
+            <OmwMarker coordList={DUMMY_COORD_DETAILS} />
+            <NavMarker />
+            <Path
+              color="#04c75b"
+              coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
+            />
+          </NaverMapView>
+          <CurPosButton onPress={setCurPos} />
+        </>
+      )}
     </View>
   );
 }

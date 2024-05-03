@@ -6,7 +6,6 @@ import {LARGE_MARKER_HEIGHT, LARGE_MARKER_WIDTH} from '../../config/consts/map';
 import {markerList} from '../../config/consts/image';
 
 export default function ShowMap({coordinate}: {coordinate: Coordinate}) {
-  console.log(coordinate);
   return (
     <View className="relative w-full h-full">
       <NaverMapView

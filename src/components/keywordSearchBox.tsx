@@ -25,12 +25,12 @@ export default function KeywordSearchBox() {
       className="flex-1 absolute bottom-5 px-[16px] w-full h-fit">
       {isRangeOn && (
         <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[12px] shadow-md">
-          <View className="flex flex-col w-[85%]">
-            <Text className="text-[#A8A8A8] text-[12px]">반경</Text>
+          <View className="flex flex-col w-full">
+            <Text className="text-[#A8A8A8] text-[12px]">검색 반경</Text>
             <Slider
               value={value}
               onValueChange={setValue}
-              step={5}
+              step={1}
               minimumValue={0}
               maximumValue={20}
               trackStyle={{
@@ -53,37 +53,36 @@ export default function KeywordSearchBox() {
             <View className="flex-row justify-between w-[100%]">
               <Text
                 className={`text-[12px] ${
-                  value == 0 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                  value === 0 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
                 }`}>
                 0km
               </Text>
               <Text
                 className={`text-[12px] ${
-                  value == 5 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                  value === 5 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
                 }`}>
                 5km
               </Text>
               <Text
                 className={`text-[12px] ${
-                  value == 10 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                  value === 10 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
                 }`}>
                 10km
               </Text>
               <Text
                 className={`text-[12px] ${
-                  value == 15 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                  value === 15 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
                 }`}>
                 15km
               </Text>
               <Text
                 className={`text-[12px] ${
-                  value == 20 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                  value === 20 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
                 }`}>
                 20km
               </Text>
             </View>
           </View>
-          <Text className="text-[#2D7FF9] text-[14px]">확인</Text>
         </View>
       )}
       <View className="w-full h-[56px] bg-white rounded-[12px] shadow-md flex-row items-center px-[16px] justify-between">
