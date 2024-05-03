@@ -11,7 +11,7 @@ import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../../assets/images/selectRangeButtonOff.svg';
 import SelectRangeButtonOnSVG from '../../assets/images/selectRangeButtonOn.svg';
 import KewordSearchButtonSVG from '../../assets/images/kewordSearchButton.svg';
-export default function KewordSearchBox() {
+export default function KeywordSearchBox() {
   const [value, setValue] = useState<number>(0);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
   const handleSelectRangeButton = () => {
