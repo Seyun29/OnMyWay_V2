@@ -19,29 +19,29 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
-      <Drawer
+      {/* <Drawer
         open={isDrawerOpen}
         onOpen={() => setIsDrawerOpen(true)}
         onClose={() => setIsDrawerOpen(false)}
         drawerType="front"
         renderDrawerContent={() => {
           return <Text>Drawer content</Text>;
-        }}>
+        }}> */}
+      <View className="flex-1">
         <View className="flex-1">
-          <View className="flex-1">
-            <NaverMap />
-          </View>
-          <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-            <MainHeader />
-          </View>
-          {modalVisible && (
-            <View className="absolute bottom-0 left-0 h-1/4 w-full">
-              <MainBottomSheet />
-            </View>
-          )}
+          <NaverMap />
         </View>
-        <KeywordSearchBox />
-      </Drawer>
+        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
+          <MainHeader />
+        </View>
+        {modalVisible && (
+          <View className="absolute bottom-0 left-0 h-1/4 w-full">
+            <MainBottomSheet />
+          </View>
+        )}
+      </View>
+      <KeywordSearchBox />
+      {/* </Drawer> */}
     </SafeAreaView>
   );
 };
