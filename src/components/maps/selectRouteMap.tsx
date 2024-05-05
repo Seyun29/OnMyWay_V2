@@ -5,7 +5,6 @@ import {dummyData} from '../../dummy/data';
 import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate} from '../../config/types/coordinate';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {lastCenterState} from '../../atoms/lastCenterState';
@@ -28,8 +27,7 @@ const coordinates = dummyData.path.map(item => {
   };
 });
 
-export default function NaverMap() {
-  const [, setModalVisible] = useRecoilState<boolean>(modalState);
+export default function SelectRouteMap() {
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -62,29 +60,29 @@ export default function NaverMap() {
     }
     //move to corresponding location when start, end, or waypoints are updated
     else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
-      if (
-        JSON.stringify(nav.start) !==
-          JSON.stringify(prevNavRef.current?.start) &&
-        nav.start?.coordinate
-      ) {
-        setCenter({...nav.start.coordinate, zoom: ENLARGE_ZOOM});
-      } else if (
-        JSON.stringify(nav.wayPoints) !==
-        JSON.stringify(prevNavRef.current?.wayPoints)
-      ) {
-        const wayPoints = nav.wayPoints;
-        if (wayPoints.length > 0) {
-          const newCenter = {
-            ...wayPoints[wayPoints.length - 1].coordinate,
-            zoom: ENLARGE_ZOOM,
-          };
-          setCenter(newCenter);
-        }
-      } else if (
-        JSON.stringify(nav.end) !== JSON.stringify(prevNavRef.current?.end) &&
-        nav.end?.coordinate
-      )
-        setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
+      //   if (
+      //     JSON.stringify(nav.start) !==
+      //       JSON.stringify(prevNavRef.current?.start) &&
+      //     nav.start?.coordinate
+      //   ) {
+      //     setCenter({...nav.start.coordinate, zoom: ENLARGE_ZOOM});
+      //   } else if (
+      //     JSON.stringify(nav.wayPoints) !==
+      //     JSON.stringify(prevNavRef.current?.wayPoints)
+      //   ) {
+      //     const wayPoints = nav.wayPoints;
+      //     if (wayPoints.length > 0) {
+      //       const newCenter = {
+      //         ...wayPoints[wayPoints.length - 1].coordinate,
+      //         zoom: ENLARGE_ZOOM,
+      //       };
+      //       setCenter(newCenter);
+      //     }
+      //   } else if (
+      //     JSON.stringify(nav.end) !== JSON.stringify(prevNavRef.current?.end) &&
+      //     nav.end?.coordinate
+      //   )
+      //     setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
 
       prevNavRef.current = nav;
 
@@ -119,7 +117,6 @@ export default function NaverMap() {
             zoomControl={false}
             center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
             onMapClick={e => {
-              setModalVisible(false);
               Keyboard.dismiss();
             }}
             onCameraChange={e => {
