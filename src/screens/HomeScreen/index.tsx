@@ -12,10 +12,13 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
 import KeywordSearchBox from '../../components/keywordSearchBox';
+import {onSelectRouteState} from '../../atoms/onSelectRouteState';
+import SelectRouteMap from '../../components/maps/selectRouteMap';
 
 export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
+  const onSelectRoute = useRecoilValue<boolean>(onSelectRouteState);
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
@@ -29,7 +32,7 @@ export const HomeScreen = () => {
         }}> */}
       <View className="flex-1">
         <View className="flex-1">
-          <NaverMap />
+          {onSelectRoute ? <SelectRouteMap /> : <NaverMap />}
         </View>
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader />
@@ -40,7 +43,7 @@ export const HomeScreen = () => {
           </View>
         )}
       </View>
-      <KeywordSearchBox />
+      {/* <KeywordSearchBox /> temporary disable */}
       {/* </Drawer> */}
     </SafeAreaView>
   );

@@ -20,6 +20,7 @@ import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
+import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 
 const coordinates = dummyData.path.map(item => {
   return {
@@ -37,6 +38,7 @@ export default function NaverMap() {
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
+  const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -87,17 +89,11 @@ export default function NaverMap() {
         setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
 
       prevNavRef.current = nav;
-
-      if (nav.start && nav.end) {
-        //FIXME: add path calculation API here!!!
-      } else setIsRough(false);
     }
 
     if (nav.start && nav.end) {
-      setLoading(true);
-      const routes = await getRoutes(nav);
-      setLoading(false);
-    }
+      setOnSelectRoute(true);
+    } else setIsRough(false);
   };
 
   useEffect(() => {

@@ -6,96 +6,69 @@ import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {Center, Coordinate} from '../../config/types/coordinate';
-import {mapCenterState} from '../../atoms/mapCenterState';
-import {lastCenterState} from '../../atoms/lastCenterState';
 import {DUMMY_COORD_DETAILS} from '../../dummy/coordDetail';
 import {getCurPosition} from '../../config/helpers/location';
 import CurPosMarker from '../markers/CurPosMarker';
 import CurPosButton from '../buttons/CurPosButton';
 import {Navigation} from '../../config/types/navigation';
 import {navigationState} from '../../atoms/navigationState';
-import {DEFAULT_ZOOM, ENLARGE_ZOOM} from '../../config/consts/map';
 import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
-
-const coordinates = dummyData.path.map(item => {
-  return {
-    latitude: item[1],
-    longitude: item[0],
-  };
-});
+import {onSelectRouteState} from '../../atoms/onSelectRouteState';
+import Toast from 'react-native-toast-message';
 
 export default function SelectRouteMap() {
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
-  const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
+  const [, setIsOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const nav = useRecoilValue<Navigation>(navigationState);
-
-  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
+  const nav = useRecoilValue<Navigation>(navigationState);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
 
+  const [coordinates, setCoordinates] = useState<Coordinate[]>([]);
+
   const setCurPos = async () => {
     try {
       const curPos = await getCurPosition();
+      //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
       setCurPosition(curPos);
-      setCenter({...curPos, zoom: 12}); //Cheat Shortcut for fixing centering bug
-      setCenter({...curPos, zoom: DEFAULT_ZOOM});
     } catch (error) {
       console.error(error);
+      //FIXME: fix Toast here
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: '현재 위치를 가져오는데 실패했습니다.',
+      });
     }
   };
-
   const onUseEffect = async () => {
     if (isFirstMount.current) {
-      //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
-      await setCurPos();
       isFirstMount.current = false;
-      prevNavRef.current = nav;
-      return;
-    }
-    //move to corresponding location when start, end, or waypoints are updated
-    else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
-      //   if (
-      //     JSON.stringify(nav.start) !==
-      //       JSON.stringify(prevNavRef.current?.start) &&
-      //     nav.start?.coordinate
-      //   ) {
-      //     setCenter({...nav.start.coordinate, zoom: ENLARGE_ZOOM});
-      //   } else if (
-      //     JSON.stringify(nav.wayPoints) !==
-      //     JSON.stringify(prevNavRef.current?.wayPoints)
-      //   ) {
-      //     const wayPoints = nav.wayPoints;
-      //     if (wayPoints.length > 0) {
-      //       const newCenter = {
-      //         ...wayPoints[wayPoints.length - 1].coordinate,
-      //         zoom: ENLARGE_ZOOM,
-      //       };
-      //       setCenter(newCenter);
-      //     }
-      //   } else if (
-      //     JSON.stringify(nav.end) !== JSON.stringify(prevNavRef.current?.end) &&
-      //     nav.end?.coordinate
-      //   )
-      //     setCenter({...nav.end.coordinate, zoom: ENLARGE_ZOOM});
-
-      prevNavRef.current = nav;
-
-      if (nav.start && nav.end) {
-        //FIXME: add path calculation API here!!!
-      } else setIsRough(false);
-    }
-
-    if (nav.start && nav.end) {
       setLoading(true);
       const routes = await getRoutes(nav);
       setLoading(false);
+      return;
+    } else {
+      if (nav.start && nav.end) {
+        if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
+          //바뀔때마다 getRoutes 호출
+          setLoading(true);
+          const routes = await getRoutes(nav);
+          const newCoord = routes[0].path.map(item => ({
+            latitude: item[1],
+            longitude: item[0],
+          }));
+          setCoordinates(newCoord);
+          setLoading(false);
+        }
+      } else setIsOnSelectRoute(false);
     }
+    prevNavRef.current = nav;
   };
 
   useEffect(() => {
@@ -115,26 +88,21 @@ export default function SelectRouteMap() {
               height: '100%',
             }}
             zoomControl={false}
-            center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
-            onMapClick={e => {
-              Keyboard.dismiss();
-            }}
-            onCameraChange={e => {
-              setLastCenter({
-                longitude: e.longitude,
-                latitude: e.latitude,
-                zoom: e.zoom,
-              });
-            }}
-            onTouch={() => {
-              if (nav.start && nav.end) setIsRough(true);
-              Keyboard.dismiss();
-            }}
+            center={{
+              latitude:
+                (nav.start?.coordinate.latitude +
+                  nav.end?.coordinate.latitude) /
+                2,
+              longitude:
+                (nav.start?.coordinate.longitude +
+                  nav.end?.coordinate.longitude) /
+                2,
+              zoom: 12, //FIXME: adjust zoom level properly here!!!!!
+            }} //FIXME: fix type issue here
             scaleBar
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
           >
             <CurPosMarker curPosition={curPosition} />
-            <OmwMarker coordList={DUMMY_COORD_DETAILS} />
             <NavMarker />
             <Path
               color="#04c75b"
