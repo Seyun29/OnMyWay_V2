@@ -22,7 +22,6 @@ export const getRoutes = async (
         waypoints,
       },
     });
-    console.log('getRoutes response: ', response);
     return response.data?.data;
   } catch (error) {
     console.log('getRoutes error, Params: ', query);

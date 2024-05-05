@@ -84,13 +84,21 @@ export default function MainHeader() {
       </View>
       <View className="relative flex-row items-center justify-between">
         <View className="flex-col flex-1 pr-[10px]">
-          {isRough ? (
+          {isRough && nav.start && nav.end ? (
             <InputBox
               children={
                 <View className="flex-1 flex-row justify-around items-center overflow-hidden">
-                  <Text className={textSize}>{nav.start?.name}</Text>
+                  <Text className={textSize}>
+                    {nav.start.name.length > 12
+                      ? nav.start.name.slice(0, 12) + '...'
+                      : nav.start.name}
+                  </Text>
                   <RightArrow height={'15px'} width={'15px'} />
-                  <Text className={textSize}>{nav.end?.name}</Text>
+                  <Text className={textSize}>
+                    {nav.end.name.length > 12
+                      ? nav.end.name.slice(0, 12) + '...'
+                      : nav.end.name}
+                  </Text>
                 </View>
               }
               onPress={() => {
