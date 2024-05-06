@@ -19,14 +19,16 @@ import {Routes} from '../../config/types/routes';
 import {ROUTE_PRIORITY_LIST} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
+import {calculateIsInBoundary} from '../../config/helpers/route';
 
 export default function SelectRouteMap({
   setSelectedPath,
 }: {
   setSelectedPath: any;
 }) {
-  const [, setIsOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
+  const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
+
   const [isLoading, setLoading] = useState<boolean>(false);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const nav = useRecoilValue<Navigation>(navigationState);
@@ -37,6 +39,7 @@ export default function SelectRouteMap({
   const [routes, setRoutes] = useState<Routes>([]);
   const [curRouteIdx, setCurRouteIdx] = useState<number>(0);
   const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
+  const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
 
   const setCurPos = async () => {
     try {
@@ -53,51 +56,58 @@ export default function SelectRouteMap({
       });
     }
   };
-  const onUseEffect = async () => {
-    if (isFirstMount.current) {
-      isFirstMount.current = false;
-      setLoading(true);
-      const data = await getRoutes(nav);
-      setRoutes(data);
-      setCenter({
-        //FIXME: fix type issue here
-        latitude:
-          (nav.start?.coordinate.latitude + nav.end?.coordinate.latitude) / 2,
-        longitude:
-          (nav.start?.coordinate.longitude + nav.end?.coordinate.longitude) / 2,
-        zoom: 9.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
-      });
-      setLoading(false);
-      return;
-    } else {
-      if (nav.start && nav.end) {
-        if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
-          //바뀔때마다 getRoutes 호출
-          setLoading(true);
-          const data = await getRoutes(nav);
-          setRoutes(data);
-          setCenter({
-            //FIXME: fix type issue here
-            latitude:
-              (nav.start?.coordinate.latitude + nav.end?.coordinate.latitude) /
-              2,
-            longitude:
-              (nav.start?.coordinate.longitude +
-                nav.end?.coordinate.longitude) /
-              2,
-            zoom: 9.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
-          });
-          setLoading(false);
-        }
-      } else setIsOnSelectRoute(false);
-    }
+  const onUseEffectNav = async () => {
+    if (nav.start && nav.end) {
+      if (isFirstMount.current) {
+        isFirstMount.current = false;
+        setLoading(true);
+        const data = await getRoutes(nav);
+        setRoutes(data);
+        setCenter({
+          latitude:
+            (nav.start.coordinate.latitude + nav.end.coordinate.latitude) / 2,
+          longitude:
+            (nav.start.coordinate.longitude + nav.end.coordinate.longitude) / 2,
+          zoom: 14.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+        });
+        setLoading(false);
+        return;
+      } else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
+        //바뀔때마다 getRoutes 호출
+        setLoading(true);
+        const data = await getRoutes(nav);
+        setRoutes(data);
+        setCenter({
+          //FIXME: fix type issue here
+          latitude:
+            (nav.start?.coordinate.latitude + nav.end?.coordinate.latitude) / 2,
+          longitude:
+            (nav.start?.coordinate.longitude + nav.end?.coordinate.longitude) /
+            2,
+          zoom: 14.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+        });
+        setLoading(false);
+      }
+    } else setOnSelectRoute(false);
+
     prevNavRef.current = nav;
   };
 
   useEffect(() => {
-    //on Initial Mount only
-    onUseEffect();
+    onUseEffectNav();
   }, [nav]);
+
+  useEffect(() => {
+    if (routes.length > 0) {
+      //adjust Zoom size here according to nav range (start, waypoints, end), so that the whole route is visible
+      //FIXME: optimize rendering here (calculation cost overhead expected as of now)
+      if (!calculateIsInBoundary(nav, coveringRegion))
+        setCenter({
+          ...center,
+          zoom: center.zoom - 1.5,
+        });
+    }
+  }, [coveringRegion]);
 
   return (
     <View className="relative w-full h-full">
@@ -116,6 +126,9 @@ export default function SelectRouteMap({
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
             onTouch={() => {
               setIsRough(true);
+            }}
+            onCameraChange={e => {
+              setCoveringRegion(e.coveringRegion);
             }}>
             <CurPosMarker curPosition={curPosition} />
             <NavMarker />
