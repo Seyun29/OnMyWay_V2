@@ -21,6 +21,7 @@ import {headerRoughState} from '../../atoms/headerRoughState';
 import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
+import {getAddress} from '../../api/getAddress';
 
 const coordinates = dummyData.path.map(item => {
   return {
@@ -34,7 +35,7 @@ export default function NaverMap() {
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const [isLoading, setLoading] = useState<boolean>(false);
-  const nav = useRecoilValue<Navigation>(navigationState);
+  const [nav, setNav] = useRecoilState<Navigation>(navigationState);
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
@@ -49,6 +50,16 @@ export default function NaverMap() {
       setCurPosition(curPos);
       setCenter({...curPos, zoom: 12}); //Cheat Shortcut for fixing centering bug
       setCenter({...curPos, zoom: DEFAULT_ZOOM});
+      if (!nav.start) {
+        const res = await getAddress(curPos);
+        setNav({
+          ...nav,
+          start: {
+            name: '현위치 : ' + (res.road_address || res.address),
+            coordinate: curPos,
+          },
+        });
+      }
     } catch (error) {
       console.error(error);
     }
