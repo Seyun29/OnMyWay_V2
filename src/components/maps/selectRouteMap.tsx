@@ -1,10 +1,12 @@
-import NaverMapView, {Path} from 'react-native-nmap';
+import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
 import {
   Alert,
   Button,
   Dimensions,
   FlatList,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   Pressable,
   Text,
   Touchable,
@@ -26,13 +28,17 @@ import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import Toast from 'react-native-toast-message';
 import {Routes} from '../../config/types/routes';
-import {
-  ROUTE_PRIORITY_LIST,
-  ROUTE_PRIORITY_TEXT,
-} from '../../config/consts/route';
+import {ROUTE_PRIORITY_TEXT} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary} from '../../config/helpers/route';
+
+// @ts-ignore
+const getItemLayout = (data, index) => ({
+  length: Dimensions.get('window').width,
+  offset: Dimensions.get('window').width * index,
+  index: index,
+});
 
 export default function SelectRouteMap({
   setSelectedPath,
@@ -54,6 +60,13 @@ export default function SelectRouteMap({
   const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
 
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = e.nativeEvent.contentOffset.x;
+    const curIdx = Math.round(scrollPosition / Dimensions.get('window').width);
+    setCurRouteIdx(curIdx);
+    setSelectedPath(routes[curIdx].path);
+  };
+
   const setCurPos = async () => {
     try {
       const curPos = await getCurPosition();
@@ -68,6 +81,7 @@ export default function SelectRouteMap({
       });
     }
   };
+
   const onUseEffectNav = async () => {
     if (nav.start && nav.end) {
       if (isFirstMount.current) {
@@ -153,29 +167,27 @@ export default function SelectRouteMap({
           <View className="absolute w-full bottom-4 bg-transparent">
             <FlatList
               className="w-full overflow-hidden"
-              contentContainerStyle={{
-                alignItems: 'center',
-                justifyContent: 'space-around',
-              }}
               horizontal
               data={routes}
               pagingEnabled
               bounces={false}
               overScrollMode="never"
               showsHorizontalScrollIndicator={false}
+              scrollToOverflowEnabled={false}
               keyExtractor={(item, index) => index.toString()}
+              getItemLayout={getItemLayout}
+              onScroll={handleScroll}
               renderItem={({item, index}) => {
                 // Convert duration from seconds to hours and minutes
                 const hours = Math.floor(item.duration / 3600);
                 const minutes = Math.floor((item.duration % 3600) / 60);
-
                 // Convert distance from meters to kilometers
                 const kilometers = item.distance / 1000;
                 return (
                   <View
-                    className="bg-transparent px-4 py-4 justify-center items-center"
-                    style={{width: Dimensions.get('window').width}}>
-                    <Pressable className="bg-white justify-center items-center w-full rounded-lg py-3">
+                    style={{width: Dimensions.get('window').width}}
+                    className="bg-transparent px-4 py-4 justify-center items-center">
+                    <Pressable className="bg-white justify-center items-center rounded-lg py-3 w-full">
                       <Text className="text-center text-xs">
                         {ROUTE_PRIORITY_TEXT[item.priority]}
                       </Text>
@@ -191,8 +203,6 @@ export default function SelectRouteMap({
                         title="경로 선택 버튼"
                         onPress={() => {
                           Alert.alert('경로 선택 기능 구현', '검색창으로 이동');
-                          setCurRouteIdx(index);
-                          setSelectedPath(item.path);
                         }}
                       />
                     </Pressable>
