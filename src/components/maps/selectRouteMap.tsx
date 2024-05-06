@@ -1,6 +1,16 @@
 import NaverMapView, {Path} from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Dimensions, FlatList, Text, TouchableOpacity, View} from 'react-native';
+import {
+  Alert,
+  Button,
+  Dimensions,
+  FlatList,
+  Pressable,
+  Text,
+  Touchable,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
@@ -16,7 +26,10 @@ import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import Toast from 'react-native-toast-message';
 import {Routes} from '../../config/types/routes';
-import {ROUTE_PRIORITY_LIST} from '../../config/consts/route';
+import {
+  ROUTE_PRIORITY_LIST,
+  ROUTE_PRIORITY_TEXT,
+} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary} from '../../config/helpers/route';
@@ -146,29 +159,46 @@ export default function SelectRouteMap({
               }}
               horizontal
               data={routes}
+              pagingEnabled
+              bounces={false}
+              overScrollMode="never"
+              showsHorizontalScrollIndicator={false}
               keyExtractor={(item, index) => index.toString()}
-              renderItem={({item, index}) => (
-                <View
-                  className="bg-transparent px-4 py-4 justify-center items-center"
-                  style={{width: Dimensions.get('window').width}}>
-                  <TouchableOpacity
-                    className="bg-white h-[150px] w-full rounded-lg"
-                    onPress={() => {
-                      setCurRouteIdx(index);
-                      setSelectedPath(item.path);
-                    }}>
-                    {/* <Text className="text-center text-red text-xs font-bold">
-                    {item.priority}
-                  </Text>
-                  <Text className="text-center text-white text-xs font-bold">
-                    {item.distance}
-                  </Text>
-                  <Text className="text-center text-black text-xs font-bold">
-                    {item.duration}
-                  </Text> */}
-                  </TouchableOpacity>
-                </View>
-              )}
+              renderItem={({item, index}) => {
+                // Convert duration from seconds to hours and minutes
+                const hours = Math.floor(item.duration / 3600);
+                const minutes = Math.floor((item.duration % 3600) / 60);
+
+                // Convert distance from meters to kilometers
+                const kilometers = item.distance / 1000;
+                return (
+                  <View
+                    className="bg-transparent px-4 py-4 justify-center items-center"
+                    style={{width: Dimensions.get('window').width}}>
+                    <Pressable className="bg-white justify-center items-center w-full rounded-lg py-3">
+                      <Text className="text-center text-xs">
+                        {ROUTE_PRIORITY_TEXT[item.priority]}
+                      </Text>
+                      <Text className="text-center text-xs">
+                        {hours > 0
+                          ? `${hours}시간 ${minutes}분`
+                          : `${minutes}분`}
+                      </Text>
+                      <Text className="text-center text-xs">
+                        {`${kilometers.toFixed(1)}km`}
+                      </Text>
+                      <Button
+                        title="경로 선택 버튼"
+                        onPress={() => {
+                          Alert.alert('경로 선택 기능 구현', '검색창으로 이동');
+                          setCurRouteIdx(index);
+                          setSelectedPath(item.path);
+                        }}
+                      />
+                    </Pressable>
+                  </View>
+                );
+              }}
             />
           </View>
         </>
