@@ -1,5 +1,5 @@
-import React from 'react';
-import {Text, View} from 'react-native';
+import React, {useState} from 'react';
+import {Pressable, Text, View} from 'react-native';
 // import {useNavigation} from '@react-navigation/native';
 // import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import NaverMap from '../../components/maps/naverMap';
@@ -14,37 +14,48 @@ import {drawerState} from '../../atoms/drawerState';
 import KeywordSearchBox from '../../components/keywordSearchBox';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
+import {RouteDetail, Routes} from '../../config/types/routes';
+import {Coordinate} from '../../config/types/coordinate';
 
 export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
   const onSelectRoute = useRecoilValue<boolean>(onSelectRouteState);
+  const [selectedPath, setSelectedPath] = useState<Coordinate[]>();
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
-      {/* <Drawer
+      <Drawer
         open={isDrawerOpen}
         onOpen={() => setIsDrawerOpen(true)}
         onClose={() => setIsDrawerOpen(false)}
         drawerType="front"
         renderDrawerContent={() => {
-          return <Text>Drawer content</Text>;
-        }}> */}
-      <View className="flex-1">
-        <View className="flex-1">
-          {onSelectRoute ? <SelectRouteMap /> : <NaverMap />}
-        </View>
-        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-          <MainHeader />
-        </View>
-        {modalVisible && (
-          <View className="absolute bottom-0 left-0 h-1/4 w-full">
-            <MainBottomSheet />
+          return <View className="w-full h-full bg-gray-200" />;
+        }}>
+        <Pressable
+          className="flex-1"
+          onPress={() => {
+            setIsDrawerOpen(false);
+          }}>
+          <View className="flex-1">
+            {onSelectRoute ? (
+              <SelectRouteMap setSelectedPath={setSelectedPath} />
+            ) : (
+              <NaverMap />
+            )}
           </View>
-        )}
-      </View>
-      {/* <KeywordSearchBox /> temporary disable */}
-      {/* </Drawer> */}
+          <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
+            <MainHeader />
+          </View>
+          {modalVisible && (
+            <View className="absolute bottom-0 left-0 h-1/4 w-full">
+              <MainBottomSheet />
+            </View>
+          )}
+        </Pressable>
+        {/* <KeywordSearchBox /> temporary disable */}
+      </Drawer>
     </SafeAreaView>
   );
 };

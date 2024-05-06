@@ -1,27 +1,32 @@
 import NaverMapView, {Path} from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Keyboard, View} from 'react-native';
-import {dummyData} from '../../dummy/data';
+import {View} from 'react-native';
 import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {Center, Coordinate} from '../../config/types/coordinate';
-import {DUMMY_COORD_DETAILS} from '../../dummy/coordDetail';
 import {getCurPosition} from '../../config/helpers/location';
 import CurPosMarker from '../markers/CurPosMarker';
 import CurPosButton from '../buttons/CurPosButton';
 import {Navigation} from '../../config/types/navigation';
 import {navigationState} from '../../atoms/navigationState';
 import NavMarker from '../markers/NavMarker';
-import {headerRoughState} from '../../atoms/headerRoughState';
 import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import Toast from 'react-native-toast-message';
+import {Routes} from '../../config/types/routes';
+import {ROUTE_PRIORITY_LIST} from '../../config/consts/route';
+import CandidatePaths from '../paths/candidatePaths';
+import {headerRoughState} from '../../atoms/headerRoughState';
 
-export default function SelectRouteMap() {
-  const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
+export default function SelectRouteMap({
+  setSelectedPath,
+}: {
+  setSelectedPath: any;
+}) {
   const [, setIsOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
+  const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const nav = useRecoilValue<Navigation>(navigationState);
@@ -29,7 +34,9 @@ export default function SelectRouteMap() {
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
 
-  const [coordinates, setCoordinates] = useState<Coordinate[]>([]);
+  const [routes, setRoutes] = useState<Routes>([]);
+  const [curRouteIdx, setCurRouteIdx] = useState<number>(0);
+  const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
 
   const setCurPos = async () => {
     try {
@@ -50,7 +57,16 @@ export default function SelectRouteMap() {
     if (isFirstMount.current) {
       isFirstMount.current = false;
       setLoading(true);
-      const routes = await getRoutes(nav);
+      const data = await getRoutes(nav);
+      setRoutes(data);
+      setCenter({
+        //FIXME: fix type issue here
+        latitude:
+          (nav.start?.coordinate.latitude + nav.end?.coordinate.latitude) / 2,
+        longitude:
+          (nav.start?.coordinate.longitude + nav.end?.coordinate.longitude) / 2,
+        zoom: 9.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+      });
       setLoading(false);
       return;
     } else {
@@ -58,12 +74,19 @@ export default function SelectRouteMap() {
         if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
           //바뀔때마다 getRoutes 호출
           setLoading(true);
-          const routes = await getRoutes(nav);
-          const newCoord = routes[0].path.map(item => ({
-            latitude: item[1],
-            longitude: item[0],
-          }));
-          setCoordinates(newCoord);
+          const data = await getRoutes(nav);
+          setRoutes(data);
+          setCenter({
+            //FIXME: fix type issue here
+            latitude:
+              (nav.start?.coordinate.latitude + nav.end?.coordinate.latitude) /
+              2,
+            longitude:
+              (nav.start?.coordinate.longitude +
+                nav.end?.coordinate.longitude) /
+              2,
+            zoom: 9.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+          });
           setLoading(false);
         }
       } else setIsOnSelectRoute(false);
@@ -88,26 +111,15 @@ export default function SelectRouteMap() {
               height: '100%',
             }}
             zoomControl={false}
-            center={{
-              latitude:
-                (nav.start?.coordinate.latitude +
-                  nav.end?.coordinate.latitude) /
-                2,
-              longitude:
-                (nav.start?.coordinate.longitude +
-                  nav.end?.coordinate.longitude) /
-                2,
-              zoom: 12, //FIXME: adjust zoom level properly here!!!!!
-            }} //FIXME: fix type issue here
+            center={center}
             scaleBar
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
-          >
+            onTouch={() => {
+              setIsRough(true);
+            }}>
             <CurPosMarker curPosition={curPosition} />
             <NavMarker />
-            <Path
-              color="#04c75b"
-              coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
-            />
+            <CandidatePaths routes={routes} curRouteIdx={curRouteIdx} />
           </NaverMapView>
           <CurPosButton onPress={setCurPos} />
         </>
