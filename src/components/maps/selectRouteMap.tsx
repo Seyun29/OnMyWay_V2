@@ -1,6 +1,6 @@
 import NaverMapView, {Path} from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {View} from 'react-native';
+import {Dimensions, FlatList, Text, TouchableOpacity, View} from 'react-native';
 import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
@@ -48,7 +48,6 @@ export default function SelectRouteMap({
       setCurPosition(curPos);
     } catch (error) {
       console.error(error);
-      //FIXME: fix Toast here
       Toast.show({
         type: 'error',
         text1: 'Error',
@@ -68,7 +67,7 @@ export default function SelectRouteMap({
             (nav.start.coordinate.latitude + nav.end.coordinate.latitude) / 2,
           longitude:
             (nav.start.coordinate.longitude + nav.end.coordinate.longitude) / 2,
-          zoom: 14.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+          zoom: 14, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
         });
         setLoading(false);
         return;
@@ -84,7 +83,7 @@ export default function SelectRouteMap({
           longitude:
             (nav.start?.coordinate.longitude + nav.end?.coordinate.longitude) /
             2,
-          zoom: 14.5, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+          zoom: 14, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
         });
         setLoading(false);
       }
@@ -104,7 +103,7 @@ export default function SelectRouteMap({
       if (!calculateIsInBoundary(nav, coveringRegion))
         setCenter({
           ...center,
-          zoom: center.zoom - 1.5,
+          zoom: center.zoom - 1,
         });
     }
   }, [coveringRegion]);
@@ -128,13 +127,50 @@ export default function SelectRouteMap({
               setIsRough(true);
             }}
             onCameraChange={e => {
-              setCoveringRegion(e.coveringRegion);
+              setCenter({...center, zoom: e.zoom});
+              setTimeout(() => {
+                setCoveringRegion(e.coveringRegion);
+              }, 10);
             }}>
             <CurPosMarker curPosition={curPosition} />
             <NavMarker />
             <CandidatePaths routes={routes} curRouteIdx={curRouteIdx} />
           </NaverMapView>
           <CurPosButton onPress={setCurPos} />
+          <View className="absolute w-full bottom-4 bg-transparent">
+            <FlatList
+              className="w-full overflow-hidden"
+              contentContainerStyle={{
+                alignItems: 'center',
+                justifyContent: 'space-around',
+              }}
+              horizontal
+              data={routes}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({item, index}) => (
+                <View
+                  className="bg-transparent px-4 py-4 justify-center items-center"
+                  style={{width: Dimensions.get('window').width}}>
+                  <TouchableOpacity
+                    className="bg-white h-[150px] w-full rounded-lg"
+                    onPress={() => {
+                      setCurRouteIdx(index);
+                      setSelectedPath(item.path);
+                    }}>
+                    {/* <Text className="text-center text-red text-xs font-bold">
+                    {item.priority}
+                  </Text>
+                  <Text className="text-center text-white text-xs font-bold">
+                    {item.distance}
+                  </Text>
+                  <Text className="text-center text-black text-xs font-bold">
+                    {item.duration}
+                  </Text> */}
+                  </TouchableOpacity>
+                </View>
+              )}
+            />
+          </View>
         </>
       )}
     </View>

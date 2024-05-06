@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {View} from 'react-native';
 import {Routes, RouteDetail} from '../../config/types/routes';
 import {Path} from 'react-native-nmap';
@@ -14,6 +14,7 @@ function DefaultPath({route}: {route: RouteDetail}) {
     />
   );
 }
+
 function SelectedPath({route}: {route: RouteDetail}) {
   return (
     <Path
