@@ -26,7 +26,7 @@ import {whichNavState} from '../../atoms/whichNavState';
 import {WhichNav} from '../../config/types/navigation';
 import CancelSVG from '../../assets/images/cancel.svg';
 
-export default function MainHeader() {
+export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
   //FIXME: utilize components outside
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const reverseNav = useNavReverse();
@@ -78,6 +78,7 @@ export default function MainHeader() {
               wayPoints: [],
               end: null,
             });
+            setSelectedPath(null);
           }}>
           <CancelSVG width={25} height={25} />
         </TouchableOpacity>
@@ -131,7 +132,7 @@ export default function MainHeader() {
                   text={wayPoint?.name}
                   altText={'경유지 입력'}
                   onPress={() => {
-                    //FIXME: type issue
+                    //@ts-ignore FIXME: type issue
                     setWhichNav(`editWayPoint${idx + 1}`);
                     navigation.navigate('PlaceInput');
                   }}

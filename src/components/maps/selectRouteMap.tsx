@@ -32,11 +32,14 @@ import {ROUTE_PRIORITY_TEXT} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary} from '../../config/helpers/route';
+import SelectRouteItem from '../selectRouteItem';
+import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
+import {mapCenterState} from '../../atoms/mapCenterState';
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
-  length: Dimensions.get('window').width,
-  offset: Dimensions.get('window').width * index,
+  length: SELECT_ROUTE_ITEM_WIDTH,
+  offset: SELECT_ROUTE_ITEM_WIDTH * index,
   index: index,
 });
 
@@ -47,6 +50,7 @@ export default function SelectRouteMap({
 }) {
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
+  const [, setGlobalCenter] = useRecoilState<Center>(mapCenterState);
 
   const [isLoading, setLoading] = useState<boolean>(false);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
@@ -54,17 +58,23 @@ export default function SelectRouteMap({
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
+  const flatListRef = useRef<FlatList>(null);
 
   const [routes, setRoutes] = useState<Routes>([]);
   const [curRouteIdx, setCurRouteIdx] = useState<number>(0);
   const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
 
+  const onSelect = () => {
+    setOnSelectRoute(false);
+    setSelectedPath(routes[curRouteIdx].path);
+    setGlobalCenter(center);
+  };
+
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = e.nativeEvent.contentOffset.x;
-    const curIdx = Math.round(scrollPosition / Dimensions.get('window').width);
+    const curIdx = Math.round(scrollPosition / SELECT_ROUTE_ITEM_WIDTH);
     setCurRouteIdx(curIdx);
-    setSelectedPath(routes[curIdx].path);
   };
 
   const setCurPos = async () => {
@@ -76,8 +86,10 @@ export default function SelectRouteMap({
       console.error(error);
       Toast.show({
         type: 'error',
-        text1: 'Error',
-        text2: '현재 위치를 가져오는데 실패했습니다.',
+        text1: '현재 위치를 가져오는데 실패했습니다',
+        text2: '위치 권한을 확인해주세요',
+        position: 'bottom',
+        bottomOffset: 150,
       });
     }
   };
@@ -124,7 +136,10 @@ export default function SelectRouteMap({
   }, [nav]);
 
   useEffect(() => {
-    if (routes.length > 0) {
+    if (
+      // JSON.stringify(nav) !== JSON.stringify(prevNavRef.current) &&
+      routes.length > 0
+    ) {
       //adjust Zoom size here according to nav range (start, waypoints, end), so that the whole route is visible
       //FIXME: optimize rendering here (calculation cost overhead expected as of now)
       if (!calculateIsInBoundary(nav, coveringRegion))
@@ -134,6 +149,15 @@ export default function SelectRouteMap({
         });
     }
   }, [coveringRegion]);
+
+  useEffect(() => {
+    if (flatListRef.current && routes.length > 0) {
+      flatListRef.current.scrollToIndex({
+        index: curRouteIdx,
+        animated: true,
+      });
+    }
+  }, [curRouteIdx]);
 
   return (
     <View className="relative w-full h-full">
@@ -163,13 +187,17 @@ export default function SelectRouteMap({
             <NavMarker />
             <CandidatePaths routes={routes} curRouteIdx={curRouteIdx} />
           </NaverMapView>
-          <CurPosButton onPress={setCurPos} />
+          <CurPosButton
+            onPress={setCurPos}
+            style="absolute right-4 bottom-[130px]"
+          />
           <View className="absolute w-full bottom-4 bg-transparent">
             <FlatList
+              ref={flatListRef}
               className="w-full overflow-hidden"
               horizontal
               data={routes}
-              pagingEnabled
+              // pagingEnabled
               bounces={false}
               overScrollMode="never"
               showsHorizontalScrollIndicator={false}
@@ -177,38 +205,9 @@ export default function SelectRouteMap({
               keyExtractor={(item, index) => index.toString()}
               getItemLayout={getItemLayout}
               onScroll={handleScroll}
-              renderItem={({item, index}) => {
-                // Convert duration from seconds to hours and minutes
-                const hours = Math.floor(item.duration / 3600);
-                const minutes = Math.floor((item.duration % 3600) / 60);
-                // Convert distance from meters to kilometers
-                const kilometers = item.distance / 1000;
-                return (
-                  <View
-                    style={{width: Dimensions.get('window').width}}
-                    className="bg-transparent px-4 py-4 justify-center items-center">
-                    <Pressable className="bg-white justify-center items-center rounded-lg py-3 w-full">
-                      <Text className="text-center text-xs">
-                        {ROUTE_PRIORITY_TEXT[item.priority]}
-                      </Text>
-                      <Text className="text-center text-xs">
-                        {hours > 0
-                          ? `${hours}시간 ${minutes}분`
-                          : `${minutes}분`}
-                      </Text>
-                      <Text className="text-center text-xs">
-                        {`${kilometers.toFixed(1)}km`}
-                      </Text>
-                      <Button
-                        title="경로 선택 버튼"
-                        onPress={() => {
-                          Alert.alert('경로 선택 기능 구현', '검색창으로 이동');
-                        }}
-                      />
-                    </Pressable>
-                  </View>
-                );
-              }}
+              renderItem={({item, index}) => (
+                <SelectRouteItem item={item} onSelect={onSelect} />
+              )}
             />
           </View>
         </>

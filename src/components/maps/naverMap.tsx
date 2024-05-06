@@ -22,6 +22,7 @@ import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import {getAddress} from '../../api/getAddress';
+import {SelectedPath} from '../paths/candidatePaths';
 
 const coordinates = dummyData.path.map(item => {
   return {
@@ -30,7 +31,11 @@ const coordinates = dummyData.path.map(item => {
   };
 });
 
-export default function NaverMap() {
+export default function NaverMap({
+  selectedPath,
+}: {
+  selectedPath: Coordinate[] | null;
+}) {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
@@ -104,13 +109,17 @@ export default function NaverMap() {
 
     if (nav.start && nav.end) {
       setOnSelectRoute(true);
-    } else setIsRough(false);
+    } else {
+      setIsRough(false);
+    }
   };
 
   useEffect(() => {
     //on Initial Mount only
     onUseEffect();
   }, [nav]);
+
+  //TODO: Make SEARCH ON PATH API request, render the result on the map (OMWMARKER)
 
   return (
     <View className="relative w-full h-full">
@@ -124,7 +133,7 @@ export default function NaverMap() {
               height: '100%',
             }}
             zoomControl={false}
-            center={center} //TODO: utilize "(start latitude + end latitude) / 2" later
+            center={center}
             onMapClick={e => {
               setModalVisible(false);
               Keyboard.dismiss();
@@ -144,12 +153,16 @@ export default function NaverMap() {
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
           >
             <CurPosMarker curPosition={curPosition} />
-            <OmwMarker coordList={DUMMY_COORD_DETAILS} />
             <NavMarker />
-            <Path
-              color="#04c75b"
-              coordinates={coordinates} //FIXME: add more options, styles, dynamically render it
-            />
+            {
+              /* {result && <OmwMarker coordList={result} />} */
+              //FIXME: render search results here
+            }
+            {selectedPath && selectedPath.length > 0 && (
+              <SelectedPath
+                path={selectedPath} //FIXME: add more options, styles, dynamically render it
+              />
+            )}
           </NaverMapView>
           <CurPosButton onPress={setCurPos} />
         </>

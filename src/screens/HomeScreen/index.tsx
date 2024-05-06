@@ -21,7 +21,7 @@ export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
   const onSelectRoute = useRecoilValue<boolean>(onSelectRouteState);
-  const [selectedPath, setSelectedPath] = useState<Coordinate[]>();
+  const [selectedPath, setSelectedPath] = useState<Coordinate[] | null>(null);
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
@@ -42,11 +42,11 @@ export const HomeScreen = () => {
             {onSelectRoute ? (
               <SelectRouteMap setSelectedPath={setSelectedPath} />
             ) : (
-              <NaverMap />
+              <NaverMap selectedPath={selectedPath} />
             )}
           </View>
           <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-            <MainHeader />
+            <MainHeader setSelectedPath={setSelectedPath} />
           </View>
           {modalVisible && (
             <View className="absolute bottom-0 left-0 h-1/4 w-full">
