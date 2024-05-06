@@ -73,9 +73,9 @@ export default function NaverMap({
   const onUseEffect = async () => {
     if (isFirstMount.current) {
       //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
-      await setCurPos();
       isFirstMount.current = false;
       prevNavRef.current = nav;
+      if (!selectedPath) await setCurPos();
       return;
     }
     //move to corresponding location when start, end, or waypoints are updated
