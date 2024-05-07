@@ -122,8 +122,6 @@ export default function NaverMap({
     if (!selectedRoute) setResult(null);
   }, [selectedRoute]);
 
-  console.log('result:', result);
-
   //TODO: Make SEARCH ON PATH API request, render the result on the map (OMWMARKER)
   return (
     <View className="relative w-full h-full">
