@@ -5,7 +5,6 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   View,
-  LogBox,
 } from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
@@ -28,10 +27,6 @@ import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
 import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
-
-LogBox.ignoreLogs([
-  /View #\d+ of type RCTView has a shadow set but cannot calculate shadow efficiently. Consider setting a background color to fix this, or apply the shadow to a more specific component./,
-]);
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
