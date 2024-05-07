@@ -7,7 +7,7 @@ export default function CurPosButton({
   style,
 }: {
   onPress: () => void;
-  style?: string;
+  style?: string | null;
 }) {
   return (
     <TouchableOpacity

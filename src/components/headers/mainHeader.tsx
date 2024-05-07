@@ -27,7 +27,11 @@ import {WhichNav} from '../../config/types/navigation';
 import CancelSVG from '../../assets/images/cancel.svg';
 import {loadingState} from '../../atoms/loadingState';
 
-export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
+export default function MainHeader({
+  setSelectedRoute,
+}: {
+  setSelectedRoute: any;
+}) {
   //FIXME: utilize components outside
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const reverseNav = useNavReverse();
@@ -80,7 +84,7 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
               wayPoints: [],
               end: null,
             });
-            setSelectedPath(null);
+            setSelectedRoute(null);
           }}
           disabled={isLoading}>
           <CancelSVG width={25} height={25} />

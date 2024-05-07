@@ -36,9 +36,9 @@ const getItemLayout = (data, index) => ({
 });
 
 export default function SelectRouteMap({
-  setSelectedPath,
+  setSelectedRoute,
 }: {
-  setSelectedPath: any;
+  setSelectedRoute: any;
 }) {
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
@@ -60,7 +60,7 @@ export default function SelectRouteMap({
 
   const onSelect = () => {
     setOnSelectRoute(false);
-    setSelectedPath(routes[curRouteIdx].path);
+    setSelectedRoute(routes[curRouteIdx]);
     setGlobalCenter(center);
   };
 
