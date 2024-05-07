@@ -25,37 +25,36 @@ export const HomeScreen = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-white w-full h-full">
-      <Drawer
+      {/* <Drawer
         open={isDrawerOpen}
         onOpen={() => setIsDrawerOpen(true)}
         onClose={() => setIsDrawerOpen(false)}
         drawerType="front"
         renderDrawerContent={() => {
           return <View className="w-full h-full bg-gray-200" />;
+        }}> */}
+      <Pressable
+        className="flex-1"
+        onPress={() => {
+          setIsDrawerOpen(false);
         }}>
-        <Pressable
-          className="flex-1"
-          onPress={() => {
-            setIsDrawerOpen(false);
-          }}>
-          <View className="flex-1">
-            {onSelectRoute ? (
-              <SelectRouteMap setSelectedPath={setSelectedPath} />
-            ) : (
-              <NaverMap selectedPath={selectedPath} />
-            )}
-          </View>
-          <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
-            <MainHeader setSelectedPath={setSelectedPath} />
-          </View>
-          {modalVisible && (
-            <View className="absolute bottom-0 left-0 h-1/4 w-full">
-              <MainBottomSheet />
-            </View>
+        <View className="flex-1">
+          {onSelectRoute ? (
+            <SelectRouteMap setSelectedPath={setSelectedPath} />
+          ) : (
+            <NaverMap selectedPath={selectedPath} />
           )}
-        </Pressable>
-        {/* <KeywordSearchBox /> temporary disable */}
-      </Drawer>
+        </View>
+        <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
+          <MainHeader setSelectedPath={setSelectedPath} />
+        </View>
+        {modalVisible && (
+          <View className="absolute bottom-0 left-0 h-1/4 w-full">
+            <MainBottomSheet />
+          </View>
+        )}
+      </Pressable>
+      {/* </Drawer> */}
     </SafeAreaView>
   );
 };
