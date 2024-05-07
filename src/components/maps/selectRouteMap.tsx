@@ -1,19 +1,12 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
 import {
-  Alert,
-  Button,
-  Dimensions,
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Pressable,
-  Text,
-  Touchable,
-  TouchableOpacity,
   View,
+  LogBox,
 } from 'react-native';
-import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {Center, Coordinate} from '../../config/types/coordinate';
@@ -31,10 +24,14 @@ import {Routes} from '../../config/types/routes';
 import {ROUTE_PRIORITY_TEXT} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
-import {calculateIsInBoundary} from '../../config/helpers/route';
+import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
 import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
+
+LogBox.ignoreLogs([
+  /View #\d+ of type RCTView has a shadow set but cannot calculate shadow efficiently. Consider setting a background color to fix this, or apply the shadow to a more specific component./,
+]);
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
@@ -97,7 +94,7 @@ export default function SelectRouteMap({
     }
   };
 
-  const getPath = async (
+  const setPath = async (
     sLat: number,
     sLon: number,
     eLat: number,
@@ -105,20 +102,22 @@ export default function SelectRouteMap({
   ) => {
     setLoading(true);
     const data = await getRoutes(nav);
+    const initialZoom = getZoomLevel(data[0].distance);
     setRoutes(data);
     setCenter({
       latitude: (sLat + eLat) / 2,
       longitude: (sLon + eLon) / 2,
-      zoom: 14, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+      zoom: initialZoom, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
     });
     setZoomTrigger(true);
     setLoading(false);
   };
+
   const onUseEffectNav = async () => {
     if (nav.start && nav.end) {
       if (isFirstMount.current) {
         isFirstMount.current = false;
-        await getPath(
+        await setPath(
           nav.start.coordinate.latitude,
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
@@ -127,7 +126,7 @@ export default function SelectRouteMap({
         return;
       } else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
         //바뀔때마다 getRoutes 호출
-        await getPath(
+        await setPath(
           nav.start.coordinate.latitude,
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
@@ -146,11 +145,12 @@ export default function SelectRouteMap({
   useEffect(() => {
     if (routes.length > 0 && zoomTrigger) {
       //adjust Zoom size here according to nav range (start, waypoints, end), so that the whole route is visible
-      //FIXME: optimize rendering here (calculation cost overhead expected as of now)
-      if (!calculateIsInBoundary(nav, coveringRegion))
+      //FIXME: Seperate cases in more detail!!
+      const isInBoundary = calculateIsInBoundary(nav, coveringRegion);
+      if (!isInBoundary)
         setCenter({
           ...center,
-          zoom: center.zoom - 1,
+          zoom: center.zoom - 0.3,
         });
       else setZoomTrigger(false);
     }
@@ -184,10 +184,7 @@ export default function SelectRouteMap({
               setIsRough(true);
             }}
             onCameraChange={e => {
-              setCenter({...center, zoom: e.zoom});
-              setTimeout(() => {
-                setCoveringRegion(e.coveringRegion);
-              }, 10);
+              setCoveringRegion(e.coveringRegion);
             }}>
             <CurPosMarker curPosition={curPosition} />
             <NavMarker />

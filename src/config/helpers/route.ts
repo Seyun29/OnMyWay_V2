@@ -36,3 +36,30 @@ export const calculateIsInBoundary = (
   }
   return true;
 };
+
+export const getZoomLevel = (distance: number) => {
+  //FIXME: Seperate cases in more detail!!
+  /*
+  ZOOM
+  15 - < 1km
+  14 - 1km ~ 2km
+  13 - 2km ~ 4km
+  12 - 4km ~ 6km
+  11 - 6km ~ 12km
+  10 - 12km ~ 30km
+  9 - 30km ~ 60km
+  8 - 60km ~ 100km
+  7 - 100km ~ 200km
+  6 - 200km ~
+  */
+  if (distance < 1000) return 15;
+  if (distance < 2000) return 14;
+  if (distance < 4000) return 13;
+  if (distance < 6000) return 12;
+  if (distance < 12000) return 11;
+  if (distance < 30000) return 10;
+  if (distance < 60000) return 9;
+  if (distance < 100000) return 8;
+  if (distance < 200000) return 7;
+  return 6;
+};
