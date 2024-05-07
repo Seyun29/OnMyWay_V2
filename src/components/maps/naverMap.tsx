@@ -2,14 +2,12 @@ import NaverMapView, {Path} from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
 import {Keyboard, View} from 'react-native';
 import {dummyData} from '../../dummy/data';
-import OmwMarker from '../markers/OmwMarker';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate} from '../../config/types/coordinate';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {lastCenterState} from '../../atoms/lastCenterState';
-import {DUMMY_COORD_DETAILS} from '../../dummy/coordDetail';
 import {getCurPosition} from '../../config/helpers/location';
 import CurPosMarker from '../markers/CurPosMarker';
 import CurPosButton from '../buttons/CurPosButton';
@@ -18,18 +16,11 @@ import {navigationState} from '../../atoms/navigationState';
 import {DEFAULT_ZOOM, ENLARGE_ZOOM} from '../../config/consts/map';
 import NavMarker from '../markers/NavMarker';
 import {headerRoughState} from '../../atoms/headerRoughState';
-import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import {getAddress} from '../../api/getAddress';
 import {SelectedPath} from '../paths/candidatePaths';
-
-const coordinates = dummyData.path.map(item => {
-  return {
-    latitude: item[1],
-    longitude: item[0],
-  };
-});
+import {loadingState} from '../../atoms/loadingState';
 
 export default function NaverMap({
   selectedPath,
@@ -39,7 +30,7 @@ export default function NaverMap({
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
-  const [isLoading, setLoading] = useState<boolean>(false);
+  const [isLoading, setLoading] = useRecoilState<boolean>(loadingState);
   const [nav, setNav] = useRecoilState<Navigation>(navigationState);
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);

@@ -26,6 +26,7 @@ import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
 import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
+import {loadingState} from '../../atoms/loadingState';
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
@@ -42,8 +43,8 @@ export default function SelectRouteMap({
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setGlobalCenter] = useRecoilState<Center>(mapCenterState);
+  const [isLoading, setLoading] = useRecoilState<boolean>(loadingState);
 
-  const [isLoading, setLoading] = useState<boolean>(false);
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const nav = useRecoilValue<Navigation>(navigationState);
 

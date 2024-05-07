@@ -13,7 +13,7 @@ import RemoveStopoOverSVG from '../../assets/images/removeStopOver.svg';
 import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
 import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {drawerState} from '../../atoms/drawerState';
 import {navigationState} from '../../atoms/navigationState';
 import InputBox from './inputBox';
@@ -25,6 +25,7 @@ import {RootStackParam} from '../../navigations';
 import {whichNavState} from '../../atoms/whichNavState';
 import {WhichNav} from '../../config/types/navigation';
 import CancelSVG from '../../assets/images/cancel.svg';
+import {loadingState} from '../../atoms/loadingState';
 
 export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
   //FIXME: utilize components outside
@@ -34,6 +35,7 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
   const [, setWhichNav] = useRecoilState<WhichNav>(whichNavState);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
+  const isLoading = useRecoilValue<boolean>(loadingState);
 
   const textSize =
     (nav.start && nav.start.name.length > 12) ||
@@ -79,7 +81,8 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
               end: null,
             });
             setSelectedPath(null);
-          }}>
+          }}
+          disabled={isLoading}>
           <CancelSVG width={25} height={25} />
         </TouchableOpacity>
       </View>
@@ -114,7 +117,8 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
                   onPress={() => {
                     setWhichNav('newWayPoint');
                     navigation.navigate('PlaceInput');
-                  }}>
+                  }}
+                  disabled={isLoading}>
                   <AddStopOverSVG height={'18px'} width={'18px'} />
                 </TouchableOpacity>
               )}
@@ -141,7 +145,8 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
                       className="absolute z-10 right-[15px] bg-white h-[26px] w-[26px] rounded-[100px] shadow-md items-center justify-center"
                       onPress={() => {
                         removeWayPoint(idx);
-                      }}>
+                      }}
+                      disabled={isLoading}>
                       <RemoveStopoOverSVG height={'20px'} width={'20px'} />
                     </TouchableOpacity>
                   }
@@ -161,7 +166,8 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
                       onPress={() => {
                         setWhichNav('newWayPoint');
                         navigation.navigate('PlaceInput');
-                      }}>
+                      }}
+                      disabled={isLoading}>
                       <AddStopOverSVG height={'18px'} width={'18px'} />
                     </TouchableOpacity>
                   )
@@ -170,7 +176,7 @@ export default function MainHeader({setSelectedPath}: {setSelectedPath: any}) {
             </>
           )}
         </View>
-        <TouchableOpacity onPress={reverseNav}>
+        <TouchableOpacity onPress={reverseNav} disabled={isLoading}>
           <ChangeDirectionSVG height={'24px'} width={'24px'} />
         </TouchableOpacity>
       </View>
