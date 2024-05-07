@@ -20,7 +20,6 @@ import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import Toast from 'react-native-toast-message';
 import {Routes} from '../../config/types/routes';
-import {ROUTE_PRIORITY_TEXT} from '../../config/consts/route';
 import CandidatePaths from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
