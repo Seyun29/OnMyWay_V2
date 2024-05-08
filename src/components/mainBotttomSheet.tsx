@@ -8,6 +8,7 @@ import {
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {useRecoilState} from 'recoil';
 import {modalState} from '../atoms/modalState';
+import WebView from 'react-native-webview';
 
 export default function MainBottomSheet() {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -32,8 +33,16 @@ export default function MainBottomSheet() {
           snapPoints={snapPoints}
           onDismiss={() => setModalVisible(false)}>
           <View className="flex-1 items-center">
-            <BottomSheetView>
-              <Text>TestModal</Text>
+            <BottomSheetView
+              style={{
+                width: '100%',
+                height: '100%',
+              }}>
+              <WebView
+                source={{uri: 'https://place.map.kakao.com/1635775764'}}
+                style={{width: '100%', height: '100%'}}
+                nestedScrollEnabled
+              />
             </BottomSheetView>
           </View>
         </BottomSheetModal>
