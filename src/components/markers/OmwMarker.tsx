@@ -41,6 +41,11 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
     }
   }, [modalVisible]);
 
+  useEffect(() => {
+    setSelected(0);
+    setModalVisible(true);
+  }, []);
+
   return (
     <>
       {coordList.map((item: CoordDetail, index: number) => {

@@ -1,12 +1,12 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   Text,
   TextInput,
   TouchableOpacity,
   View,
+  Keyboard,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
@@ -21,20 +21,29 @@ import Toast from 'react-native-toast-message';
 
 export default function KeywordSearchBox({
   selectedRoute,
+  result,
   setResult,
+  query,
+  setQuery,
 }: {
   selectedRoute: RouteDetail | null;
+  result: Coordinate[] | null;
   setResult: any;
+  query: string;
+  setQuery: any;
 }) {
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [value, setValue] = useState<number>(0);
-  const [query, setQuery] = useState<string>('');
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
+
+  const inputRef = React.useRef(null);
+
   const handleSelectRangeButton = () => {
     setIsRangeOn(!isRangeOn);
   };
 
   const onSubmit = async () => {
+    Keyboard.dismiss();
     setLoading(true);
     const path: number[][] = [];
     selectedRoute?.path?.map(coord => {
@@ -49,14 +58,22 @@ export default function KeywordSearchBox({
         longitude: result.x,
       }));
       setResult(coords);
-    } else
+    } else {
       Toast.show({
         type: 'error',
         text1: '검색 결과가 없습니다.',
         topOffset: 200,
       });
+      setResult(null);
+    }
     setLoading(false);
   };
+
+  useEffect(() => {
+    if (result && result.length > 0) {
+      setIsRangeOn(false);
+    }
+  }, [result]);
 
   if (!selectedRoute) {
     return null;
@@ -132,7 +149,15 @@ export default function KeywordSearchBox({
           </View>
         </View>
       )}
-      <View className="w-full h-[56px] bg-white rounded-[12px] shadow-md flex-row items-center px-[16px] justify-between">
+      <TouchableOpacity
+        className="w-full h-[56px] bg-white rounded-[12px] shadow-md flex-row items-center px-[16px] justify-between"
+        activeOpacity={0.8}
+        disabled={result === null || result.length === 0}
+        onPress={() => {
+          setIsRangeOn(true);
+          //@ts-ignore
+          if (inputRef.current) inputRef.current.focus();
+        }}>
         <TouchableOpacity onPress={handleSelectRangeButton} className="">
           {isRangeOn ? (
             <SelectRangeButtonOnSVG height={'24px'} width={'24px'} />
@@ -140,19 +165,20 @@ export default function KeywordSearchBox({
             <SelectRangeButtonOffSVG height={'24px'} width={'24px'} />
           )}
         </TouchableOpacity>
-
         <TextInput
+          ref={inputRef}
           className="w-[80%]"
           placeholder="검색어 입력"
           value={query}
           onChangeText={setQuery}
-          autoFocus
+          // autoFocus
           onSubmitEditing={onSubmit}
+          onFocus={() => setIsRangeOn(true)}
         />
         <TouchableOpacity onPress={onSubmit}>
           <KewordSearchButtonSVG height={'24px'} width={'24px'} />
         </TouchableOpacity>
-      </View>
+      </TouchableOpacity>
     </KeyboardAvoidingView>
   );
 }

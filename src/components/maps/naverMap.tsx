@@ -45,6 +45,7 @@ export default function NaverMap({
 
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const [result, setResult] = useState<CoordDetail[] | null>(null);
+  const [query, setQuery] = useState<string>('');
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -174,7 +175,10 @@ export default function NaverMap({
           {selectedRoute && (
             <KeywordSearchBox
               selectedRoute={selectedRoute}
+              result={result}
               setResult={setResult}
+              query={query}
+              setQuery={setQuery}
             />
           )}
         </>
