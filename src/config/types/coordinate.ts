@@ -27,6 +27,9 @@ export interface ExtraDetail {
   open?: string;
   tags?: string[];
   photoUrl?: string;
+  commentCnt?: number; //별점
+  reviewCnt?: number;
+  scoreAvg?: string;
 }
 
 export interface OmWMarkerProps {

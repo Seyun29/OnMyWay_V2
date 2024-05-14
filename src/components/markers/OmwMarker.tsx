@@ -27,7 +27,7 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
 
-  const [, setCenter] = useRecoilState<Center>(mapCenterState);
+  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
 
   const [selected, setSelected] = useState<number>(0);
 
@@ -39,7 +39,7 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
     setCenter({
       latitude: item.coordinate.latitude,
       longitude: item.coordinate.longitude,
-      zoom: 13,
+      zoom: 14,
     });
   };
 

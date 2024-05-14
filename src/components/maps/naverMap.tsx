@@ -1,16 +1,10 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Image, Keyboard, View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
-import {
-  Center,
-  CoordDetail,
-  Coordinate,
-  OmWMarkerProps,
-  PlaceDetail,
-} from '../../config/types/coordinate';
+import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {lastCenterState} from '../../atoms/lastCenterState';
 import {getCurPosition} from '../../config/helpers/location';
@@ -36,7 +30,7 @@ export default function NaverMap({
 }: {
   selectedRoute: RouteDetail | null;
 }) {
-  const [, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
@@ -120,6 +114,7 @@ export default function NaverMap({
 
   useEffect(() => {
     onUseEffect();
+    setModalVisible(false);
   }, [nav]);
 
   useEffect(() => {
@@ -193,7 +188,11 @@ export default function NaverMap({
               <CurPosButton
                 onPress={setCurPos}
                 style={
-                  showAlternative ? null : 'absolute right-4 bottom-[190px]'
+                  showAlternative
+                    ? modalVisible
+                      ? 'absolute right-4 bottom-[190px]'
+                      : null
+                    : 'absolute right-4 bottom-[190px]'
                 }
               />
             </>

@@ -23,13 +23,23 @@ export default function MainBottomSheet() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
 
-  const snapPoints = useMemo(() => ['25%', '70%', '95%'], []);
+  const snapPoints = useMemo(() => ['22%', '80%'], []);
 
   //@ts-ignore
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
 
   const setExtraData = async () => {
     const res = await getKakaoPlace(placeId);
+    let scoreAvg;
+    if (
+      res.comment?.scorecnt &&
+      res.comment?.scorecnt !== 0 &&
+      res.comment?.scoresum
+    ) {
+      const scorecnt = res.comment?.scorecnt;
+      const scoresum = res.comment?.scoresum;
+      scoreAvg = ((scoresum / (scorecnt * 5)) * 5).toFixed(1);
+    }
     setExtra({
       open: res.basicInfo?.openHour?.realtime?.open,
       tags: res.basicInfo?.tags,
@@ -39,6 +49,9 @@ export default function MainBottomSheet() {
             'https://',
           )
         : null,
+      commentCnt: res.comment?.kamapComntcnt,
+      reviewCnt: res.blogReview?.blogrvwcnt,
+      scoreAvg,
     });
   };
 
@@ -80,7 +93,9 @@ export default function MainBottomSheet() {
             flex: 1,
           }}>
           <WebView
-            source={{uri: curPlace.place_url}}
+            source={{
+              uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
+            }}
             style={{flex: 1}}
             nestedScrollEnabled
             onLoadStart={() => setIsLoading(true)}

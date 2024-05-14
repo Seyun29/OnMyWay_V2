@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Pressable, Text, View} from 'react-native';
+import {Pressable, View} from 'react-native';
 // import {useNavigation} from '@react-navigation/native';
 // import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import NaverMap from '../../components/maps/naverMap';
@@ -14,9 +14,6 @@ import {drawerState} from '../../atoms/drawerState';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail, Routes} from '../../config/types/routes';
-import {Coordinate} from '../../config/types/coordinate';
-import {ROUGH_HEADER_HEIGHT, WINDOW_HEIGHT} from '../../config/consts/style';
-import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
@@ -34,7 +31,6 @@ export const HomeScreen = () => {
         renderDrawerContent={() => {
           return <View className="w-full h-full bg-gray-200" />;
         }}> */}
-
       <Pressable
         className="flex-1"
         onPress={() => {
@@ -51,14 +47,6 @@ export const HomeScreen = () => {
           <MainHeader setSelectedRoute={setSelectedRoute} />
         </View>
         <MainBottomSheet />
-        {/* {modalVisible && (
-          <View
-            className="absolute bottom-0 left-0 w-full h-1/4"
-            // style={{height: WINDOW_HEIGHT - 2 * ROUGH_HEADER_HEIGHT}}
-          >
-            <MainBottomSheet />
-          </View>
-        )} */}
       </Pressable>
       {/* </Drawer> */}
     </SafeAreaView>
