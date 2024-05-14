@@ -31,7 +31,7 @@ export default function Spinner() {
   const SpinnerComponent = spinners[currentSpinner];
 
   return (
-    <View className="flex-1 w-full h-full justify-center items-center">
+    <View className="flex-1 w-full h-full justify-center items-center bg-white">
       <SpinnerComponent className="w-16 h-16" />
     </View>
   );

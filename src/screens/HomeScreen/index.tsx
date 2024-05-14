@@ -11,7 +11,6 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 // import {RootStackParam} from '../../navigations';
 import {Drawer} from 'react-native-drawer-layout';
 import {drawerState} from '../../atoms/drawerState';
-import KeywordSearchBox from '../../components/keywordSearchBox';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail, Routes} from '../../config/types/routes';

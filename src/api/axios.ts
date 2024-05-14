@@ -19,6 +19,24 @@ axiosInstance.interceptors.response.use(
   },
 );
 
+export const kakaoInstance = axios.create({
+  baseURL: 'https://place.map.kakao.com/main/v/',
+  timeout: 10000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+kakaoInstance.interceptors.response.use(
+  response => {
+    return response;
+  },
+  async (error: AxiosError) => {
+    onError(error, error?.config?.url);
+    return Promise.reject(error);
+  },
+);
+
 const onError = (err: AxiosError, apiUrl: string | undefined) => {
   console.log('Response error', err.message);
   if (err.response) {

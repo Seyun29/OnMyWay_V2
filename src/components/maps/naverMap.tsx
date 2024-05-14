@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Dimensions, Keyboard, View} from 'react-native';
+import {Image, Keyboard, View} from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
@@ -9,6 +9,7 @@ import {
   CoordDetail,
   Coordinate,
   OmWMarkerProps,
+  PlaceDetail,
 } from '../../config/types/coordinate';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {lastCenterState} from '../../atoms/lastCenterState';
@@ -45,7 +46,7 @@ export default function NaverMap({
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
 
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
-  const [result, setResult] = useState<CoordDetail[] | null>(null);
+  const [result, setResult] = useState<PlaceDetail[] | null>(null);
   const [query, setQuery] = useState<string>('');
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
 
@@ -169,7 +170,9 @@ export default function NaverMap({
             {selectedRoute && selectedRoute.path.length > 0 && (
               //FIXME: type issue below
               <>
-                {result && <OmwMarker coordList={result} />}
+                {result && result.length > 0 && (
+                  <OmwMarker resultList={result} />
+                )}
                 <SelectedPath
                   path={selectedRoute.path} //FIXME: add more options, styles, dynamically render it
                 />

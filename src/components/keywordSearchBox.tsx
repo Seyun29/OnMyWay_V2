@@ -13,13 +13,14 @@ import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
 import SelectRangeButtonOnSVG from '../assets/images/selectRangeButtonOn.svg';
 import KewordSearchButtonSVG from '../assets/images/kewordSearchButton.svg';
 import {searchOnPath} from '../api/searchOnPath';
-import {Coordinate} from '../config/types/coordinate';
+import {Coordinate, PlaceDetail} from '../config/types/coordinate';
 import {RouteDetail} from '../config/types/routes';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {loadingState} from '../atoms/loadingState';
 import Toast from 'react-native-toast-message';
 import {headerRoughState} from '../atoms/headerRoughState';
 import {ROUGH_HEADER_HEIGHT, WINDOW_WIDTH} from '../config/consts/style';
+import {modalState} from '../atoms/modalState';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -31,7 +32,7 @@ export default function KeywordSearchBox({
   setShowAlternative,
 }: {
   selectedRoute: RouteDetail | null;
-  result: Coordinate[] | null;
+  result: PlaceDetail[] | null;
   setResult: any;
   query: string;
   setQuery: any;
@@ -40,7 +41,8 @@ export default function KeywordSearchBox({
 }) {
   const isRough = useRecoilValue<boolean>(headerRoughState);
   const [, setLoading] = useRecoilState<boolean>(loadingState);
-  const [value, setValue] = useState<number>(0);
+  const [, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [value, setValue] = useState<number>(2);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
 
   const inputRef = React.useRef(null);
@@ -60,11 +62,11 @@ export default function KeywordSearchBox({
     const totalDistance = selectedRoute?.distance;
     const data = await searchOnPath({query, path, totalDistance, radius});
     if (data && data.length > 0) {
-      const coords = data.map((result: any) => ({
-        latitude: result.y,
-        longitude: result.x,
+      const resultList = data.map((res: PlaceDetail) => ({
+        ...res,
+        coordinate: {latitude: res.y, longitude: res.x},
       }));
-      setResult(coords);
+      setResult(resultList);
     } else {
       Toast.show({
         type: 'error',
@@ -101,7 +103,12 @@ export default function KeywordSearchBox({
             style={{
               borderColor: '#9CC7FF',
             }}
-            onPress={() => setShowAlternative(false)}>
+            onPress={() => {
+              setShowAlternative(false);
+              setModalVisible(false);
+              //@ts-ignore
+              setTimeout(() => inputRef.current.focus(), 300);
+            }}>
             <View className="border-r pr-2 mr-2 border-slate-500">
               <Text className="font-bold text-xs">검색어</Text>
             </View>
@@ -112,7 +119,7 @@ export default function KeywordSearchBox({
       ) : (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={50} // 여기서 조정
+          keyboardVerticalOffset={70} // 여기서 조정
           className="flex-1 absolute bottom-10 px-[16px] w-full">
           {isRangeOn && (
             <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[20px] shadow-md">
