@@ -12,6 +12,7 @@ import SplashScreen from 'react-native-splash-screen';
 import RootStackNavigation from './src/navigations';
 import {RecoilRoot} from 'recoil';
 import Toast from 'react-native-toast-message';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 function App(): React.JSX.Element {
   useEffect(() => {
@@ -30,8 +31,10 @@ function App(): React.JSX.Element {
 
   return (
     <RecoilRoot>
-      <RootStackNavigation />
-      <Toast />
+      <GestureHandlerRootView className="flex-1">
+        <RootStackNavigation />
+        <Toast />
+      </GestureHandlerRootView>
     </RecoilRoot>
   );
 }

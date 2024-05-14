@@ -27,18 +27,21 @@ export default function KeywordSearchBox({
   setResult,
   query,
   setQuery,
+  showAlternative,
+  setShowAlternative,
 }: {
   selectedRoute: RouteDetail | null;
   result: Coordinate[] | null;
   setResult: any;
   query: string;
   setQuery: any;
+  showAlternative: boolean;
+  setShowAlternative: any;
 }) {
   const isRough = useRecoilValue<boolean>(headerRoughState);
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [value, setValue] = useState<number>(0);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
-  const [showAlternative, setShowAlternative] = useState<boolean>(false);
 
   const inputRef = React.useRef(null);
 

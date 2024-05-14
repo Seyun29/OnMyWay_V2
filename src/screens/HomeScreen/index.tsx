@@ -16,6 +16,8 @@ import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail, Routes} from '../../config/types/routes';
 import {Coordinate} from '../../config/types/coordinate';
+import {ROUGH_HEADER_HEIGHT, WINDOW_HEIGHT} from '../../config/consts/style';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 export const HomeScreen = () => {
   const modalVisible = useRecoilValue<boolean>(modalState);
@@ -33,6 +35,7 @@ export const HomeScreen = () => {
         renderDrawerContent={() => {
           return <View className="w-full h-full bg-gray-200" />;
         }}> */}
+
       <Pressable
         className="flex-1"
         onPress={() => {
@@ -48,11 +51,15 @@ export const HomeScreen = () => {
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader setSelectedRoute={setSelectedRoute} />
         </View>
-        {modalVisible && (
-          <View className="absolute bottom-0 left-0 h-1/4 w-full">
+        <MainBottomSheet />
+        {/* {modalVisible && (
+          <View
+            className="absolute bottom-0 left-0 w-full h-1/4"
+            // style={{height: WINDOW_HEIGHT - 2 * ROUGH_HEADER_HEIGHT}}
+          >
             <MainBottomSheet />
           </View>
-        )}
+        )} */}
       </Pressable>
       {/* </Drawer> */}
     </SafeAreaView>

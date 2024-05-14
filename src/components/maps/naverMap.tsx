@@ -28,8 +28,7 @@ import {loadingState} from '../../atoms/loadingState';
 import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
-import {ROUGH_HEADER_HEIGHT, WINDOW_HEIGHT} from '../../config/consts/style';
-import Toast from 'react-native-toast-message';
+import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 
 export default function NaverMap({
   selectedRoute,
@@ -48,6 +47,7 @@ export default function NaverMap({
   const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
   const [result, setResult] = useState<CoordDetail[] | null>(null);
   const [query, setQuery] = useState<string>('');
+  const [showAlternative, setShowAlternative] = useState<boolean>(false);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -176,18 +176,26 @@ export default function NaverMap({
               </>
             )}
           </NaverMapView>
-          <CurPosButton
-            onPress={setCurPos}
-            style={selectedRoute ? 'absolute right-4 bottom-[200px]' : null}
-          />
-          {selectedRoute && (
-            <KeywordSearchBox
-              selectedRoute={selectedRoute}
-              result={result}
-              setResult={setResult}
-              query={query}
-              setQuery={setQuery}
-            />
+          {selectedRoute ? (
+            <>
+              <KeywordSearchBox
+                selectedRoute={selectedRoute}
+                result={result}
+                setResult={setResult}
+                query={query}
+                setQuery={setQuery}
+                showAlternative={showAlternative}
+                setShowAlternative={setShowAlternative}
+              />
+              <CurPosButton
+                onPress={setCurPos}
+                style={
+                  showAlternative ? null : 'absolute right-4 bottom-[190px]'
+                }
+              />
+            </>
+          ) : (
+            <CurPosButton onPress={setCurPos} />
           )}
         </>
       )}
