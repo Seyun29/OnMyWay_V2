@@ -97,7 +97,7 @@ export default function SelectRouteMap({
   ) => {
     setLoading(true);
     const data = await getRoutes(nav);
-    const initialZoom = getZoomLevel(data[0].distance);
+    const initialZoom = getZoomLevel(data[0]?.distance);
     setRoutes(data);
     setCenter({
       latitude: (sLat + eLat) / 2,

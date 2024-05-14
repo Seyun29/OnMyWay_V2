@@ -72,7 +72,7 @@ export default function MainHeader({
         shadowRadius: 2,
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
-      <View className="w-full flex-row justify-between align-center">
+      <View className="w-full flex-row justify-between align-center ">
         <Pressable onPress={() => setIsDrawerOpen(!isDrawerOpen)}>
           <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} />
         </Pressable>

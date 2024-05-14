@@ -37,7 +37,7 @@ export const calculateIsInBoundary = (
   return true;
 };
 
-export const getZoomLevel = (distance: number) => {
+export const getZoomLevel = (distance: number | undefined) => {
   //FIXME: Seperate cases in more detail!!
   /*
   ZOOM
@@ -52,6 +52,7 @@ export const getZoomLevel = (distance: number) => {
   7 - 100km ~ 200km
   6 - 200km ~
   */
+  if (!distance) return 12;
   if (distance < 1000) return 15;
   if (distance < 1500) return 14.5;
   if (distance < 2000) return 14;

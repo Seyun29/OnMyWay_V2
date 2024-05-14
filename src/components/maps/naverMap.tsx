@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Keyboard, View} from 'react-native';
+import {Dimensions, Keyboard, View} from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
@@ -28,6 +28,8 @@ import {loadingState} from '../../atoms/loadingState';
 import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
+import {ROUGH_HEADER_HEIGHT, WINDOW_HEIGHT} from '../../config/consts/style';
+import Toast from 'react-native-toast-message';
 
 export default function NaverMap({
   selectedRoute,
@@ -130,10 +132,16 @@ export default function NaverMap({
         <Spinner />
       ) : (
         <>
+          <View
+            style={{
+              height: ROUGH_HEADER_HEIGHT,
+            }}
+          />
           <NaverMapView
             style={{
               width: '100%',
-              height: '100%',
+              // height: '100%',
+              flex: 1,
             }}
             zoomControl={false}
             center={center}
@@ -153,13 +161,13 @@ export default function NaverMap({
               Keyboard.dismiss();
             }}
             scaleBar
+            compass
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
           >
             <CurPosMarker curPosition={curPosition} />
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
               //FIXME: type issue below
-
               <>
                 {result && <OmwMarker coordList={result} />}
                 <SelectedPath

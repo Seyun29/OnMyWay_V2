@@ -42,8 +42,7 @@ export default function OmwMarker({coordList}: OmWMarkerProps) {
   }, [modalVisible]);
 
   useEffect(() => {
-    setSelected(0);
-    setModalVisible(true);
+    markerOnClick(coordList[0], 0);
   }, []);
 
   return (
