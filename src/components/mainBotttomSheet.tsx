@@ -11,19 +11,34 @@ import WebView from 'react-native-webview';
 import Spinner from './spinner';
 import {curPlaceState} from '../atoms/curPlaceState';
 import {getKakaoPlace} from '../api/getKakaoPlace';
-import {ExtraDetail} from '../config/types/coordinate';
+import {ExtraDetail, PlaceDetail} from '../config/types/coordinate';
 import BottomSheetComponent from './bottomSheetComponent';
+import {getStopByDuration} from '../api/getStopByDuration';
+import {navigationState} from '../atoms/navigationState';
+import {RouteDetail} from '../config/types/routes';
 
-export default function MainBottomSheet() {
+export default function MainBottomSheet({
+  selectedRoute,
+}: {
+  selectedRoute: RouteDetail | null;
+}) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
-  const curPlace = useRecoilValue(curPlaceState);
+  const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
+  const nav = useRecoilValue(navigationState);
 
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
+  const [stopByDuration, setStopByDuration] = useState<number | null>(null);
 
-  const snapPoints = useMemo(() => ['22%', '80%'], []);
+  const getStopBy = async () => {
+    if (!curPlace) return;
+    const res = await getStopByDuration(nav, curPlace.coordinate);
+    if (res) setStopByDuration(res);
+  };
+
+  const snapPoints = useMemo(() => ['23%', '80%'], []);
 
   //@ts-ignore
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
@@ -64,7 +79,10 @@ export default function MainBottomSheet() {
   }, [modalVisible]);
 
   useEffect(() => {
-    if (curPlace) setExtraData();
+    if (curPlace) {
+      getStopBy();
+      setExtraData();
+    }
   }, [curPlace]);
 
   if (!curPlace) return <></>;
@@ -111,7 +129,14 @@ export default function MainBottomSheet() {
           )}
           {curIdx === 0 && (
             <View className="absolute w-full h-full bg-white">
-              <BottomSheetComponent placeInfo={{...curPlace, ...extra}} />
+              <BottomSheetComponent
+                placeInfo={{
+                  ...curPlace,
+                  ...extra,
+                  stopByDuration,
+                  originalDuration: selectedRoute?.duration,
+                }}
+              />
             </View>
           )}
         </BottomSheetView>

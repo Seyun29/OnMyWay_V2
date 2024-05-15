@@ -46,7 +46,7 @@ export const HomeScreen = () => {
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader setSelectedRoute={setSelectedRoute} />
         </View>
-        <MainBottomSheet />
+        <MainBottomSheet selectedRoute={selectedRoute} />
       </Pressable>
       {/* </Drawer> */}
     </SafeAreaView>

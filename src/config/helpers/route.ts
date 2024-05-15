@@ -53,26 +53,26 @@ export const getZoomLevel = (distance: number | undefined) => {
   6 - 200km ~
   */
   if (!distance) return 12;
-  if (distance < 1000) return 15;
-  if (distance < 1500) return 14.5;
-  if (distance < 2000) return 14;
-  if (distance < 3000) return 13.5;
-  if (distance < 4000) return 13;
-  if (distance < 5000) return 12.5;
-  if (distance < 6000) return 12;
-  if (distance < 8000) return 11.7;
-  if (distance < 10000) return 11.3;
-  if (distance < 12000) return 11;
-  if (distance < 21000) return 10.5;
-  if (distance < 30000) return 10;
-  if (distance < 40000) return 9.7;
-  if (distance < 50000) return 9.3;
-  if (distance < 60000) return 9;
-  if (distance < 80000) return 8.5;
-  if (distance < 100000) return 8;
-  if (distance < 150000) return 7.5;
-  if (distance < 400000) return 7;
-  return 6;
+  if (distance < 1000) return 16;
+  if (distance < 1500) return 15.5;
+  if (distance < 2000) return 15;
+  if (distance < 3000) return 14.5;
+  if (distance < 4000) return 14;
+  if (distance < 5000) return 13.5;
+  if (distance < 6000) return 13;
+  if (distance < 8000) return 12.7;
+  if (distance < 10000) return 12.3;
+  if (distance < 12000) return 12;
+  if (distance < 21000) return 11.5;
+  if (distance < 30000) return 11;
+  if (distance < 40000) return 10.7;
+  if (distance < 50000) return 10.3;
+  if (distance < 60000) return 10;
+  if (distance < 80000) return 9.5;
+  if (distance < 100000) return 9;
+  if (distance < 150000) return 8.5;
+  if (distance < 400000) return 8;
+  return 7;
 };
 
 export const setMinMaxValue = (totalDistance: number) => {

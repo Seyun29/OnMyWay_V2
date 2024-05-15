@@ -142,12 +142,12 @@ export default function SelectRouteMap({
       //adjust Zoom size here according to nav range (start, waypoints, end), so that the whole route is visible
       //FIXME: Seperate cases in more detail!!
       const isInBoundary = calculateIsInBoundary(nav, coveringRegion);
-      if (!isInBoundary)
+      if (!isInBoundary) {
         setCenter({
           ...center,
           zoom: center.zoom - 0.3,
         });
-      else setZoomTrigger(false);
+      } else setZoomTrigger(false);
     }
   }, [coveringRegion]);
 
