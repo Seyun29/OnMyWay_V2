@@ -21,6 +21,7 @@ import Toast from 'react-native-toast-message';
 import {headerRoughState} from '../atoms/headerRoughState';
 import {ROUGH_HEADER_HEIGHT, WINDOW_WIDTH} from '../config/consts/style';
 import {modalState} from '../atoms/modalState';
+import {setMinMaxValue} from '../config/helpers/route';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -42,8 +43,9 @@ export default function KeywordSearchBox({
   const isRough = useRecoilValue<boolean>(headerRoughState);
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
-  const [value, setValue] = useState<number>(2);
+  const [value, setValue] = useState<number>(1);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
+  const [minMax, setMinMax] = useState<number[]>([0, 20]);
 
   const inputRef = React.useRef(null);
 
@@ -58,7 +60,7 @@ export default function KeywordSearchBox({
     selectedRoute?.path?.map(coord => {
       path.push([coord.longitude, coord.latitude]);
     });
-    const radius = value * 1000;
+    const radius = value > 20 ? 20000 : value * 1000;
     const totalDistance = selectedRoute?.distance;
     const data = await searchOnPath({query, path, totalDistance, radius});
     if (data && data.length > 0) {
@@ -83,6 +85,14 @@ export default function KeywordSearchBox({
       setShowAlternative(true);
     }
   }, [result]);
+
+  useEffect(() => {
+    if (selectedRoute) {
+      const res = setMinMaxValue(selectedRoute.distance);
+      setMinMax(res);
+      setValue(Math.floor((res[0] + res[1]) / 2));
+    }
+  }, [selectedRoute]);
 
   if (!selectedRoute) return null;
 
@@ -124,22 +134,26 @@ export default function KeywordSearchBox({
           {isRangeOn && (
             <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[20px] shadow-md">
               <View className="flex flex-col w-full">
-                <View className="flex-row justify-between w-full">
-                  <Text className="text-[#A8A8A8] text-[12px]">검색 반경</Text>
-                  <Text className="text-[#3D3D3D] text-[12px]">{value}km</Text>
+                <View className="flex-row justify-between w-full pb-1">
+                  <Text className="text-[#A8A8A8] text-[12px] font-bold">
+                    검색 반경
+                  </Text>
+                  <Text className="text-[#3D3D3D] text-[12px] font-semibold">
+                    {value}km
+                  </Text>
                 </View>
                 <Slider
                   value={value}
                   onValueChange={setValue}
-                  step={1}
-                  minimumValue={0}
-                  maximumValue={20}
+                  step={0.5}
+                  minimumValue={minMax[0]}
+                  maximumValue={minMax[1]}
                   trackStyle={{
                     height: 4,
                     backgroundColor: '#9CC7FF',
                     borderCurve: 'circular',
                   }}
-                  thumbSize={20}
+                  thumbSize={17}
                   thumbStyle={{
                     backgroundColor: '#FFFFFF',
                     borderColor: '#B5B9BD',
@@ -151,36 +165,55 @@ export default function KeywordSearchBox({
                     elevation: 1,
                   }}
                 />
-                <View className="flex-row justify-between w-[100%]">
+                <View className="flex-row justify-between w-full">
                   <Text
                     className={`text-[12px] ${
-                      value >= 0 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                      value >= Math.floor(minMax[0])
+                        ? 'text-[#3D3D3D]'
+                        : 'text-[#A8A8A8]'
                     }`}>
-                    0km
+                    {`${minMax[0].toFixed(1)}km`}
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >= 5 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                      value >=
+                      Math.floor(minMax[0] + (minMax[1] - minMax[0]) / 4)
+                        ? 'text-[#3D3D3D]'
+                        : 'text-[#A8A8A8]'
                     }`}>
-                    5km
+                    {`${(minMax[0] + (minMax[1] - minMax[0]) / 4).toFixed(
+                      1,
+                    )}km`}
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >= 10 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                      value >=
+                      Math.floor(minMax[0] + (2 * (minMax[1] - minMax[0])) / 4)
+                        ? 'text-[#3D3D3D]'
+                        : 'text-[#A8A8A8]'
                     }`}>
-                    10km
+                    {`${(minMax[0] + (2 * (minMax[1] - minMax[0])) / 4).toFixed(
+                      1,
+                    )}km`}
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >= 15 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                      value >=
+                      Math.floor(minMax[0] + (3 * (minMax[1] - minMax[0])) / 4)
+                        ? 'text-[#3D3D3D]'
+                        : 'text-[#A8A8A8]'
                     }`}>
-                    15km
+                    {`${(minMax[0] + (3 * (minMax[1] - minMax[0])) / 4).toFixed(
+                      1,
+                    )}km`}
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >= 20 ? 'text-[#3D3D3D]' : 'text-[#A8A8A8]'
+                      value >= Math.floor(minMax[1])
+                        ? 'text-[#3D3D3D]'
+                        : 'text-[#A8A8A8]'
                     }`}>
-                    20km
+                    {`${minMax[1].toFixed(1)}km`}
                   </Text>
                 </View>
               </View>

@@ -74,3 +74,13 @@ export const getZoomLevel = (distance: number | undefined) => {
   if (distance < 400000) return 7;
   return 6;
 };
+
+export const setMinMaxValue = (totalDistance: number) => {
+  if (totalDistance > 400000) return [20, 25]; //trick
+  else {
+    const minValue = Math.max(1, Math.floor(totalDistance / 20000));
+    let maxValue = Math.max(1, Math.min(20, Math.floor(totalDistance / 1000)));
+    if (minValue > 15) maxValue = minValue + 5; //trick
+    return [minValue, maxValue];
+  }
+};
