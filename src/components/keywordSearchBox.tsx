@@ -90,7 +90,7 @@ export default function KeywordSearchBox({
     if (selectedRoute) {
       const res = setMinMaxValue(selectedRoute.distance);
       setMinMax(res);
-      setValue(Math.floor((res[0] + res[1]) / 2));
+      setValue(res[0]);
     }
   }, [selectedRoute]);
 
