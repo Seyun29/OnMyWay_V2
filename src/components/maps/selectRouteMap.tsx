@@ -57,6 +57,7 @@ export default function SelectRouteMap({
   const [zoomTrigger, setZoomTrigger] = useState<boolean>(false);
   const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
+  const [zoom, setZoom] = useState<number>(14);
 
   const onSelect = () => {
     setOnSelectRoute(false);
@@ -76,7 +77,7 @@ export default function SelectRouteMap({
       //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
       setCurPosition(curPos);
       setCenter({...curPos, zoom: 13}); //Cheat Shortcut for fixing centering bug
-      setCenter({...curPos, zoom: 15});
+      setCenter({...curPos, zoom: zoom});
     } catch (error) {
       setCurPosition(null);
       Toast.show({
@@ -180,6 +181,7 @@ export default function SelectRouteMap({
             }}
             onCameraChange={e => {
               setCoveringRegion(e.coveringRegion);
+              setZoom(e.zoom);
             }}>
             {curPosition && <CurPosMarker curPosition={curPosition} />}
             <NavMarker />

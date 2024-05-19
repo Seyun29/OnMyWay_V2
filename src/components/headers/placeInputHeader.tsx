@@ -32,9 +32,10 @@ export default function PlaceInputHeader({
       if (favorites?.places.length === 0)
         Toast.show({
           type: 'error',
-          position: 'top',
           text1: '즐겨찾기가 없습니다',
-          topOffset: Dimensions.get('window').height / 6,
+          position: 'top',
+          topOffset: 120,
+          visibilityTime: 1500,
         });
       else {
         setIsResult(true);
@@ -43,9 +44,10 @@ export default function PlaceInputHeader({
     } else
       Toast.show({
         type: 'error',
-        position: 'top',
         text1: '즐겨찾기를 가져오는데 실패했습니다',
-        topOffset: Dimensions.get('window').height / 6,
+        position: 'top',
+        topOffset: 120,
+        visibilityTime: 1500,
       });
   };
 

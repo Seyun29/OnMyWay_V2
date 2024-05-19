@@ -7,7 +7,7 @@ import {
   OmWMarkerProps,
   PlaceDetail,
 } from '../../config/types/coordinate';
-import {useRecoilState} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {markerList} from '../../config/consts/image';
@@ -18,6 +18,7 @@ import {
   LARGE_MARKER_WIDTH,
 } from '../../config/consts/map';
 import {curPlaceState} from '../../atoms/curPlaceState';
+import {lastCenterState} from '../../atoms/lastCenterState';
 
 export default function OmwMarker({resultList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
@@ -27,19 +28,21 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
 
-  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
+  const [, setCenter] = useRecoilState<Center>(mapCenterState);
+  const lastCenter = useRecoilValue<Center>(lastCenterState);
 
   const [selected, setSelected] = useState<number>(0);
 
   const markerOnClick = (item: PlaceDetail, index: number) => {
     //FIXME: pass proper states to bottommodalsheets (should be defined in recoil global state)
+
     setCurPlace(item);
     setModalVisible(true);
     setSelected(index);
     setCenter({
       latitude: item.coordinate.latitude,
       longitude: item.coordinate.longitude,
-      zoom: 14,
+      zoom: lastCenter.zoom,
     });
   };
 

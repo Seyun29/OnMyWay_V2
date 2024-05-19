@@ -41,11 +41,18 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
       <View className="w-full flex-row">
         <View className="flex-1 flex-row w-full px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
           <BlinkStarsSVG width={17} height={17} />
-          <Text className="text-sm ml-1">{'경유시 도착지까지 '}</Text>
-          <Text className="text-sm text-[#FF4D4D] font-semibold">{`${
-            Math.floor(stopByDuration / 60) - Math.floor(originalDuration / 60)
-          }분`}</Text>
-          <Text className="text-sm">{' 더 소요됩니다.'}</Text>
+          {stopByDuration ? (
+            <>
+              <Text className="text-sm ml-1">{'경유시 도착지까지 '}</Text>
+              <Text className="text-sm text-[#FF4D4D] font-semibold">{`${
+                Math.floor(stopByDuration / 60) -
+                Math.floor(originalDuration / 60)
+              }분`}</Text>
+              <Text className="text-sm">{' 더 소요됩니다.'}</Text>
+            </>
+          ) : (
+            <Text className="text-sm ml-1">경유 시간을 계산 중 입니다...</Text>
+          )}
         </View>
         {/* <TouchableOpacity>
           <LeftIconSVG width={25} height={25} />

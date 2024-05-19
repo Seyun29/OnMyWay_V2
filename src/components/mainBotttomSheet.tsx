@@ -34,6 +34,7 @@ export default function MainBottomSheet({
 
   const getStopBy = async () => {
     if (!curPlace) return;
+    setStopByDuration(null);
     const res = await getStopByDuration(nav, curPlace.coordinate);
     if (res) setStopByDuration(res);
   };

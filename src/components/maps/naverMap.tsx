@@ -1,7 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
 import {Keyboard, View} from 'react-native';
-import {ANAM} from '../../dummy/coord'; //using dummy as of now
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
@@ -33,7 +32,7 @@ export default function NaverMap({
 }) {
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
-  const [, setLastCenter] = useRecoilState<Center>(lastCenterState);
+  const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
   const [nav, setNav] = useRecoilState<Navigation>(navigationState);
 
@@ -52,8 +51,8 @@ export default function NaverMap({
     try {
       const curPos = await getCurPosition();
       setCurPosition(curPos);
-      setCenter({...curPos, zoom: 12}); //Cheat Shortcut for fixing centering bug
-      setCenter({...curPos, zoom: DEFAULT_ZOOM});
+      setCenter({...curPos, zoom: 15}); //Cheat Shortcut for fixing centering bug
+      setCenter({...curPos, zoom: lastCenter.zoom || DEFAULT_ZOOM});
       if (!nav.start) {
         const res = await getAddress(curPos);
         setNav({
@@ -70,8 +69,9 @@ export default function NaverMap({
         type: 'error',
         text1: '현재 위치를 가져오는데 실패했습니다',
         text2: '위치 권한을 확인해주세요',
-        position: 'bottom',
-        bottomOffset: 150,
+        position: 'top',
+        topOffset: 150,
+        visibilityTime: 1500,
       });
       console.error(error);
     }
