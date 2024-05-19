@@ -189,7 +189,7 @@ export default function PlaceInputScreen() {
                 data={resultList}
                 renderItem={({item: result, index: idx}) => (
                   <PlaceQueryResult
-                    key={idx}
+                    key={idx.toString()}
                     placeName={result.placeName}
                     roadAddressName={result.roadAddressName}
                     addressName={result.addressName}

@@ -24,6 +24,7 @@ import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
 import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
+import Toast from 'react-native-toast-message';
 
 export default function NaverMap({
   selectedRoute,
@@ -39,7 +40,7 @@ export default function NaverMap({
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
 
-  const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
+  const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
   const [result, setResult] = useState<PlaceDetail[] | null>(null);
   const [query, setQuery] = useState<string>('');
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
@@ -64,6 +65,14 @@ export default function NaverMap({
         });
       }
     } catch (error) {
+      setCurPosition(null);
+      Toast.show({
+        type: 'error',
+        text1: '현재 위치를 가져오는데 실패했습니다',
+        text2: '위치 권한을 확인해주세요',
+        position: 'bottom',
+        bottomOffset: 150,
+      });
       console.error(error);
     }
   };
@@ -160,17 +169,14 @@ export default function NaverMap({
             compass
             mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
           >
-            <CurPosMarker curPosition={curPosition} />
+            {curPosition && <CurPosMarker curPosition={curPosition} />}
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
-              //FIXME: type issue below
               <>
                 {result && result.length > 0 && (
                   <OmwMarker resultList={result} />
                 )}
-                <SelectedPath
-                  path={selectedRoute.path} //FIXME: add more options, styles, dynamically render it
-                />
+                <SelectedPath path={selectedRoute.path} />
               </>
             )}
           </NaverMapView>

@@ -45,7 +45,7 @@ export default function SelectRouteMap({
   const [, setGlobalCenter] = useRecoilState<Center>(mapCenterState);
   const [isLoading, setLoading] = useRecoilState<boolean>(loadingState);
 
-  const [curPosition, setCurPosition] = useState<Coordinate>(ANAM);
+  const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
   const nav = useRecoilValue<Navigation>(navigationState);
 
   const prevNavRef = useRef<Navigation | null>(nav);
@@ -78,7 +78,7 @@ export default function SelectRouteMap({
       setCenter({...curPos, zoom: 13}); //Cheat Shortcut for fixing centering bug
       setCenter({...curPos, zoom: 15});
     } catch (error) {
-      console.error(error);
+      setCurPosition(null);
       Toast.show({
         type: 'error',
         text1: '현재 위치를 가져오는데 실패했습니다',
@@ -181,7 +181,7 @@ export default function SelectRouteMap({
             onCameraChange={e => {
               setCoveringRegion(e.coveringRegion);
             }}>
-            <CurPosMarker curPosition={curPosition} />
+            {curPosition && <CurPosMarker curPosition={curPosition} />}
             <NavMarker />
             <CandidatePaths routes={routes} curRouteIdx={curRouteIdx} />
           </NaverMapView>
