@@ -23,6 +23,7 @@ export default function FavoriteButton({
     if (res) {
       res.places.forEach((item, idx) => {
         if (item.addressName === addressName) {
+          console.log('I"m favorite', item.addressName, addressName);
           setIsFav(true);
         }
       });

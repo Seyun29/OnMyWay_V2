@@ -54,7 +54,6 @@ export default function PlaceInputHeader({
     //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
     setLoading(true);
     const response = await placeQuery(query);
-    setLoading(false);
     if (response.length === 0) {
       setResultList([]);
       setIsResult(false);
@@ -78,6 +77,7 @@ export default function PlaceInputHeader({
     }));
     setResultList(newList);
     setIsResult(true);
+    setLoading(false);
   };
   return (
     <View

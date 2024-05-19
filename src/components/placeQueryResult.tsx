@@ -23,6 +23,7 @@ export default function PlaceQueryResult({
   const mainText = placeName || addressName;
   const subText = placeName ? addressName : roadAddressName;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+  console.log('addressName', addressName);
   return (
     <View className="flex-row items-center justify-between px-[16px] py-[16px] border-b border-gray-300">
       <TouchableOpacity className="flex-1 overflow-hidden" onPress={onPress}>
