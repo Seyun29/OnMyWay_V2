@@ -196,9 +196,9 @@ export default function NaverMap({
                 style={
                   showAlternative
                     ? modalVisible
-                      ? 'absolute right-4 bottom-[190px]'
+                      ? 'absolute right-4 bottom-1/4'
                       : null
-                    : 'absolute right-4 bottom-[190px]'
+                    : 'absolute right-4 bottom-1/4'
                 }
               />
             </>
