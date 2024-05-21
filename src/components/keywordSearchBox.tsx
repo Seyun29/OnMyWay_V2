@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   Keyboard,
+  Touchable,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
@@ -22,6 +23,7 @@ import {headerRoughState} from '../atoms/headerRoughState';
 import {ROUGH_HEADER_HEIGHT, WINDOW_WIDTH} from '../config/consts/style';
 import {modalState} from '../atoms/modalState';
 import {setMinMaxValue} from '../config/helpers/route';
+import BackToListSVG from '../assets/images/backToList.svg';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -107,6 +109,7 @@ export default function KeywordSearchBox({
             width: WINDOW_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',
+            flexDirection: 'row',
           }}>
           <TouchableOpacity
             className="rounded-full bg-white pl-5 pr-3 py-1.5 border-2 flex-row"
@@ -125,6 +128,9 @@ export default function KeywordSearchBox({
             <Text className="text-xs mr-3">{query}</Text>
             <KewordSearchButtonSVG height={'18px'} width={'18px'} />
           </TouchableOpacity>
+          {/* <TouchableOpacity className="bg-white rounded-full ml-2 border-3 border-gray-700">
+            <BackToListSVG height={27} width={27} />
+          </TouchableOpacity> */}
         </View>
       ) : (
         <KeyboardAvoidingView
