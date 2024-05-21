@@ -19,6 +19,7 @@ import {
 } from '../../config/consts/map';
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {lastCenterState} from '../../atoms/lastCenterState';
+import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 
 export default function OmwMarker({resultList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
@@ -31,19 +32,13 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   const [, setCenter] = useRecoilState<Center>(mapCenterState);
   const lastCenter = useRecoilValue<Center>(lastCenterState);
 
-  const [selected, setSelected] = useState<number>(0);
+  const [selected, setSelected] = useRecoilState<number>(
+    selectedPlaceIndexState,
+  );
 
   const markerOnClick = (item: PlaceDetail, index: number) => {
-    //FIXME: pass proper states to bottommodalsheets (should be defined in recoil global state)
-
-    setCurPlace(item);
     setModalVisible(true);
     setSelected(index);
-    setCenter({
-      latitude: item.coordinate.latitude,
-      longitude: item.coordinate.longitude,
-      zoom: lastCenter.zoom,
-    });
   };
 
   useEffect(() => {
@@ -51,6 +46,17 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
       setSelected(-1);
     }
   }, [modalVisible]);
+
+  useEffect(() => {
+    if (selected > 0 && selected < resultList.length) {
+      setCurPlace({...resultList[selected], max_length: resultList.length});
+      setCenter({
+        latitude: resultList[selected].coordinate.latitude,
+        longitude: resultList[selected].coordinate.longitude,
+        zoom: lastCenter.zoom,
+      });
+    }
+  }, [selected]);
 
   useEffect(() => {
     markerOnClick(resultList[0], 0);

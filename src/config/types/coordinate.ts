@@ -18,6 +18,7 @@ export interface PlaceDetail {
   road_address_name?: string;
   x: '128.907353175642';
   y: '35.0859058483527';
+  max_length?: number;
   //TODO: below will be used later
   isOpen?: boolean;
   isClosed?: boolean; //else, if will be 'default' marker

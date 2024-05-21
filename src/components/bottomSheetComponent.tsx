@@ -7,8 +7,9 @@ import BlinkStarsSVG from '../assets/images/blinkStars.svg';
 import LeftIconSVG from '../assets/images/leftIcon.svg';
 import RightIconSVG from '../assets/images/rightIcon.svg';
 import {getStopByDuration} from '../api/getStopByDuration';
-import {useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from 'recoil';
 import {navigationState} from '../atoms/navigationState';
+import {selectedPlaceIndexState} from '../atoms/selectedPlaceIndexState';
 
 function Stars({scoreAvg}: {scoreAvg: number}) {
   const stars = [<StarFilledSVG key={1} />];
@@ -34,12 +35,24 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
     commentCnt,
     reviewCnt,
     scoreAvg,
+    max_length,
   } = placeInfo;
+
+  const [selected, setSelected] = useRecoilState<number>(
+    selectedPlaceIndexState,
+  );
 
   return (
     <View className="flex-1 px-5">
-      <View className="w-full flex-row">
-        <View className="flex-1 flex-row w-full px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
+      <View className="w-full flex-row justify-between gap-x-1.5 items-center">
+        <TouchableOpacity
+          onPress={() => {
+            if (selected >= 0 && selected <= max_length)
+              setSelected(selected - 1);
+          }}>
+          <LeftIconSVG width={17} height={17} />
+        </TouchableOpacity>
+        <View className="flex-1 flex-row px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
           <BlinkStarsSVG width={17} height={17} />
           {stopByDuration ? (
             <>
@@ -54,12 +67,13 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
             <Text className="text-sm ml-1">경유 시간을 계산 중 입니다...</Text>
           )}
         </View>
-        {/* <TouchableOpacity>
-          <LeftIconSVG width={25} height={25} />
+
+        <TouchableOpacity
+          onPress={() => {
+            setSelected(selected + 1);
+          }}>
+          <RightIconSVG width={17} height={17} />
         </TouchableOpacity>
-        <TouchableOpacity>
-          <RightIconSVG width={25} height={25} />
-        </TouchableOpacity> */}
       </View>
       <View className="flex-1 flex-row w-full pt-3">
         <Image
