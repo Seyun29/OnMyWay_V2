@@ -86,8 +86,6 @@ export default function MainBottomSheet({
     }
   }, [curPlace]);
 
-  if (!curPlace) return <></>;
-
   return (
     <BottomSheetModalProvider>
       <BottomSheetModal
@@ -111,24 +109,26 @@ export default function MainBottomSheet({
           style={{
             flex: 1,
           }}>
-          <WebView
-            source={{
-              uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
-            }}
-            style={{flex: 1}}
-            nestedScrollEnabled
-            onLoadStart={() => setIsLoading(true)}
-            onLoadEnd={() => {
-              setIsLoading(false);
-            }}
-          />
+          {curPlace && (
+            <WebView
+              source={{
+                uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
+              }}
+              style={{flex: 1}}
+              nestedScrollEnabled
+              onLoadStart={() => setIsLoading(true)}
+              onLoadEnd={() => {
+                setIsLoading(false);
+              }}
+            />
+          )}
           {isLoading && (
             <View className="absolute w-full h-full">
               <Spinner />
               <View className="w-full h-1/4 bg-white" />
             </View>
           )}
-          {curIdx === 0 && (
+          {curIdx === 0 && curPlace && (
             <View className="absolute w-full h-full bg-white">
               <BottomSheetComponent
                 placeInfo={{

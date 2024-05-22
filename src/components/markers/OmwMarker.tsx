@@ -48,7 +48,7 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   }, [modalVisible]);
 
   useEffect(() => {
-    if (selected > 0 && selected < resultList.length) {
+    if (selected >= 0 && selected < resultList.length) {
       setCurPlace({...resultList[selected], max_length: resultList.length});
       setCenter({
         latitude: resultList[selected].coordinate.latitude,
