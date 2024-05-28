@@ -10,7 +10,16 @@ export interface CoordDetail extends Coordinate {
   category?: string; //FIXME: add enum for category
 }
 
-export interface PlaceDetail {
+export interface ExtraDetail {
+  open?: string;
+  tags?: string[];
+  photoUrl?: string;
+  commentCnt?: number; //별점
+  reviewCnt?: number;
+  scoreAvg?: number;
+}
+
+export interface PlaceDetail extends ExtraDetail {
   coordinate: Coordinate;
   place_name: string;
   place_url: string;
@@ -19,18 +28,8 @@ export interface PlaceDetail {
   x: '128.907353175642';
   y: '35.0859058483527';
   max_length?: number;
-  //TODO: below will be used later
-  isOpen?: boolean;
-  isClosed?: boolean; //else, if will be 'default' marker
-}
-
-export interface ExtraDetail {
-  open?: string;
-  tags?: string[];
-  photoUrl?: string;
-  commentCnt?: number; //별점
-  reviewCnt?: number;
-  scoreAvg?: string;
+  stopByDuration?: number;
+  originalDuration?: number;
 }
 
 export interface OmWMarkerProps {

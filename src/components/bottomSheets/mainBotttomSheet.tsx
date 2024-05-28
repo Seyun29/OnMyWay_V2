@@ -60,6 +60,14 @@ export default function MainBottomSheet({
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
 
   const setExtraData = async () => {
+    if (
+      curPlace?.open ||
+      curPlace?.tags ||
+      curPlace?.photoUrl ||
+      curPlace?.commentCnt ||
+      curPlace?.reviewCnt
+    )
+      return;
     const res = await getKakaoPlace(placeId);
     let scoreAvg;
     if (

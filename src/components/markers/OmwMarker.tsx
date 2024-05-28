@@ -71,8 +71,8 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
     <>
       {resultList.map((item: PlaceDetail, index: number) => {
         let markerImage = markerList.basic.default;
-        if (item.isOpen) markerImage = markerList.basic.on;
-        else if (item.isClosed) markerImage = markerList.basic.off;
+        if (item.open === 'Y') markerImage = markerList.basic.on;
+        else if (item.open === 'N') markerImage = markerList.basic.off;
         return (
           <Marker
             key={index}

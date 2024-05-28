@@ -26,6 +26,7 @@ import {modalState} from '../atoms/modalState';
 import {setMinMaxValue} from '../config/helpers/route';
 import BackToListSVG from '../assets/images/backToList.svg';
 import {listModalState} from '../atoms/listModalState';
+import {getExtraPlaceData} from '../api/getExtraPlaceData';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -70,12 +71,23 @@ export default function KeywordSearchBox({
     const totalDistance = selectedRoute?.distance;
     const data = await searchOnPath({query, path, totalDistance, radius});
     if (data && data.length > 0) {
-      const resultList = data.map((res: PlaceDetail) => ({
+      let resultList = data.map((res: PlaceDetail) => ({
         ...res,
         coordinate: {latitude: res.y, longitude: res.x},
       }));
+      const promises = resultList.map(async (curPlace: PlaceDetail) => {
+        //@ts-ignore
+        const placeId = curPlace.place_url.match(/\/(\d+)$/)[1];
+        const extraData = await getExtraPlaceData(placeId);
+        return {
+          ...curPlace,
+          ...extraData,
+        };
+      });
+      resultList = await Promise.all(promises);
       setResult(resultList);
       setListModalVisible(true);
+      //BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
     } else {
       Alert.alert('검색 결과가 없습니다.');
       setResult(null);
