@@ -4,6 +4,7 @@ import NaverLogo from '../assets/images/naverLogo.svg';
 import {
   NMAP_URL_SCHEME_PREFIX,
   NMAP_URL_SCHEME_SUFFIX,
+  STORE_URL,
 } from '../config/consts/link';
 import {useRecoilValue} from 'recoil';
 import {Navigation} from '../config/types/navigation';
@@ -20,10 +21,6 @@ const NaverMapLink = ({
   const nav = useRecoilValue<Navigation>(navigationState);
   const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
 
-  //   console.log(nav.start?.name, nav.start?.coordinate);
-  //   console.log(nav.end?.name, nav.end?.coordinate);
-  //   console.log(curPlace?.place_name, curPlace?.coordinate);
-  //   console.log(stopByStrategy);
   const openNaverMap = () => {
     if (!nav.start || !nav.end || !curPlace) {
       Alert.alert('오류', '일시적인 오류입니다. 다시 시도해주세요.');
@@ -43,7 +40,17 @@ const NaverMapLink = ({
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert('Error', 'Naver Map app is not installed.');
+          Alert.alert(
+            '오류',
+            '네이버맵이 설치되어있지 않습니다.\n설치 페이지로 이동합니다.ㄴ',
+            [
+              {
+                text: '취소',
+                style: 'cancel',
+              },
+              {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
+            ],
+          );
         }
       })
       .catch(err => console.error('An error occurred', err));
