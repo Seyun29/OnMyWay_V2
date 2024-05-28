@@ -24,6 +24,7 @@ import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
 import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 import Toast from 'react-native-toast-message';
+import MainBottomSheet from '../mainBotttomSheet';
 
 export default function NaverMap({
   selectedRoute,
@@ -207,6 +208,7 @@ export default function NaverMap({
           )}
         </>
       )}
+      <MainBottomSheet selectedRoute={selectedRoute} />
     </View>
   );
 }

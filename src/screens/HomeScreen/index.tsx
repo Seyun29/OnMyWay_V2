@@ -16,7 +16,7 @@ import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail, Routes} from '../../config/types/routes';
 
 export const HomeScreen = () => {
-  const modalVisible = useRecoilValue<boolean>(modalState);
+  // const modalVisible = useRecoilValue<boolean>(modalState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
   const onSelectRoute = useRecoilValue<boolean>(onSelectRouteState);
   const [selectedRoute, setSelectedRoute] = useState<RouteDetail | null>(null);
@@ -46,7 +46,7 @@ export const HomeScreen = () => {
         <View className="top-0 absolute w-full overflow-hidden pb-[8px]">
           <MainHeader setSelectedRoute={setSelectedRoute} />
         </View>
-        <MainBottomSheet selectedRoute={selectedRoute} />
+        {/* <MainBottomSheet selectedRoute={selectedRoute} /> */}
       </Pressable>
       {/* </Drawer> */}
     </SafeAreaView>
