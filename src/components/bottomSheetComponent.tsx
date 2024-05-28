@@ -42,6 +42,17 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
     selectedPlaceIndexState,
   );
 
+  const [navDisbable, setNavDisable] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (selected === 0) {
+      setNavDisable(true);
+    } else {
+      setNavDisable(true);
+      setTimeout(() => setNavDisable(false), 500);
+    }
+  }, [selected]);
+
   return (
     <View className="flex-1 px-5">
       <View className="w-full flex-row justify-between gap-x-1.5 items-center">
@@ -49,7 +60,8 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
           onPress={() => {
             if (selected >= 0 && selected <= max_length)
               setSelected(selected - 1);
-          }}>
+          }}
+          disabled={navDisbable}>
           <LeftIconSVG width={17} height={17} />
         </TouchableOpacity>
         <View className="flex-1 flex-row px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
@@ -71,7 +83,8 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
         <TouchableOpacity
           onPress={() => {
             setSelected(selected + 1);
-          }}>
+          }}
+          disabled={navDisbable}>
           <RightIconSVG width={17} height={17} />
         </TouchableOpacity>
       </View>
