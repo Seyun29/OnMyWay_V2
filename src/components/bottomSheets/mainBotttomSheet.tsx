@@ -1,21 +1,22 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View, Text, Image} from 'react-native';
+import {View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {modalState} from '../atoms/modalState';
+import {modalState} from '../../atoms/modalState';
 import WebView from 'react-native-webview';
-import Spinner from './spinner';
-import {curPlaceState} from '../atoms/curPlaceState';
-import {getKakaoPlace} from '../api/getKakaoPlace';
-import {ExtraDetail, PlaceDetail} from '../config/types/coordinate';
+import Spinner from '../spinner';
+import {curPlaceState} from '../../atoms/curPlaceState';
+import {getKakaoPlace} from '../../api/getKakaoPlace';
+import {ExtraDetail, PlaceDetail} from '../../config/types/coordinate';
 import BottomSheetComponent from './bottomSheetComponent';
-import {getStopByDuration} from '../api/getStopByDuration';
-import {navigationState} from '../atoms/navigationState';
-import {RouteDetail} from '../config/types/routes';
+import {getStopByDuration} from '../../api/getStopByDuration';
+import {navigationState} from '../../atoms/navigationState';
+import {RouteDetail} from '../../config/types/routes';
+import {listModalState} from '../../atoms/listModalState';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -38,6 +39,7 @@ export default function MainBottomSheet({
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
   const nav = useRecoilValue(navigationState);
+  const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
 
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -86,6 +88,7 @@ export default function MainBottomSheet({
 
   useEffect(() => {
     if (modalVisible) {
+      setListModalVisible(false);
       bottomSheetModalRef.current?.present();
     } else {
       bottomSheetModalRef.current?.close();

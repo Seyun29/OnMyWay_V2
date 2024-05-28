@@ -20,6 +20,8 @@ import {
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {lastCenterState} from '../../atoms/lastCenterState';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
+import {Alert} from 'react-native';
+import {listModalState} from '../../atoms/listModalState';
 
 export default function OmwMarker({resultList}: OmWMarkerProps) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
@@ -27,6 +29,7 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   //TODO: move & zoom smoothly to the selected marker, 'zoom level' is also required to be updated.
 
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
 
   const [, setCenter] = useRecoilState<Center>(mapCenterState);
@@ -59,7 +62,10 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   }, [selected]);
 
   useEffect(() => {
-    markerOnClick(resultList[0], 0);
+    // markerOnClick(resultList[0], 0);
+    Alert.alert('resultList', JSON.stringify(resultList.length));
+
+    return () => setListModalVisible(false);
   }, []);
 
   return (

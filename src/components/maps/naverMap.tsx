@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Alert, Keyboard, Text, View} from 'react-native';
+import {Alert, Keyboard, Text, TouchableOpacity, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
@@ -24,9 +24,11 @@ import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
 import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 import Toast from 'react-native-toast-message';
-import MainBottomSheet from '../mainBotttomSheet';
+import MainBottomSheet from '../bottomSheets/mainBotttomSheet';
 import BackToListButton from '../backToListButton';
 import NaverMapLink from '../naverMapLink';
+import ListBottomSheet from '../bottomSheets/listBottomSheet';
+import {listModalState} from '../../atoms/listModalState';
 
 export default function NaverMap({
   selectedRoute,
@@ -34,6 +36,8 @@ export default function NaverMap({
   selectedRoute: RouteDetail | null;
 }) {
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [listModalVisible, setListModalVisible] =
+    useRecoilState<boolean>(listModalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
@@ -86,7 +90,7 @@ export default function NaverMap({
 
   const backToList = () => {
     //TODO: implement feature here
-    Alert.alert('Back to List', 'Are you sure?');
+    setListModalVisible(true);
   };
 
   const onUseEffect = async () => {
@@ -232,6 +236,7 @@ export default function NaverMap({
         stopByData={stopByData}
         setStopByData={setStopByData}
       />
+      <ListBottomSheet result={result} setResult={setResult} />
     </View>
   );
 }

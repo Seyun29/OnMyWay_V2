@@ -24,6 +24,7 @@ import {ROUGH_HEADER_HEIGHT, WINDOW_WIDTH} from '../config/consts/style';
 import {modalState} from '../atoms/modalState';
 import {setMinMaxValue} from '../config/helpers/route';
 import BackToListSVG from '../assets/images/backToList.svg';
+import {listModalState} from '../atoms/listModalState';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -45,6 +46,8 @@ export default function KeywordSearchBox({
   const isRough = useRecoilValue<boolean>(headerRoughState);
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
+  const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
+
   const [value, setValue] = useState<number>(1);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
   const [minMax, setMinMax] = useState<number[]>([0, 20]);
@@ -71,6 +74,7 @@ export default function KeywordSearchBox({
         coordinate: {latitude: res.y, longitude: res.x},
       }));
       setResult(resultList);
+      setListModalVisible(true);
     } else {
       Toast.show({
         type: 'error',
@@ -119,6 +123,7 @@ export default function KeywordSearchBox({
             onPress={() => {
               setShowAlternative(false);
               setModalVisible(false);
+              setListModalVisible(false);
               //@ts-ignore
               setTimeout(() => inputRef.current.focus(), 300);
             }}>

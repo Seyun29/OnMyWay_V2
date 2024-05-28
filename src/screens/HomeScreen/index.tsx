@@ -3,7 +3,7 @@ import {Pressable, View} from 'react-native';
 // import {useNavigation} from '@react-navigation/native';
 // import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import NaverMap from '../../components/maps/naverMap';
-import MainBottomSheet from '../../components/mainBotttomSheet';
+import MainBottomSheet from '../../components/bottomSheets/mainBotttomSheet';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import MainHeader from '../../components/headers/mainHeader';

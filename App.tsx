@@ -35,12 +35,14 @@ function App(): React.JSX.Element {
   }, []);
 
   return (
-    <RecoilRoot>
-      <GestureHandlerRootView className="flex-1">
-        <RootStackNavigation />
-        <Toast />
-      </GestureHandlerRootView>
-    </RecoilRoot>
+    <React.StrictMode>
+      <RecoilRoot>
+        <GestureHandlerRootView className="flex-1">
+          <RootStackNavigation />
+          <Toast />
+        </GestureHandlerRootView>
+      </RecoilRoot>
+    </React.StrictMode>
   );
 }
 

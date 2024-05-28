@@ -1,13 +1,13 @@
 //@ts-ignore
 import React, {useEffect, useState} from 'react';
 import {View, Text, Image, TouchableOpacity} from 'react-native';
-import StarFilledSVG from '../assets/images/starFilled.svg';
-import StarUnFilledSVG from '../assets/images/starUnfilled.svg';
-import BlinkStarsSVG from '../assets/images/blinkStars.svg';
-import LeftIconSVG from '../assets/images/leftIcon.svg';
-import RightIconSVG from '../assets/images/rightIcon.svg';
-import {useRecoilState, useRecoilValue} from 'recoil';
-import {selectedPlaceIndexState} from '../atoms/selectedPlaceIndexState';
+import StarFilledSVG from '../../assets/images/starFilled.svg';
+import StarUnFilledSVG from '../../assets/images/starUnfilled.svg';
+import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
+import LeftIconSVG from '../../assets/images/leftIcon.svg';
+import RightIconSVG from '../../assets/images/rightIcon.svg';
+import {useRecoilState} from 'recoil';
+import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 
 function Stars({scoreAvg}: {scoreAvg: number}) {
   const stars = [<StarFilledSVG key={1} />];
@@ -89,7 +89,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
           source={
             photoUrl
               ? {uri: photoUrl}
-              : require('../assets/images/defaultThumbnail.png')
+              : require('../../assets/images/defaultThumbnail.png')
           }
           style={{width: 110, height: 110, marginRight: 20, borderRadius: 12}}
         />
