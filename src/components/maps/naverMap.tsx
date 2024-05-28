@@ -192,16 +192,14 @@ export default function NaverMap({
                 showAlternative={showAlternative}
                 setShowAlternative={setShowAlternative}
               />
-              <CurPosButton
-                onPress={setCurPos}
-                style={
-                  showAlternative
-                    ? modalVisible
-                      ? 'absolute right-4 bottom-1/4'
-                      : null
-                    : 'absolute right-4 bottom-1/4'
-                }
-              />
+              {showAlternative && (
+                <View>
+                  <CurPosButton
+                    onPress={setCurPos}
+                    style={modalVisible ? 'absolute right-4 bottom-1/4' : null}
+                  />
+                </View>
+              )}
             </>
           ) : (
             <CurPosButton onPress={setCurPos} />
