@@ -8,6 +8,7 @@ import {
   View,
   Keyboard,
   Touchable,
+  Alert,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
@@ -76,11 +77,7 @@ export default function KeywordSearchBox({
       setResult(resultList);
       setListModalVisible(true);
     } else {
-      Toast.show({
-        type: 'error',
-        text1: '검색 결과가 없습니다.',
-        topOffset: 200,
-      });
+      Alert.alert('검색 결과가 없습니다.');
       setResult(null);
     }
     setLoading(false);

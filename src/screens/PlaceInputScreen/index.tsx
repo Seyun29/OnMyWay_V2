@@ -141,12 +141,10 @@ export default function PlaceInputScreen() {
       });
     } catch (error) {
       console.error(error);
-      Toast.show({
-        type: 'error',
-        position: 'bottom',
-        text1: '현재 위치를 가져오는데 실패했습니다',
-        topOffset: 100,
-      });
+      Alert.alert(
+        '현재 위치를 가져오는데 실패했습니다',
+        '위치 권한을 확인해주세요',
+      );
     }
   };
 

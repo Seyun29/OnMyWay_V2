@@ -76,14 +76,10 @@ export default function NaverMap({
       }
     } catch (error) {
       setCurPosition(null);
-      Toast.show({
-        type: 'error',
-        text1: '현재 위치를 가져오는데 실패했습니다',
-        text2: '위치 권한을 확인해주세요',
-        position: 'top',
-        topOffset: 150,
-        visibilityTime: 1500,
-      });
+      Alert.alert(
+        '현재 위치를 가져오는데 실패했습니다',
+        '위치 권한을 확인해주세요',
+      );
       console.error(error);
     }
   };

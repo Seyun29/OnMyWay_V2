@@ -59,12 +59,7 @@ export default function PlaceInputHeader({
     if (response.length === 0) {
       setResultList([]);
       setIsResult(false);
-      Toast.show({
-        type: 'error',
-        position: 'top',
-        text1: '검색 결과가 없습니다',
-        topOffset: Dimensions.get('window').height / 5,
-      });
+      Alert.alert('검색 결과가 없습니다');
       return;
     }
     //FIXME: Exception handling required here

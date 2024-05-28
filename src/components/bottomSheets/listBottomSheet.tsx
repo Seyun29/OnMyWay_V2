@@ -31,12 +31,9 @@ export default function ListBottomSheet({
       setModalVisible(false);
       bottomSheetModalRef.current?.present();
     } else {
-      //   console.log('listModalVisible', listModalVisible);
       bottomSheetModalRef.current?.close();
     }
   }, [listModalVisible]);
-
-  console.log('listModalVisible', listModalVisible);
 
   return (
     <BottomSheetModalProvider>
