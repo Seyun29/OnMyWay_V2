@@ -19,8 +19,20 @@ import {RouteDetail} from '../config/types/routes';
 
 export default function MainBottomSheet({
   selectedRoute,
+  stopByData,
+  setStopByData,
 }: {
   selectedRoute: RouteDetail | null;
+  stopByData: {
+    strategy: 'FRONT' | 'REAR' | 'MIDDLE';
+    duration: number;
+  } | null;
+  setStopByData: (
+    data: {
+      strategy: 'FRONT' | 'REAR' | 'MIDDLE';
+      duration: number;
+    } | null,
+  ) => void;
 }) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
@@ -30,13 +42,14 @@ export default function MainBottomSheet({
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
-  const [stopByDuration, setStopByDuration] = useState<number | null>(null);
 
   const getStopBy = async () => {
     if (!curPlace) return;
-    setStopByDuration(null);
+    setStopByData(null);
     const res = await getStopByDuration(nav, curPlace.coordinate);
-    if (res) setStopByDuration(res);
+    if (res) {
+      setStopByData({duration: res.duration, strategy: res.strategy});
+    }
   };
 
   const snapPoints = useMemo(() => ['23%', '80%'], []);
@@ -134,7 +147,7 @@ export default function MainBottomSheet({
                 placeInfo={{
                   ...curPlace,
                   ...extra,
-                  stopByDuration,
+                  stopByDuration: stopByData?.duration,
                   originalDuration: selectedRoute?.duration,
                 }}
               />

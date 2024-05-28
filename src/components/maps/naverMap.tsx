@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Keyboard, View} from 'react-native';
+import {Alert, Keyboard, Text, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
@@ -25,6 +25,8 @@ import OmwMarker from '../markers/OmwMarker';
 import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 import Toast from 'react-native-toast-message';
 import MainBottomSheet from '../mainBotttomSheet';
+import BackToListButton from '../backToListButton';
+import NaverMapLink from '../naverMapLink';
 
 export default function NaverMap({
   selectedRoute,
@@ -44,6 +46,10 @@ export default function NaverMap({
   const [result, setResult] = useState<PlaceDetail[] | null>(null);
   const [query, setQuery] = useState<string>('');
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
+  const [stopByData, setStopByData] = useState<{
+    strategy: 'FRONT' | 'REAR' | 'MIDDLE';
+    duration: number;
+  } | null>(null);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -76,6 +82,11 @@ export default function NaverMap({
       });
       console.error(error);
     }
+  };
+
+  const backToList = () => {
+    //TODO: implement feature here
+    Alert.alert('Back to List', 'Are you sure?');
   };
 
   const onUseEffect = async () => {
@@ -193,12 +204,22 @@ export default function NaverMap({
                 setShowAlternative={setShowAlternative}
               />
               {showAlternative && (
-                <View>
-                  <CurPosButton
-                    onPress={setCurPos}
-                    style={modalVisible ? 'absolute right-4 bottom-1/4' : null}
-                  />
-                </View>
+                <>
+                  {modalVisible ? (
+                    <View className="absolute w-full bottom-1/4 items-center justify-center">
+                      <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
+                        <CurPosButton
+                          onPress={setCurPos}
+                          style="relative self-center"
+                        />
+                        <BackToListButton onPress={backToList} />
+                      </View>
+                      <NaverMapLink stopByStrategy={stopByData?.strategy} />
+                    </View>
+                  ) : (
+                    <CurPosButton onPress={setCurPos} />
+                  )}
+                </>
               )}
             </>
           ) : (
@@ -206,7 +227,11 @@ export default function NaverMap({
           )}
         </>
       )}
-      <MainBottomSheet selectedRoute={selectedRoute} />
+      <MainBottomSheet
+        selectedRoute={selectedRoute}
+        stopByData={stopByData}
+        setStopByData={setStopByData}
+      />
     </View>
   );
 }

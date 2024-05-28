@@ -27,5 +27,9 @@
     </application>
     <queries>
         <package android:name="com.omw.omw_front"/>
+        <intent>
+            <action android:name="android.intent.action.VIEW" />
+            <data android:scheme="nmap" />
+        </intent>
     </queries>
 </manifest>

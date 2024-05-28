@@ -6,9 +6,7 @@ import StarUnFilledSVG from '../assets/images/starUnfilled.svg';
 import BlinkStarsSVG from '../assets/images/blinkStars.svg';
 import LeftIconSVG from '../assets/images/leftIcon.svg';
 import RightIconSVG from '../assets/images/rightIcon.svg';
-import {getStopByDuration} from '../api/getStopByDuration';
 import {useRecoilState, useRecoilValue} from 'recoil';
-import {navigationState} from '../atoms/navigationState';
 import {selectedPlaceIndexState} from '../atoms/selectedPlaceIndexState';
 
 function Stars({scoreAvg}: {scoreAvg: number}) {
