@@ -98,7 +98,13 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
             <Text
               className={
                 'font-semibold ' +
-                (place_name.length > 10 ? 'text-base' : 'text-xl')
+                (place_name.length > 14
+                  ? 'text-xs'
+                  : place_name.length > 10
+                  ? 'text-sm'
+                  : place_name.length > 7
+                  ? 'text-base'
+                  : 'text-xl')
               }>
               {place_name}
             </Text>
