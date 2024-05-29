@@ -14,12 +14,15 @@ import {RecoilRoot} from 'recoil';
 import Toast from 'react-native-toast-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import {LogBox} from 'react-native';
+import usePermissions from './src/hooks/usePermissions';
 
 LogBox.ignoreLogs([
   /View #\d+ of type RCTView has a shadow set but cannot calculate shadow efficiently./,
 ]);
 
 function App(): React.JSX.Element {
+  // usePermissions();s
+
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();

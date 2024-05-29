@@ -29,6 +29,7 @@ import BackToListButton from '../backToListButton';
 import NaverMapLink from '../naverMapLink';
 import ListBottomSheet from '../bottomSheets/listBottomSheet';
 import {listModalState} from '../../atoms/listModalState';
+import {checkPermissions} from '../../hooks/usePermissions';
 
 export default function NaverMap({
   selectedRoute,
@@ -82,10 +83,13 @@ export default function NaverMap({
       }
     } catch (error) {
       setCurPosition(null);
-      Alert.alert(
-        '현재 위치를 가져오는데 실패했습니다',
-        '위치 권한을 확인해주세요',
-      );
+      const isPermissionDenied = await checkPermissions();
+      if (!isPermissionDenied) {
+        Alert.alert(
+          '',
+          '현재 위치를 가져오는데 실패했습니다.\n잠시 후 다시 시도해주세요',
+        );
+      }
       console.error(error);
     }
   };
