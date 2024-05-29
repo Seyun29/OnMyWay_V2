@@ -191,7 +191,7 @@ export default function NaverMap({
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
               <>
-                {result && result.length > 0 && (
+                {originalResult && originalResult.length > 0 && result && (
                   <OmwMarker
                     resultList={result}
                     setShowAlternative={setShowAlternative}
