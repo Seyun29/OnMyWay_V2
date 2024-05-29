@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 // import {FlatList} from 'react-native';
 import {
   BottomSheetModal,
@@ -14,58 +14,130 @@ import ListBottomSheetComponent from './listBottomSheetComponent';
 import {FlatList, NativeViewGestureHandler} from 'react-native-gesture-handler';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
+import {
+  filterByOpen,
+  sortByReview,
+  sortByScore,
+} from '../../config/helpers/filter';
+import FilterSVG from '../../assets/images/filter.svg';
 
 export default function ListBottomSheet({
   result,
   setResult,
+  originalResult,
+  showAlternative,
 }: {
   result: PlaceDetail[] | null;
   setResult: (result: PlaceDetail[]) => void;
+  originalResult: PlaceDetail[] | null;
+  showAlternative: boolean;
 }) {
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
-  const [selected, setSelected] = useRecoilState<number>(
-    selectedPlaceIndexState,
-  );
+  const [, setSelected] = useRecoilState<number>(selectedPlaceIndexState);
+
+  const [selectedObj, setSelectedObj] = useState({
+    open: false,
+    score: false,
+    review: false,
+  });
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ['23%', '85%'], []);
+  const snapPoints = useMemo(() => ['23%', '50%', '80%'], []);
+
+  const selectTextColor = (selected: boolean): string =>
+    selected ? '#2D7FF9' : '#A8A8A8';
+  const selectBorderColor = (selected: boolean): string =>
+    selected ? '#9CC7FF' : '#A8A8A8';
+  const selectBGColor = (selected: boolean): string =>
+    selected ? '#EBF2FF' : 'transparent';
+  //@ts-ignore
+  const selectedNum = () => {
+    let count = 0;
+    for (const key in selectedObj) {
+      //@ts-ignore
+      if (selectedObj[key]) count++;
+    }
+    return count;
+  };
 
   const handleClickIsOpen = () => {
-    //FIXME: sort시 영업중이지 않은 곳들도 데이터로 유지하고, filter빼면 다시 보여줘야댐
-    if (result) {
-      const filtered = result.filter(item => item.open === 'Y');
-      setResult(filtered);
+    //FIXME: 영업중 여부 변경시 평점좋은순 /리뷰 많은 순 선택 초기화
+    //FIXME: async/await 적용, loading 추가
+    if (selectedObj.open) {
+      //on unselect
+      if (selectedObj.score) {
+        const sorted = sortByScore(originalResult || []);
+        setResult(sorted);
+      } else if (selectedObj.review) {
+        const sorted = sortByReview(originalResult || []);
+        setResult(sorted);
+      } else setResult(originalResult || []);
+      setSelectedObj({
+        ...selectedObj,
+        open: false,
+      });
+    } else {
+      if (result) {
+        const filtered = filterByOpen(result);
+        setResult(filtered);
+      }
+      setSelectedObj({
+        ...selectedObj,
+        open: true,
+      });
     }
   };
 
   const handleSortByScore = () => {
-    //FIXME: undefined는 뒤로 몰아두고, 있는것들끼리 먼저 정렬
-    //FIXME: 정렬시 없어지는거 해결
-    if (result) {
-      const sorted = result.sort((a, b) => {
-        if (b.scoreAvg === undefined || a.scoreAvg === undefined) {
-          return 0;
-        }
-        return b.scoreAvg - a.scoreAvg;
+    if (selectedObj.score) {
+      //on unselect
+      if (selectedObj.open) {
+        const filtered = filterByOpen(originalResult || []);
+        setResult(filtered);
+      } else {
+        setResult(originalResult || []);
+      }
+      setSelectedObj({
+        ...selectedObj,
+        score: false,
       });
-      setResult({...sorted});
+    } else {
+      if (result) {
+        const sorted = sortByScore(result);
+        setResult(sorted);
+      }
+      setSelectedObj({
+        ...selectedObj,
+        review: false,
+        score: true,
+      });
     }
   };
 
   const handleSortByReview = () => {
-    //FIXME: undefined는 뒤로 몰아두고, 있는것들끼리 먼저 정렬
-    if (result) {
-      const sorted = result.sort((a, b) => {
-        if (b.reviewCnt === undefined || a.reviewCnt === undefined) {
-          return 0;
-        }
-        return b.reviewCnt - a.reviewCnt;
+    if (selectedObj.review) {
+      //on unselect
+      if (selectedObj.open) {
+        const filtered = filterByOpen(originalResult || []);
+        setResult(filtered);
+      } else setResult(originalResult || []);
+      setSelectedObj({
+        ...selectedObj,
+        review: false,
       });
-      console.log(sorted);
-      setResult({...sorted});
+    } else {
+      if (result) {
+        const sorted = sortByReview(result);
+        setResult(sorted);
+      }
+      setSelectedObj({
+        ...selectedObj,
+        score: false,
+        review: true,
+      });
     }
   };
 
@@ -75,14 +147,23 @@ export default function ListBottomSheet({
       bottomSheetModalRef.current?.present();
     } else {
       bottomSheetModalRef.current?.close();
+      if (showAlternative) setModalVisible(true);
     }
   }, [listModalVisible]);
+
+  useEffect(() => {
+    setSelectedObj({
+      open: false,
+      score: false,
+      review: false,
+    });
+  }, [originalResult]);
 
   return (
     <BottomSheetModalProvider>
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={0}
+        index={1}
         snapPoints={snapPoints}
         onDismiss={() => setListModalVisible(false)}
         enableDismissOnClose
@@ -100,22 +181,63 @@ export default function ListBottomSheet({
           style={{
             flex: 1,
             height: '100%',
+            paddingHorizontal: 18,
           }}>
-          <View className="flex-row gap-x-2 px-8">
-            <TouchableOpacity onPress={handleClickIsOpen}>
-              <Text>영업중</Text>
+          <View className="flex-row gap-x-2 items-center">
+            <View
+              className="flex-row justify-center items-center gap-x-1 border-[0.5px] pl-1 pr-2 py-1 rounded-full"
+              style={{
+                borderColor: selectedNum() ? '#9CC7FF' : '#A8A8A8',
+                backgroundColor: selectedNum() ? '#EBF2FF' : 'transparent',
+              }}>
+              <FilterSVG />
+              {selectedNum() && (
+                <Text style={{color: '#A8A8A8'}}>{selectedNum()}</Text>
+              )}
+            </View>
+            <TouchableOpacity
+              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              style={{
+                borderColor: selectBorderColor(selectedObj.open),
+                backgroundColor: selectBGColor(selectedObj.open),
+              }}
+              onPress={handleClickIsOpen}>
+              <Text
+                className="text-xs"
+                style={{color: selectTextColor(selectedObj.open)}}>
+                영업중
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSortByScore}>
-              <Text>평점좋은순</Text>
+            <TouchableOpacity
+              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              style={{
+                borderColor: selectBorderColor(selectedObj.score),
+                backgroundColor: selectBGColor(selectedObj.score),
+              }}
+              onPress={handleSortByScore}>
+              <Text
+                className="text-xs"
+                style={{color: selectTextColor(selectedObj.score)}}>
+                평점 좋은 순
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity onPress={handleSortByReview}>
-              <Text>리뷰많은순</Text>
+            <TouchableOpacity
+              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              style={{
+                borderColor: selectBorderColor(selectedObj.review),
+                backgroundColor: selectBGColor(selectedObj.review),
+              }}
+              onPress={handleSortByReview}>
+              <Text
+                className="text-xs"
+                style={{color: selectTextColor(selectedObj.review)}}>
+                리뷰 많은 순
+              </Text>
             </TouchableOpacity>
           </View>
           {result && (
-            // <NativeViewGestureHandler disallowInterruption={true}>
             <FlatList
-              className="flex-1 w-full px-5 pt-2 flex-col"
+              className="flex-1 w-full pt-2 flex-col"
               data={result}
               keyExtractor={(item, index) => index.toString()}
               renderItem={({item, index}) => (
@@ -133,7 +255,6 @@ export default function ListBottomSheet({
               initialNumToRender={20}
               maxToRenderPerBatch={20}
             />
-            // </NativeViewGestureHandler>
           )}
         </BottomSheetView>
       </BottomSheetModal>

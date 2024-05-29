@@ -16,7 +16,7 @@ export interface ExtraDetail {
   photoUrl?: string;
   commentCnt?: number; //별점
   reviewCnt?: number;
-  scoreAvg?: number;
+  scoreAvg?: string;
 }
 
 export interface PlaceDetail extends ExtraDetail {

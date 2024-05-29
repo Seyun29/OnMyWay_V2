@@ -47,7 +47,13 @@ export default function NaverMap({
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
 
   const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
+
+  //for filtering the result
+  const [originalResult, setOriginalResult] = useState<PlaceDetail[] | null>(
+    null,
+  );
   const [result, setResult] = useState<PlaceDetail[] | null>(null);
+
   const [query, setQuery] = useState<string>('');
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
   const [stopByData, setStopByData] = useState<{
@@ -186,7 +192,10 @@ export default function NaverMap({
             {selectedRoute && selectedRoute.path.length > 0 && (
               <>
                 {result && result.length > 0 && (
-                  <OmwMarker resultList={result} />
+                  <OmwMarker
+                    resultList={result}
+                    setShowAlternative={setShowAlternative}
+                  />
                 )}
                 <SelectedPath path={selectedRoute.path} />
               </>
@@ -198,6 +207,7 @@ export default function NaverMap({
                 selectedRoute={selectedRoute}
                 result={result}
                 setResult={setResult}
+                setOriginalResult={setOriginalResult}
                 query={query}
                 setQuery={setQuery}
                 showAlternative={showAlternative}
@@ -217,7 +227,21 @@ export default function NaverMap({
                       <NaverMapLink stopByStrategy={stopByData?.strategy} />
                     </View>
                   ) : (
-                    <CurPosButton onPress={setCurPos} />
+                    <>
+                      {!listModalVisible ? (
+                        <View className="absolute w-full bottom-10 items-center justify-center">
+                          <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
+                            <CurPosButton
+                              onPress={setCurPos}
+                              style="relative self-center"
+                            />
+                            <BackToListButton onPress={backToList} />
+                          </View>
+                        </View>
+                      ) : (
+                        <CurPosButton onPress={setCurPos} />
+                      )}
+                    </>
                   )}
                 </>
               )}
@@ -232,7 +256,12 @@ export default function NaverMap({
         stopByData={stopByData}
         setStopByData={setStopByData}
       />
-      <ListBottomSheet result={result} setResult={setResult} />
+      <ListBottomSheet
+        result={result}
+        setResult={setResult}
+        originalResult={originalResult}
+        showAlternative={showAlternative}
+      />
     </View>
   );
 }

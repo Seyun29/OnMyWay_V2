@@ -35,10 +35,6 @@ export default function ListBottomSheetComponent({
     scoreAvg,
   } = placeInfo;
 
-  const [selected, setSelected] = useRecoilState<number>(
-    selectedPlaceIndexState,
-  );
-
   const placeName = place_name ? place_name : address_name;
 
   return (
@@ -116,7 +112,7 @@ export default function ListBottomSheetComponent({
           )}
         </View>
         <Text
-          className="text-xss"
+          className="text-xs"
           style={{
             color: '#7C7C7C',
           }}>

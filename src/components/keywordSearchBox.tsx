@@ -32,6 +32,7 @@ export default function KeywordSearchBox({
   selectedRoute,
   result,
   setResult,
+  setOriginalResult,
   query,
   setQuery,
   showAlternative,
@@ -40,6 +41,7 @@ export default function KeywordSearchBox({
   selectedRoute: RouteDetail | null;
   result: PlaceDetail[] | null;
   setResult: any;
+  setOriginalResult: any;
   query: string;
   setQuery: any;
   showAlternative: boolean;
@@ -86,11 +88,13 @@ export default function KeywordSearchBox({
       });
       resultList = await Promise.all(promises);
       setResult(resultList);
+      setOriginalResult(resultList);
       setListModalVisible(true);
-      //BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
+      //FIXME: BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
     } else {
       Alert.alert('검색 결과가 없습니다.');
       setResult(null);
+      setOriginalResult(null);
     }
     setLoading(false);
   };

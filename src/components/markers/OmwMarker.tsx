@@ -23,7 +23,13 @@ import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {Alert} from 'react-native';
 import {listModalState} from '../../atoms/listModalState';
 
-export default function OmwMarker({resultList}: OmWMarkerProps) {
+export default function OmwMarker({
+  resultList,
+  setShowAlternative,
+}: {
+  resultList: PlaceDetail[];
+  setShowAlternative: (showAlternative: boolean) => void;
+}) {
   //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
   //TODO: use different PNGs according to whether they are start, end, stopover & categories & open or closed
   //TODO: move & zoom smoothly to the selected marker, 'zoom level' is also required to be updated.
@@ -42,6 +48,7 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
   const markerOnClick = (item: PlaceDetail, index: number) => {
     setModalVisible(true);
     setSelected(index);
+    setShowAlternative(true);
   };
 
   useEffect(() => {
@@ -60,6 +67,13 @@ export default function OmwMarker({resultList}: OmWMarkerProps) {
       });
     }
   }, [selected]);
+
+  useEffect(() => {
+    if (resultList && resultList.length > 0) {
+      setSelected(-1);
+      setTimeout(() => setSelected(0), 100);
+    }
+  }, [resultList]);
 
   useEffect(() => {
     Alert.alert('resultList', JSON.stringify(resultList.length));
