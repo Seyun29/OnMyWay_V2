@@ -6,8 +6,9 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   View,
+  Platform,
 } from 'react-native';
-import {ANAM} from '../../dummy/coord'; //using dummy as of now
+import {ANAM} from '../../dummy/coord'; //using dummy for initial data
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {Center, Coordinate} from '../../config/types/coordinate';
 import {getCurPosition} from '../../config/helpers/location';
@@ -19,9 +20,11 @@ import NavMarker from '../markers/NavMarker';
 import {getRoutes} from '../../api/getRoutes';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
-import Toast from 'react-native-toast-message';
 import {Routes} from '../../config/types/routes';
-import CandidatePaths from '../paths/candidatePaths';
+import CandidatePaths, {
+  DefaultPath,
+  SelectedPath,
+} from '../paths/candidatePaths';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
@@ -107,6 +110,15 @@ export default function SelectRouteMap({
     setLoading(false);
   };
 
+  const sortRoutes = (routeList: Routes) => {
+    //shift the current route to the first index of the list
+    const sortedRoutes = routeList.slice();
+    const curRoute = sortedRoutes[curRouteIdx];
+    sortedRoutes.splice(curRouteIdx, 1);
+    sortedRoutes.unshift(curRoute);
+    return sortedRoutes;
+  };
+
   const onUseEffectNav = async () => {
     if (nav.start && nav.end) {
       if (isFirstMount.current) {
@@ -156,6 +168,7 @@ export default function SelectRouteMap({
         index: curRouteIdx,
         animated: true,
       });
+      sortRoutes(routes);
     }
   }, [curRouteIdx]);
 
@@ -183,7 +196,7 @@ export default function SelectRouteMap({
             }}>
             {curPosition && <CurPosMarker curPosition={curPosition} />}
             <NavMarker />
-            <CandidatePaths routes={routes} curRouteIdx={curRouteIdx} />
+            <CandidatePaths routes={sortRoutes(routes)} />
           </NaverMapView>
           <CurPosButton
             onPress={setCurPos}

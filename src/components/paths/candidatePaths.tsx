@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import {View} from 'react-native';
-import {Routes, RouteDetail} from '../../config/types/routes';
+import React from 'react';
+import {Routes} from '../../config/types/routes';
 import {Path} from 'react-native-nmap';
 import {Coordinate} from '../../config/types/coordinate';
 
-function DefaultPath({path}: {path: Coordinate[]}) {
+export function DefaultPath({path}: {path: Coordinate[]}) {
   return (
     <Path
       color="#949494"
@@ -29,13 +28,7 @@ export function SelectedPath({path}: {path: Coordinate[]}) {
   );
 }
 
-export default function CandidatePaths({
-  routes,
-  curRouteIdx,
-}: {
-  routes: Routes;
-  curRouteIdx: number;
-}) {
+export default function CandidatePaths({routes}: {routes: Routes}) {
   switch (routes.length) {
     case 0:
       return <></>;
@@ -44,21 +37,16 @@ export default function CandidatePaths({
     case 2:
       return (
         <>
-          <DefaultPath
-            path={curRouteIdx === 0 ? routes[1].path : routes[0].path}
-          />
-          <SelectedPath path={routes[curRouteIdx].path} />
+          <DefaultPath path={routes[1].path} />
+          <SelectedPath path={routes[0].path} />
         </>
       );
     case 3:
       return (
         <>
-          {routes.map((route, idx) => {
-            if (idx !== curRouteIdx) {
-              return <DefaultPath path={route.path} key={idx} />;
-            }
-          })}
-          <SelectedPath path={routes[curRouteIdx].path} />
+          <DefaultPath path={routes[1].path} />
+          <DefaultPath path={routes[2].path} />
+          <SelectedPath path={routes[0].path} />
         </>
       );
     default:
