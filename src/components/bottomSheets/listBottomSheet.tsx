@@ -45,7 +45,7 @@ export default function ListBottomSheet({
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ['23%', '50%', '80%'], []);
+  const snapPoints = useMemo(() => ['23%', '50%', '77%'], []);
 
   const selectTextColor = (selected: boolean): string =>
     selected ? '#2D7FF9' : '#A8A8A8';
@@ -64,7 +64,6 @@ export default function ListBottomSheet({
   };
 
   const handleClickIsOpen = () => {
-    //FIXME: 영업중 여부 변경시 평점좋은순 /리뷰 많은 순 선택 초기화
     //FIXME: async/await 적용, loading 추가
     if (selectedObj.open) {
       //on unselect
