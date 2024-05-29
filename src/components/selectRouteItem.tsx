@@ -27,7 +27,7 @@ export default function SelectRouteItem({
         },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 5, // FIXME: Why is it not working?
+        elevation: 5,
       }}
       className="bg-transparent px-3 py-6 justify-center items-center">
       <View className="bg-white flex-row justify-between items-center rounded-lg px-4 pt-3 pb-4 w-full">

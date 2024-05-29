@@ -76,7 +76,7 @@ export default function OmwMarker({
   }, [resultList]);
 
   useEffect(() => {
-    Alert.alert('resultList', JSON.stringify(resultList.length));
+    // Alert.alert('resultList', JSON.stringify(resultList.length));
 
     return () => setListModalVisible(false);
   }, []);
