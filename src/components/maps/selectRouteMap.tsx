@@ -112,6 +112,7 @@ export default function SelectRouteMap({
 
   const sortRoutes = (routeList: Routes) => {
     //shift the current route to the first index of the list
+    if (routeList.length === 0) return [];
     const sortedRoutes = routeList.slice();
     const curRoute = sortedRoutes[curRouteIdx];
     sortedRoutes.splice(curRouteIdx, 1);
