@@ -6,5 +6,5 @@ export const DEFAULT_MARKER_HEIGHT = 34;
 export const LARGE_MARKER_WIDTH = 35;
 export const LARGE_MARKER_HEIGHT = 45;
 
-export const NAV_MARKER_WIDTH = 37;
-export const NAV_MARKER_HEIGHT = 37;
+export const NAV_MARKER_WIDTH = 40;
+export const NAV_MARKER_HEIGHT = 40;
