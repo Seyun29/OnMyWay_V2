@@ -60,7 +60,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
           disabled={navDisbable}>
           <LeftIconSVG width={17} height={17} />
         </TouchableOpacity>
-        <View className="flex-1 flex-row px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
+        <View className="flex-1 flex-row px-4 py-1.5 bg-[#EBF2FF] rounded-lg items-center">
           <BlinkStarsSVG width={17} height={17} />
           {stopByDuration ? (
             <>
@@ -91,7 +91,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
               ? {uri: photoUrl}
               : require('../../assets/images/defaultThumbnail.png')
           }
-          style={{width: 110, height: 110, marginRight: 20, borderRadius: 12}}
+          style={{width: 80, height: 80, marginRight: 20, borderRadius: 12}}
         />
         <View className="flex-1">
           <View className="flex-row items-center gap-x-2">
@@ -125,7 +125,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
               </View>
             )}
           </View>
-          <View className="flex-row items-center py-0.5">
+          <View className="flex-row items-center">
             {scoreAvg && (
               <>
                 <Text
@@ -158,7 +158,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
             )}
           </View>
           <Text
-            className="text-sm"
+            className="text-xs"
             style={{
               color: '#7C7C7C',
             }}>
@@ -166,7 +166,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
           </Text>
           {tags && tags.length > 0 && (
             <View>
-              <View className="flex-row items-center pt-2">
+              <View className="flex-row items-center pt-0.5">
                 {tags.map((tag: string, index: number) => {
                   if (index >= 2) return null;
                   return (
@@ -188,7 +188,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
                 })}
               </View>
               {tags.length > 2 && (
-                <View className="flex-row items-center pt-2">
+                <View className="flex-row items-center pt-0.5">
                   {tags.map((tag: string, index: number) => {
                     if (index >= 2 && index <= 3)
                       return (
