@@ -45,7 +45,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
   useEffect(() => {
     if (selected >= 0 && selected <= max_length) {
       setNavDisable(true);
-      setTimeout(() => setNavDisable(false), 500);
+      setTimeout(() => setNavDisable(false), 200);
     }
   }, [selected]);
 
