@@ -16,8 +16,6 @@ import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import CodePush from 'react-native-code-push';
 
 function App(): React.JSX.Element {
-  // usePermissions();s
-
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide();

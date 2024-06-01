@@ -101,7 +101,6 @@ export default function NaverMap({
 
   const onUseEffect = async () => {
     if (isFirstMount.current) {
-      //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
       isFirstMount.current = false;
       prevNavRef.current = nav;
       if (!selectedRoute) await setCurPos();

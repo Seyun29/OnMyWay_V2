@@ -1,13 +1,12 @@
 import {useEffect} from 'react';
 import {Alert, Linking, Platform} from 'react-native';
-import {check, PERMISSIONS, request, RESULTS} from 'react-native-permissions';
+import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 
 export const checkPermissions = async () => {
   let returnVal = false;
   if (Platform.OS === 'android') {
     try {
       const result = await check(PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION);
-      console.log('check location', result);
       if (result === RESULTS.BLOCKED || result === RESULTS.DENIED) {
         Alert.alert(
           '현위치 확인을 위해 위치 권한이 필요합니다.',
@@ -54,7 +53,7 @@ export const checkPermissions = async () => {
         }
       }
     } catch (error) {
-      console.error(error);
+      console.error('checkPermission error:', error);
     }
   }
   return returnVal;
