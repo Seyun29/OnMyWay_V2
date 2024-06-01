@@ -19,7 +19,7 @@ export const checkPermissions = async () => {
             },
             {
               text: '아니오',
-              onPress: () => console.log('No Pressed'),
+              // onPress: () => console.log('No Pressed'),
               style: 'cancel',
             },
           ],

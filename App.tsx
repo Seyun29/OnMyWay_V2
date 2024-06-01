@@ -13,12 +13,7 @@ import RootStackNavigation from './src/navigations';
 import {RecoilRoot} from 'recoil';
 import Toast from 'react-native-toast-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import {LogBox} from 'react-native';
-import usePermissions from './src/hooks/usePermissions';
-
-LogBox.ignoreLogs([
-  /View #\d+ of type RCTView has a shadow set but cannot calculate shadow efficiently./,
-]);
+import CodePush from 'react-native-code-push';
 
 function App(): React.JSX.Element {
   // usePermissions();s
@@ -49,4 +44,4 @@ function App(): React.JSX.Element {
   );
 }
 
-export default App;
+export default CodePush(App);
