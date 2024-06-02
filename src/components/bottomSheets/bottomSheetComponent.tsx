@@ -21,7 +21,13 @@ function Stars({scoreAvg}: {scoreAvg: number}) {
   return stars;
 }
 
-export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
+export default function BottomSheetComponent({
+  placeInfo,
+  stopByLoading,
+}: {
+  placeInfo: any;
+  stopByLoading: boolean;
+}) {
   const {
     stopByDuration,
     originalDuration,
@@ -40,15 +46,6 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
     selectedPlaceIndexState,
   );
 
-  const [navDisbable, setNavDisable] = useState<boolean>(false);
-
-  useEffect(() => {
-    if (selected >= 0 && selected <= max_length) {
-      setNavDisable(true);
-      setTimeout(() => setNavDisable(false), 200);
-    }
-  }, [selected]);
-
   return (
     <View className="flex-1 px-5">
       <View className="w-full flex-row justify-between gap-x-1.5 items-center">
@@ -57,7 +54,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
             if (selected >= 0 && selected <= max_length)
               setSelected(selected - 1);
           }}
-          disabled={navDisbable}>
+          disabled={stopByLoading}>
           <LeftIconSVG width={17} height={17} />
         </TouchableOpacity>
         <View className="flex-1 flex-row px-4 py-1.5 bg-[#EBF2FF] rounded-lg items-center">
@@ -80,7 +77,7 @@ export default function BottomSheetComponent({placeInfo}: {placeInfo: any}) {
           onPress={() => {
             setSelected(selected + 1);
           }}
-          disabled={navDisbable}>
+          disabled={stopByLoading}>
           <RightIconSVG width={17} height={17} />
         </TouchableOpacity>
       </View>

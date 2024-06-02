@@ -44,14 +44,17 @@ export default function MainBottomSheet({
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
+  const [stopByLoading, setStopByLoading] = useState<boolean>(false);
 
   const getStopBy = async () => {
     if (!curPlace) return;
     setStopByData(null);
+    setStopByLoading(true);
     const res = await getStopByDuration(nav, curPlace.coordinate);
     if (res) {
       setStopByData({duration: res.duration, strategy: res.strategy});
     }
+    setStopByLoading(false);
   };
 
   const snapPoints = useMemo(() => ['23%', '80%'], []);
@@ -161,6 +164,7 @@ export default function MainBottomSheet({
                   stopByDuration: stopByData?.duration,
                   originalDuration: selectedRoute?.duration,
                 }}
+                stopByLoading={stopByLoading}
               />
             </View>
           )}
