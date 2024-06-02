@@ -45,7 +45,7 @@ export default function ListBottomSheet({
 
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-  const snapPoints = useMemo(() => ['23%', '50%', '77%'], []);
+  const snapPoints = useMemo(() => ['30%', '50%', '77%'], []);
 
   const selectTextColor = (selected: boolean): string =>
     selected ? '#2D7FF9' : '#A8A8A8';
@@ -162,7 +162,7 @@ export default function ListBottomSheet({
     <BottomSheetModalProvider>
       <BottomSheetModal
         ref={bottomSheetModalRef}
-        index={1}
+        index={0}
         snapPoints={snapPoints}
         onDismiss={() => setListModalVisible(false)}
         enableDismissOnClose

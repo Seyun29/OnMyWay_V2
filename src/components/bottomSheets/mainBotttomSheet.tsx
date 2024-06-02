@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View} from 'react-native';
+import {Alert, View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -63,6 +63,7 @@ export default function MainBottomSheet({
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
 
   const setExtraData = async () => {
+    // Alert.alert('setExtraData', JSON.stringify(curPlace));
     if (
       curPlace?.open ||
       curPlace?.tags ||
