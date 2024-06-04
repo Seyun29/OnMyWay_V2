@@ -65,7 +65,7 @@ export default function NaverMap({
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
 
-  const setCurPos = async () => {
+  const setCurPos = async (initial?: boolean) => {
     try {
       const curPos = await getCurPosition();
       setCurPosition(curPos);
@@ -83,12 +83,14 @@ export default function NaverMap({
       }
     } catch (error) {
       setCurPosition(null);
-      const isPermissionDenied = await checkPermissions();
-      if (!isPermissionDenied) {
-        Alert.alert(
-          '',
-          '현재 위치를 가져오는데 실패했습니다.\n잠시 후 다시 시도해주세요',
-        );
+      if (!initial) {
+        const isPermissionDenied = await checkPermissions();
+        if (!isPermissionDenied) {
+          Alert.alert(
+            '',
+            '현재 위치를 가져오는데 실패했습니다.\n잠시 후 다시 시도해주세요',
+          );
+        }
       }
       console.error(error);
     }
@@ -103,7 +105,7 @@ export default function NaverMap({
     if (isFirstMount.current) {
       isFirstMount.current = false;
       prevNavRef.current = nav;
-      if (!selectedRoute) await setCurPos();
+      if (!selectedRoute) await setCurPos(true);
       return;
     }
     //move to corresponding location when start, end, or waypoints are updated
@@ -222,7 +224,7 @@ export default function NaverMap({
                     <View className="absolute w-full bottom-1/4 items-center justify-center">
                       <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
                         <CurPosButton
-                          onPress={setCurPos}
+                          onPress={() => setCurPos(false)}
                           style="relative self-center"
                         />
                         <BackToListButton onPress={backToList} />
@@ -235,14 +237,14 @@ export default function NaverMap({
                         <View className="absolute w-full bottom-10 items-center justify-center">
                           <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
                             <CurPosButton
-                              onPress={setCurPos}
+                              onPress={() => setCurPos(false)}
                               style="relative self-center"
                             />
                             <BackToListButton onPress={backToList} />
                           </View>
                         </View>
                       ) : (
-                        <CurPosButton onPress={setCurPos} />
+                        <CurPosButton onPress={() => setCurPos(false)} />
                       )}
                     </>
                   )}
@@ -250,7 +252,7 @@ export default function NaverMap({
               )}
             </>
           ) : (
-            <CurPosButton onPress={setCurPos} />
+            <CurPosButton onPress={() => setCurPos(false)} />
           )}
         </>
       )}

@@ -35,7 +35,7 @@ export const checkPermissions = async () => {
         const result = await check(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
         if (result === RESULTS.BLOCKED || result === RESULTS.DENIED) {
           Alert.alert(
-            '위치 권한이 필요합니다.',
+            '현위치 확인을 위해 위치 권한이 필요합니다.',
             '현재 위치 확인을 위해\n설정에서 위치 권한을 허용해주세요.',
             [
               {
@@ -44,7 +44,6 @@ export const checkPermissions = async () => {
               },
               {
                 text: '아니오',
-                onPress: () => console.log('No Pressed'),
                 style: 'cancel',
               },
             ],
