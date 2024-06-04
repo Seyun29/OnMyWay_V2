@@ -1,6 +1,6 @@
 //@ts-ignore
 import React, {useEffect, useState} from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, Alert} from 'react-native';
 import StarFilledSVG from '../../assets/images/starFilled.svg';
 import StarUnFilledSVG from '../../assets/images/starUnfilled.svg';
 import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
