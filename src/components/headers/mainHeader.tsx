@@ -72,23 +72,33 @@ export default function MainHeader({
         shadowRadius: 2,
       }}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
-      <View className="w-full flex-row justify-between align-center ">
+      <View
+        className={`w-full flex-row ${
+          nav.start || nav.end || nav.wayPoints.length > 0
+            ? 'justify-between'
+            : 'justify-center'
+        } align-center`}>
         <Pressable onPress={() => setIsDrawerOpen(!isDrawerOpen)}>
-          <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} />
+          {/* <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} /> */}
+          {(nav.start || nav.end || nav.wayPoints.length > 0) && (
+            <View style={{height: 24, width: 24}} />
+          )}
         </Pressable>
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
-        <TouchableOpacity
-          onPress={() => {
-            setNav({
-              start: null,
-              wayPoints: [],
-              end: null,
-            });
-            setSelectedRoute(null);
-          }}
-          disabled={isLoading}>
-          <CancelSVG width={25} height={25} />
-        </TouchableOpacity>
+        {(nav.start || nav.end || nav.wayPoints.length > 0) && (
+          <TouchableOpacity
+            onPress={() => {
+              setNav({
+                start: null,
+                wayPoints: [],
+                end: null,
+              });
+              setSelectedRoute(null);
+            }}
+            disabled={isLoading}>
+            <CancelSVG width={25} height={25} />
+          </TouchableOpacity>
+        )}
       </View>
       <View className="relative flex-row items-center justify-between">
         <View className="flex-col flex-1 pr-[10px]">
