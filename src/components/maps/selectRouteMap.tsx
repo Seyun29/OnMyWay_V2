@@ -28,9 +28,13 @@ import CandidatePaths, {
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
-import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
+import {
+  ROUGH_HEADER_HEIGHT,
+  SELECT_ROUTE_ITEM_WIDTH,
+} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {loadingState} from '../../atoms/loadingState';
+import Toast from 'react-native-toast-message';
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
@@ -101,11 +105,30 @@ export default function SelectRouteMap({
     const data = await getRoutes(nav);
     const initialZoom = getZoomLevel(data[0]?.distance);
     setRoutes(data);
-    setCenter({
-      latitude: (sLat + eLat) / 2,
-      longitude: (sLon + eLon) / 2,
-      zoom: initialZoom, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
-    });
+    if (nav.wayPoints.length === 0)
+      setCenter({
+        latitude: (sLat + eLat) / 2,
+        longitude: (sLon + eLon) / 2,
+        zoom: initialZoom, //FIXME: adjust zoom level properly here!!!!!, start from 12, decrement by 0.5
+      });
+    else {
+      const avgLat =
+        (nav.wayPoints.reduce((acc, cur) => acc + cur.coordinate.latitude, 0) +
+          sLat +
+          eLat) /
+        (nav.wayPoints.length + 2);
+      const avgLon =
+        (nav.wayPoints.reduce((acc, cur) => acc + cur.coordinate.longitude, 0) +
+          sLon +
+          eLon) /
+        (nav.wayPoints.length + 2);
+      setCenter({
+        latitude: avgLat,
+        longitude: avgLon,
+        zoom: initialZoom,
+      });
+    }
+
     setZoomTrigger(true);
     setLoading(false);
   };
@@ -130,6 +153,13 @@ export default function SelectRouteMap({
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
         );
+        setIsRough(true);
+        Toast.show({
+          type: 'info',
+          text1: '이동 경로를 선택해주세요.',
+          visibilityTime: 3000,
+          topOffset: ROUGH_HEADER_HEIGHT + 20,
+        });
         return;
       } else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
         //바뀔때마다 getRoutes 호출
@@ -139,6 +169,13 @@ export default function SelectRouteMap({
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
         );
+        setIsRough(true);
+        Toast.show({
+          type: 'info',
+          text1: '이동 경로를 선택해주세요.',
+          visibilityTime: 3000,
+          topOffset: ROUGH_HEADER_HEIGHT + 50,
+        });
       }
     } else setOnSelectRoute(false);
 
@@ -159,7 +196,15 @@ export default function SelectRouteMap({
           ...center,
           zoom: center.zoom - 0.3,
         });
-      } else setZoomTrigger(false);
+      } else {
+        setZoomTrigger(false);
+        setTimeout(() => {
+          setCenter({
+            ...center,
+            zoom: center.zoom - 0.3,
+          });
+        }, 100);
+      }
     }
   }, [coveringRegion]);
 
