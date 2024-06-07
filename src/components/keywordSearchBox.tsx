@@ -261,7 +261,7 @@ export default function KeywordSearchBox({
             </TouchableOpacity>
             <TextInput
               ref={inputRef}
-              className="w-[80%] h-full pl-3"
+              className="w-[80%] h-full pl-3 text-black"
               placeholder="검색어 입력"
               value={query}
               onChangeText={setQuery}

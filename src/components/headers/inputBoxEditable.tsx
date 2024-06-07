@@ -50,7 +50,7 @@ export default function InputBoxEditable({
         onSubmitEditing={() => handleSubmit(query)}
         placeholder={placeHolder[whichNav]}
         className={
-          'w-full h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px] flex-row items-center rounded-sm'
+          'w-full h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px] flex-row items-center rounded-sm text-black'
         }
         autoFocus
       />
