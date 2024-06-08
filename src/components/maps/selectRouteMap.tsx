@@ -158,7 +158,7 @@ export default function SelectRouteMap({
           type: 'info',
           text1: '이동 경로를 선택해주세요.',
           visibilityTime: 3000,
-          topOffset: 140,
+          topOffset: 200,
         });
         return;
       } else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
@@ -174,7 +174,7 @@ export default function SelectRouteMap({
           type: 'info',
           text1: '이동 경로를 선택해주세요.',
           visibilityTime: 3000,
-          topOffset: 140,
+          topOffset: 200,
         });
       }
     } else setOnSelectRoute(false);

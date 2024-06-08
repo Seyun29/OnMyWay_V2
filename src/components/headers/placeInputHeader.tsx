@@ -34,7 +34,7 @@ export default function PlaceInputHeader({
           type: 'error',
           text1: '즐겨찾기가 없습니다',
           position: 'top',
-          topOffset: 140,
+          topOffset: 200,
           visibilityTime: 1500,
         });
       else {
@@ -46,7 +46,7 @@ export default function PlaceInputHeader({
         type: 'error',
         text1: '즐겨찾기를 가져오는데 실패했습니다',
         position: 'top',
-        topOffset: 140,
+        topOffset: 200,
         visibilityTime: 1500,
       });
   };
