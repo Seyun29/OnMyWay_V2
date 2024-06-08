@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alert, Linking, Text, TouchableOpacity} from 'react-native';
+import {Alert, Linking, Platform, Text, TouchableOpacity} from 'react-native';
 import NaverLogo from '../assets/images/naverLogo.svg';
 import {
   NMAP_URL_SCHEME_PREFIX,
@@ -34,23 +34,43 @@ const NaverMapLink = ({
       curPlace,
       stopByStrategy,
     );
-
     Linking.canOpenURL(url)
       .then(supported => {
         if (supported) {
           Linking.openURL(url);
         } else {
-          Alert.alert(
-            '오류',
-            '네이버맵이 설치되어있지 않습니다.\n설치 페이지로 이동합니다.',
-            [
-              {
-                text: '취소',
-                style: 'cancel',
-              },
-              {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
-            ],
-          );
+          if (Platform.OS === 'ios')
+            Alert.alert(
+              '오류',
+              '네이버맵이 설치되어있지 않습니다.\n앱스토어로 이동하시겠습니까?',
+              [
+                {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
+                {
+                  text: 'Apple 지도로 길안내 (출발지~경유지)',
+                  onPress: () => {
+                    Linking.openURL(
+                      `http://maps.apple.com/?saddr=${curPlace.y},${curPlace.x}&daddr=${nav.start?.coordinate.latitude},${nav.start?.coordinate.longitude}&dirflg=d`,
+                    );
+                  },
+                },
+                {
+                  text: '취소',
+                  style: 'cancel',
+                },
+              ],
+            );
+          else
+            Alert.alert(
+              '오류',
+              '네이버맵이 설치되어있지 않습니다.\n플레이스토어로 이동하시겠습니까?',
+              [
+                {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
+                {
+                  text: '취소',
+                  style: 'cancel',
+                },
+              ],
+            );
         }
       })
       .catch(err => console.error('An error occurred', err));
