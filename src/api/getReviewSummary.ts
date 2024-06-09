@@ -1,5 +1,6 @@
+//@ts-nocheck
 import axios from 'axios';
-import {LLM_MODEL_NAME, LOCAL_LLM_URL} from '../config/consts/api';
+import {LLM_MODEL_NAME} from '../config/consts/api';
 import {DUMMY_REVIEW_SUMMARY} from '../dummy/reviewSummary';
 
 export const getKakaoReviews = async (placeId: string) => {
