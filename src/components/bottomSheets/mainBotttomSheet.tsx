@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Alert, View} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -17,6 +17,7 @@ import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
+import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -57,7 +58,7 @@ export default function MainBottomSheet({
     setStopByLoading(false);
   };
 
-  const snapPoints = useMemo(() => ['23%', '80%'], []);
+  const snapPoints = useMemo(() => ['23%', '70%'], []);
 
   //@ts-ignore
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
@@ -138,17 +139,26 @@ export default function MainBottomSheet({
             flex: 1,
           }}>
           {curPlace && (
-            <WebView
-              source={{
-                uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
-              }}
-              style={{flex: 1}}
-              nestedScrollEnabled
-              onLoadStart={() => setIsLoading(true)}
-              onLoadEnd={() => {
-                setIsLoading(false);
-              }}
-            />
+            <View className="flex-1">
+              <TouchableOpacity className="flex-row mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
+                <BlinkStarsSVG width={17} height={17} />
+                <Text className="text-sm ml-1">
+                  AI 리뷰 요약을 확인해보세요
+                </Text>
+                <Text className="text-xs ml-1 text-gray-600">{'(클릭!)'}</Text>
+              </TouchableOpacity>
+              <WebView
+                source={{
+                  uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
+                }}
+                style={{flex: 1}}
+                nestedScrollEnabled
+                onLoadStart={() => setIsLoading(true)}
+                onLoadEnd={() => {
+                  setIsLoading(false);
+                }}
+              />
+            </View>
           )}
           {isLoading && (
             <View className="absolute w-full h-full">
