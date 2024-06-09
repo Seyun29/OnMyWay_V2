@@ -64,6 +64,8 @@ export default function MainBottomSheet({
 
   const setExtraData = async () => {
     // Alert.alert('setExtraData', JSON.stringify(curPlace));
+    console.log('curPlace', curPlace);
+    s;
     if (
       curPlace?.open ||
       curPlace?.tags ||
@@ -73,6 +75,7 @@ export default function MainBottomSheet({
     )
       return;
     const res = await getKakaoPlace(placeId);
+
     let scoreAvg;
     if (
       res.comment?.scorecnt &&
@@ -160,8 +163,8 @@ export default function MainBottomSheet({
             <View className="absolute w-full h-full bg-white">
               <BottomSheetComponent
                 placeInfo={{
-                  ...curPlace,
                   ...extra,
+                  ...curPlace,
                   stopByDuration: stopByData?.duration,
                   originalDuration: selectedRoute?.duration,
                 }}
