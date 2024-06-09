@@ -11,13 +11,15 @@ export const getKakaoReviews = async (placeId: string) => {
     const response = await axios.get(
       'https://place.map.kakao.com/main/v/' + placeId,
     );
-    hasNext = response.data.comment.hasNext;
-    response.data.comment.list.map(rev => {
-      reviews += rev.contents + '\n';
-    });
-    nextCommentId =
-      response.data.comment.list[response.data.comment.list.length - 1]
-        .commentid;
+    if (response.data && response.data.comment && response.data.comment.list) {
+      hasNext = response.data.comment.hasNext;
+      response.data.comment.list.map(rev => {
+        reviews += rev.contents + '\n';
+      });
+      nextCommentId =
+        response.data.comment.list[response.data.comment.list.length - 1]
+          .commentid;
+    }
     while (hasNext) {
       hasNext = false;
       // console.log(
@@ -32,7 +34,7 @@ export const getKakaoReviews = async (placeId: string) => {
           '/' +
           nextCommentId,
       );
-      if (res.data) {
+      if (res.data && res.data.comment && res.data.comment.list) {
         hasNext = res.data.comment?.hasNext;
         res.data.comment?.list.map(rev => {
           if (rev.contents && rev.contents.length > 0)
@@ -65,7 +67,7 @@ export const getReviewSummary = async (placeId: string) => {
     // );
     const response = await new Promise(resolve =>
       setTimeout(() => {
-        resolve({data: DUMMY_REVIEW_SUMMARY});
+        resolve({data: reviews.substring(0, 200)});
       }, 1000),
     );
     return response.data;

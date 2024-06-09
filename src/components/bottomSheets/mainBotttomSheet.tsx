@@ -107,8 +107,12 @@ export default function MainBottomSheet({
   const onReviewSummaryPress = async () => {
     setReviewSummaryLoading(true);
     // const res = await getReviewSummary(placeId);
-    const res = await getKakaoReviews(placeId);
+    const res = await getReviewSummary(placeId);
     if (res) setReviewSummary(res);
+    else
+      setReviewSummary(
+        '리뷰 요약을 생성할 수 없습니다.\n리뷰 개수가 너무 적거나 현재 서비스가 불안정합니다.ㄴ',
+      );
     bottomSheetModalRef.current?.snapToIndex(2);
     setReviewSummaryLoading(false);
   };
