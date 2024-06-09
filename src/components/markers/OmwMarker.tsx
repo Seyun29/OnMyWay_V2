@@ -105,6 +105,7 @@ export default function OmwMarker({
             }}
             anchor={{x: 0.5, y: 1}} //FIXME: set anchor
             image={markerImage}
+            zIndex={index === selected ? 1 : 0}
             //TODO: use different images for different categories
           />
         );
