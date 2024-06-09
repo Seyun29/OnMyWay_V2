@@ -1,12 +1,10 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
 import {
-  Alert,
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
   View,
-  Platform,
 } from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy for initial data
 import {useRecoilState, useRecoilValue} from 'recoil';
@@ -107,10 +105,22 @@ export default function SelectRouteMap({
       setCenter({...curPos, zoom: zoom});
     } catch (error) {
       setCurPosition(null);
-      Alert.alert(
-        '',
-        '현재 위치를 가져오는데 실패했습니다.\n설정에서 위치 권한을 확인해주세요',
-      );
+      Toast.show({
+        type: 'error',
+        text1: '현재 위치를 가져오는데 실패했습니다.',
+        text2: '설정에서 위치 권한을 확인해주세요.',
+        position: 'top',
+        topOffset: headerHeight + insets.top,
+        visibilityTime: 2500,
+        text1Style: {
+          fontSize: 13,
+          fontWeight: '600',
+        },
+        text2Style: {
+          fontSize: 11,
+          fontWeight: '400',
+        },
+      });
     }
   };
 

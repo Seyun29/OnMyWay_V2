@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
   Keyboard,
-  Alert,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
@@ -25,6 +24,7 @@ import {setMinMaxValue} from '../config/helpers/route';
 import {listModalState} from '../atoms/listModalState';
 import {getExtraPlaceData} from '../api/getExtraPlaceData';
 import {headerHeightState} from '../atoms/headerHeightState';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -45,6 +45,8 @@ export default function KeywordSearchBox({
   showAlternative: boolean;
   setShowAlternative: any;
 }) {
+  const insets = useSafeAreaInsets();
+
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
@@ -90,7 +92,17 @@ export default function KeywordSearchBox({
       setListModalVisible(true);
       //FIXME: BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
     } else {
-      Alert.alert('검색 결과가 없습니다.');
+      Toast.show({
+        type: 'error',
+        text1: '검색 결과가 없습니다.',
+        position: 'top',
+        topOffset: headerHeight + insets.top,
+        visibilityTime: 2500,
+        text1Style: {
+          fontSize: 13,
+          fontWeight: '600',
+        },
+      });
       setResult(null);
       setOriginalResult(null);
     }

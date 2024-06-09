@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Alert, Keyboard, Text, TouchableOpacity, View} from 'react-native';
+import {Keyboard, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
@@ -31,12 +31,14 @@ import ListBottomSheet from '../bottomSheets/listBottomSheet';
 import {listModalState} from '../../atoms/listModalState';
 import {checkPermissions} from '../../hooks/usePermissions';
 import {headerHeightState} from '../../atoms/headerHeightState';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function NaverMap({
   selectedRoute,
 }: {
   selectedRoute: RouteDetail | null;
 }) {
+  const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
@@ -88,10 +90,22 @@ export default function NaverMap({
       if (!initial) {
         const isPermissionDenied = await checkPermissions();
         if (!isPermissionDenied) {
-          Alert.alert(
-            '',
-            '현재 위치를 가져오는데 실패했습니다.\n잠시 후 다시 시도해주세요',
-          );
+          Toast.show({
+            type: 'error',
+            text1: '현재 위치를 가져오는데 실패했습니다.',
+            text2: '잠시 후 다시 시도해주세요',
+            position: 'top',
+            topOffset: headerHeight + insets.top,
+            visibilityTime: 2500,
+            text1Style: {
+              fontSize: 13,
+              fontWeight: '600',
+            },
+            text2Style: {
+              fontSize: 11,
+              fontWeight: '400',
+            },
+          });
         }
       }
       console.error(error);
