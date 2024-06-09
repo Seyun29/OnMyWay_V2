@@ -110,13 +110,13 @@ export default function OmwMarker({
                 ? markerList.basic.off
                 : markerList.basic.default;
           } else {
-            zIndex = 1;
             if (item.open === 'Y') {
               zIndex = 5;
               markerImage = markerList.basic.on;
               width = DEFAULT_MARKER_WIDTH;
               height = DEFAULT_MARKER_HEIGHT;
             } else {
+              zIndex = 1;
               if (item.open === 'N') markerImage = markerList.small.off;
               else markerImage = markerList.small.default;
               width = ELLIPSE_MARKER_WIDTH;
