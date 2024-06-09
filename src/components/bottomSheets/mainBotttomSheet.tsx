@@ -63,9 +63,6 @@ export default function MainBottomSheet({
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
 
   const setExtraData = async () => {
-    // Alert.alert('setExtraData', JSON.stringify(curPlace));
-    console.log('curPlace', curPlace);
-    s;
     if (
       curPlace?.open ||
       curPlace?.tags ||

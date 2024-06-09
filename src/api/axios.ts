@@ -1,5 +1,6 @@
 import axios, {AxiosError} from 'axios';
 import {BASE_URL} from '../config/consts/api';
+import {Alert} from 'react-native';
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -14,6 +15,10 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+    Alert.alert(
+      '오류',
+      '서버와의 통신에 문제가 발생했습니다. 다시 시도해주세요.',
+    );
     onError(error, error?.config?.url);
     return Promise.reject(error);
   },

@@ -28,13 +28,11 @@ import CandidatePaths, {
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
-import {
-  ROUGH_HEADER_HEIGHT,
-  SELECT_ROUTE_ITEM_WIDTH,
-} from '../../config/consts/style';
+import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {loadingState} from '../../atoms/loadingState';
 import Toast from 'react-native-toast-message';
+import {headerHeightState} from '../../atoms/headerHeightState';
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
@@ -52,6 +50,7 @@ export default function SelectRouteMap({
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setGlobalCenter] = useRecoilState<Center>(mapCenterState);
   const [isLoading, setLoading] = useRecoilState<boolean>(loadingState);
+  const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
   const nav = useRecoilValue<Navigation>(navigationState);
@@ -66,11 +65,22 @@ export default function SelectRouteMap({
   const [center, setCenter] = useState<Center>({...ANAM, zoom: 14});
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
   const [zoom, setZoom] = useState<number>(14);
+  const [toastTrigger, setToastTrigger] = useState<boolean>(false);
 
   const onSelect = () => {
+    Toast.hide();
     setOnSelectRoute(false);
     setSelectedRoute(routes[curRouteIdx]);
     setGlobalCenter(center);
+    setTimeout(() => {
+      Toast.show({
+        type: 'info',
+        text1: '검색 반경 설정 후 원하는 장소를 검색해보세요!',
+        position: 'top',
+        topOffset: headerHeight + 20,
+        visibilityTime: 2500,
+      });
+    }, 500);
   };
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -82,7 +92,6 @@ export default function SelectRouteMap({
   const setCurPos = async () => {
     try {
       const curPos = await getCurPosition();
-      //FIXME: add permission inquiry for clients (심사에 필요) -> 강의 참고 (중요)
       setCurPosition(curPos);
       setCenter({...curPos, zoom: 13}); //Cheat Shortcut for fixing centering bug
       setCenter({...curPos, zoom: zoom});
@@ -143,39 +152,38 @@ export default function SelectRouteMap({
     return sortedRoutes;
   };
 
+  const showToast = () => {
+    Toast.show({
+      type: 'info',
+      text1: '이동 경로를 선택해주세요',
+      visibilityTime: 2000,
+      topOffset: headerHeight + 20,
+    });
+  };
+
   const onUseEffectNav = async () => {
     if (nav.start && nav.end) {
       if (isFirstMount.current) {
         isFirstMount.current = false;
+        setIsRough(true);
         await setPath(
           nav.start.coordinate.latitude,
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
         );
-        setIsRough(true);
-        Toast.show({
-          type: 'info',
-          text1: '이동 경로를 선택해주세요.',
-          visibilityTime: 3000,
-          topOffset: 200,
-        });
+        setToastTrigger(true);
         return;
       } else if (JSON.stringify(nav) !== JSON.stringify(prevNavRef.current)) {
         //바뀔때마다 getRoutes 호출
+        setIsRough(true);
         await setPath(
           nav.start.coordinate.latitude,
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
         );
-        setIsRough(true);
-        Toast.show({
-          type: 'info',
-          text1: '이동 경로를 선택해주세요.',
-          visibilityTime: 3000,
-          topOffset: 200,
-        });
+        setToastTrigger(true);
       }
     } else setOnSelectRoute(false);
 
@@ -217,6 +225,13 @@ export default function SelectRouteMap({
       sortRoutes(routes);
     }
   }, [curRouteIdx]);
+
+  useEffect(() => {
+    if (toastTrigger) {
+      showToast();
+      setToastTrigger(false);
+    }
+  }, [toastTrigger]);
 
   return (
     <View className="relative w-full h-full">

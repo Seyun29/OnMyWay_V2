@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {TouchableOpacity, View, Dimensions, Alert} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
@@ -25,6 +25,7 @@ export default function PlaceInputHeader({
   setLoading: (loading: boolean) => void;
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
+  const [toastTopOffset, setToastTopOffset] = useState<number>(200);
 
   const onFavoritePress = async () => {
     const favorites = await get(FAVORITE_KEY);
@@ -34,7 +35,7 @@ export default function PlaceInputHeader({
           type: 'error',
           text1: '즐겨찾기가 없습니다',
           position: 'top',
-          topOffset: 200,
+          topOffset: toastTopOffset,
           visibilityTime: 1500,
         });
       else {
@@ -46,7 +47,7 @@ export default function PlaceInputHeader({
         type: 'error',
         text1: '즐겨찾기를 가져오는데 실패했습니다',
         position: 'top',
-        topOffset: 200,
+        topOffset: toastTopOffset,
         visibilityTime: 1500,
       });
   };
@@ -59,7 +60,14 @@ export default function PlaceInputHeader({
     if (response.length === 0) {
       setResultList([]);
       setIsResult(false);
-      Alert.alert('검색 결과가 없습니다');
+      Toast.show({
+        type: 'error',
+        text1: '검색결과가 없습니다.',
+        position: 'top',
+        topOffset: toastTopOffset,
+        visibilityTime: 1500,
+      });
+      setLoading(false);
       return;
     }
     //FIXME: Exception handling required here
@@ -88,6 +96,7 @@ export default function PlaceInputHeader({
         shadowOpacity: 0.15,
         shadowRadius: 2,
       }}
+      onLayout={e => setToastTopOffset(e.nativeEvent.layout.height + 30)}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] ">
       <View className="relative w-full flex-row items-center justify-around">
         <InputBoxEditable handleSubmit={handleSubmit} />

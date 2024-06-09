@@ -30,6 +30,7 @@ import NaverMapLink from '../naverMapLink';
 import ListBottomSheet from '../bottomSheets/listBottomSheet';
 import {listModalState} from '../../atoms/listModalState';
 import {checkPermissions} from '../../hooks/usePermissions';
+import {headerHeightState} from '../../atoms/headerHeightState';
 
 export default function NaverMap({
   selectedRoute,
@@ -46,6 +47,7 @@ export default function NaverMap({
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
+  const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
 

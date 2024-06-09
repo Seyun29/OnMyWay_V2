@@ -24,7 +24,6 @@ export const getStopByDuration = async (
         stopby: `${stopBy.longitude},${stopBy.latitude}`,
       },
     });
-
     return response.data.data; //time in seconds
   } catch (error) {
     console.log('getStopByDuration error, Params: ', nav, stopBy);

@@ -7,7 +7,6 @@ import {
   TouchableOpacity,
   View,
   Keyboard,
-  Touchable,
   Alert,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
@@ -15,18 +14,17 @@ import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
 import SelectRangeButtonOnSVG from '../assets/images/selectRangeButtonOn.svg';
 import KewordSearchButtonSVG from '../assets/images/kewordSearchButton.svg';
 import {searchOnPath} from '../api/searchOnPath';
-import {Coordinate, PlaceDetail} from '../config/types/coordinate';
+import {PlaceDetail} from '../config/types/coordinate';
 import {RouteDetail} from '../config/types/routes';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {loadingState} from '../atoms/loadingState';
 import Toast from 'react-native-toast-message';
-import {headerRoughState} from '../atoms/headerRoughState';
-import {ROUGH_HEADER_HEIGHT, WINDOW_WIDTH} from '../config/consts/style';
+import {WINDOW_WIDTH} from '../config/consts/style';
 import {modalState} from '../atoms/modalState';
 import {setMinMaxValue} from '../config/helpers/route';
-import BackToListSVG from '../assets/images/backToList.svg';
 import {listModalState} from '../atoms/listModalState';
 import {getExtraPlaceData} from '../api/getExtraPlaceData';
+import {headerHeightState} from '../atoms/headerHeightState';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -47,10 +45,10 @@ export default function KeywordSearchBox({
   showAlternative: boolean;
   setShowAlternative: any;
 }) {
-  const isRough = useRecoilValue<boolean>(headerRoughState);
   const [, setLoading] = useRecoilState<boolean>(loadingState);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
+  const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [value, setValue] = useState<number>(1);
   const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
@@ -122,7 +120,7 @@ export default function KeywordSearchBox({
           style={{
             position: 'absolute',
             backgroundColor: 'transparent',
-            top: (isRough ? 1.5 : 2) * ROUGH_HEADER_HEIGHT,
+            top: headerHeight,
             width: WINDOW_WIDTH,
             justifyContent: 'center',
             alignItems: 'center',

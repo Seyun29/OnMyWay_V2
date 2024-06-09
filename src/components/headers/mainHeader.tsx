@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
 } from 'react-native';
-import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import AddStopOverSVG from '../../assets/images/addStopOver.svg';
 import ChangeDirectionSVG from '../../assets/images/changeDirection.svg';
 import RemoveStopoOverSVG from '../../assets/images/removeStopOver.svg';
@@ -26,6 +25,7 @@ import {whichNavState} from '../../atoms/whichNavState';
 import {WhichNav} from '../../config/types/navigation';
 import CancelSVG from '../../assets/images/cancel.svg';
 import {loadingState} from '../../atoms/loadingState';
+import {headerHeightState} from '../../atoms/headerHeightState';
 
 export default function MainHeader({
   setSelectedRoute,
@@ -39,6 +39,8 @@ export default function MainHeader({
   const [, setWhichNav] = useRecoilState<WhichNav>(whichNavState);
   const [isRough, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [isDrawerOpen, setIsDrawerOpen] = useRecoilState<boolean>(drawerState);
+  const [headerHeight, setHeaderHeight] =
+    useRecoilState<number>(headerHeightState);
   const isLoading = useRecoilValue<boolean>(loadingState);
 
   const textSize =
@@ -71,6 +73,7 @@ export default function MainHeader({
         shadowOpacity: 0.15,
         shadowRadius: 2,
       }}
+      onLayout={e => setHeaderHeight(e.nativeEvent.layout.height)}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
       <View
         className={`w-full flex-row ${

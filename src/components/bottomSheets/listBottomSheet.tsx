@@ -11,7 +11,7 @@ import {listModalState} from '../../atoms/listModalState';
 import BottomSheetComponent from './bottomSheetComponent';
 import {PlaceDetail} from '../../config/types/coordinate';
 import ListBottomSheetComponent from './listBottomSheetComponent';
-import {FlatList, NativeViewGestureHandler} from 'react-native-gesture-handler';
+import {FlatList} from 'react-native-gesture-handler';
 import {View, Text, TouchableOpacity} from 'react-native';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {
@@ -32,6 +32,7 @@ export default function ListBottomSheet({
   originalResult: PlaceDetail[] | null;
   showAlternative: boolean;
 }) {
+  // console.log(result ? result.length : null);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
@@ -43,6 +44,7 @@ export default function ListBottomSheet({
     review: false,
   });
 
+  const flatListRef = useRef<FlatList>(null);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const snapPoints = useMemo(() => ['30%', '50%', '77%'], []);
@@ -88,6 +90,7 @@ export default function ListBottomSheet({
         open: true,
       });
     }
+    flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
   const handleSortByScore = () => {
@@ -114,6 +117,7 @@ export default function ListBottomSheet({
         score: true,
       });
     }
+    flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
   const handleSortByReview = () => {
@@ -138,6 +142,7 @@ export default function ListBottomSheet({
         review: true,
       });
     }
+    flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
   useEffect(() => {
@@ -236,6 +241,7 @@ export default function ListBottomSheet({
           </View>
           {result && (
             <FlatList
+              ref={flatListRef}
               className="flex-1 w-full pt-2 flex-col"
               data={result}
               keyExtractor={(item, index) => index.toString()}
