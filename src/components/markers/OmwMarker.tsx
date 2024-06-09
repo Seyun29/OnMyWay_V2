@@ -20,7 +20,6 @@ import {
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {lastCenterState} from '../../atoms/lastCenterState';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
-import {Alert} from 'react-native';
 import {listModalState} from '../../atoms/listModalState';
 
 export default function OmwMarker({
@@ -38,8 +37,8 @@ export default function OmwMarker({
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
 
-  const [, setCenter] = useRecoilState<Center>(mapCenterState);
-  const lastCenter = useRecoilValue<Center>(lastCenterState);
+  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
+  const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
 
   const [selected, setSelected] = useRecoilState<number>(
     selectedPlaceIndexState,
@@ -71,7 +70,10 @@ export default function OmwMarker({
   useEffect(() => {
     if (resultList && resultList.length > 0) {
       setSelected(-1);
-      setTimeout(() => setSelected(0), 100);
+      setLastCenter(center); //FIXME: might cause dependency issue..
+      setTimeout(() => {
+        setSelected(0);
+      }, 1000);
     }
   }, [resultList]);
 
