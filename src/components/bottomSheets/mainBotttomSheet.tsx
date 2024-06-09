@@ -18,7 +18,7 @@ import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
 import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
-import {getReviewSummary} from '../../api/getReviewSummary';
+import {getKakaoReviews, getReviewSummary} from '../../api/getReviewSummary';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -106,7 +106,8 @@ export default function MainBottomSheet({
 
   const onReviewSummaryPress = async () => {
     setReviewSummaryLoading(true);
-    const res = await getReviewSummary(placeId);
+    // const res = await getReviewSummary(placeId);
+    const res = await getKakaoReviews(placeId);
     if (res) setReviewSummary(res);
     bottomSheetModalRef.current?.snapToIndex(2);
     setReviewSummaryLoading(false);
