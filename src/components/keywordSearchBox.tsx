@@ -108,6 +108,12 @@ export default function KeywordSearchBox({
       const res = setMinMaxValue(selectedRoute.distance);
       setMinMax(res);
       setValue(res[0]);
+      if (res[0] === res[1]) setIsRangeOn(false);
+      setTimeout(() => {
+        if (inputRef.current)
+          //@ts-ignore
+          inputRef.current.focus();
+      }, 300);
     }
   }, [selectedRoute]);
 
@@ -198,8 +204,7 @@ export default function KeywordSearchBox({
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >=
-                      Math.floor(minMax[0] + (minMax[1] - minMax[0]) / 4)
+                      value >= minMax[0] + (minMax[1] - minMax[0]) / 4
                         ? 'text-[#3D3D3D]'
                         : 'text-[#A8A8A8]'
                     }`}>
@@ -209,8 +214,7 @@ export default function KeywordSearchBox({
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >=
-                      Math.floor(minMax[0] + (2 * (minMax[1] - minMax[0])) / 4)
+                      value >= minMax[0] + (2 * (minMax[1] - minMax[0])) / 4
                         ? 'text-[#3D3D3D]'
                         : 'text-[#A8A8A8]'
                     }`}>
@@ -220,8 +224,7 @@ export default function KeywordSearchBox({
                   </Text>
                   <Text
                     className={`text-[12px] ${
-                      value >=
-                      Math.floor(minMax[0] + (3 * (minMax[1] - minMax[0])) / 4)
+                      value >= minMax[0] + (3 * (minMax[1] - minMax[0])) / 4
                         ? 'text-[#3D3D3D]'
                         : 'text-[#A8A8A8]'
                     }`}>
@@ -246,7 +249,7 @@ export default function KeywordSearchBox({
             activeOpacity={0.8}
             disabled={result === null || result.length === 0}
             onPress={() => {
-              setIsRangeOn(true);
+              // setIsRangeOn(true);
               //@ts-ignore
               if (inputRef.current) inputRef.current.focus();
             }}>
@@ -260,12 +263,13 @@ export default function KeywordSearchBox({
             <TextInput
               ref={inputRef}
               className="w-[80%] h-full pl-3 text-black"
+              placeholderTextColor={'#A8A8A8'}
               placeholder="검색어 입력"
               value={query}
               onChangeText={setQuery}
               // autoFocus
               onSubmitEditing={onSubmit}
-              onFocus={() => setIsRangeOn(true)}
+              // onFocus={() => setIsRangeOn(true)}
             />
             <TouchableOpacity onPress={onSubmit}>
               <KewordSearchButtonSVG height={'24px'} width={'24px'} />
