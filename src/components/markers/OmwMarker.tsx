@@ -14,6 +14,8 @@ import {markerList} from '../../config/consts/image';
 import {
   DEFAULT_MARKER_HEIGHT,
   DEFAULT_MARKER_WIDTH,
+  ELLIPSE_MARKER_HEIGHT,
+  ELLIPSE_MARKER_WIDTH,
   LARGE_MARKER_HEIGHT,
   LARGE_MARKER_WIDTH,
 } from '../../config/consts/map';
@@ -87,7 +89,41 @@ export default function OmwMarker({
     <>
       {resultList.map((item: PlaceDetail, index: number) => {
         let markerImage = markerList.basic.default;
-        if (item.open === 'Y') markerImage = markerList.basic.on;
+        let zIndex = index === selected ? 10 : 5;
+        let width =
+          index === selected ? LARGE_MARKER_WIDTH : DEFAULT_MARKER_WIDTH;
+        let height =
+          index === selected ? LARGE_MARKER_HEIGHT : DEFAULT_MARKER_HEIGHT;
+        if (
+          !item.reviewCnt ||
+          item.reviewCnt === 0 ||
+          !item.scoreAvg ||
+          !item.commentCnt ||
+          item.commentCnt === 0
+        ) {
+          if (index === selected) {
+            zIndex = 10;
+            markerImage =
+              item.open === 'Y'
+                ? markerList.basic.on
+                : item.open === 'N'
+                ? markerList.basic.off
+                : markerList.basic.default;
+          } else {
+            zIndex = 1;
+            if (item.open === 'Y') {
+              zIndex = 5;
+              markerImage = markerList.basic.on;
+              width = DEFAULT_MARKER_WIDTH;
+              height = DEFAULT_MARKER_HEIGHT;
+            } else {
+              if (item.open === 'N') markerImage = markerList.small.off;
+              else markerImage = markerList.small.default;
+              width = ELLIPSE_MARKER_WIDTH;
+              height = ELLIPSE_MARKER_HEIGHT;
+            }
+          }
+        } else if (item.open === 'Y') markerImage = markerList.basic.on;
         else if (item.open === 'N') markerImage = markerList.basic.off;
         return (
           <Marker
@@ -96,18 +132,14 @@ export default function OmwMarker({
               latitude: item.coordinate.latitude,
               longitude: item.coordinate.longitude,
             }}
-            width={
-              index === selected ? LARGE_MARKER_WIDTH : DEFAULT_MARKER_WIDTH
-            }
-            height={
-              index === selected ? LARGE_MARKER_HEIGHT : DEFAULT_MARKER_HEIGHT
-            }
+            width={width}
+            height={height}
             onClick={() => {
               markerOnClick(item, index);
             }}
             anchor={{x: 0.5, y: 1}} //FIXME: set anchor
             image={markerImage}
-            zIndex={index === selected ? 1 : 0}
+            zIndex={zIndex}
             //TODO: use different images for different categories
           />
         );

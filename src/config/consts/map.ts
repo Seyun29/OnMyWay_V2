@@ -1,10 +1,13 @@
 export const DEFAULT_ZOOM = 14;
 export const ENLARGE_ZOOM = 16;
 
-export const DEFAULT_MARKER_WIDTH = 25;
-export const DEFAULT_MARKER_HEIGHT = 34;
-export const LARGE_MARKER_WIDTH = 35;
-export const LARGE_MARKER_HEIGHT = 45;
+export const DEFAULT_MARKER_WIDTH = 22.4;
+export const DEFAULT_MARKER_HEIGHT = 28.8;
+export const LARGE_MARKER_WIDTH = DEFAULT_MARKER_WIDTH * 1.3;
+export const LARGE_MARKER_HEIGHT = DEFAULT_MARKER_HEIGHT * 1.3;
 
-export const NAV_MARKER_WIDTH = 40;
-export const NAV_MARKER_HEIGHT = 40;
+export const ELLIPSE_MARKER_WIDTH = 25;
+export const ELLIPSE_MARKER_HEIGHT = 36;
+
+export const NAV_MARKER_WIDTH = 42;
+export const NAV_MARKER_HEIGHT = 42;
