@@ -24,9 +24,11 @@ function Stars({scoreAvg}: {scoreAvg: number}) {
 export default function BottomSheetComponent({
   placeInfo,
   stopByLoading,
+  onPress,
 }: {
   placeInfo: any;
   stopByLoading: boolean;
+  onPress: any;
 }) {
   const {
     stopByDuration,
@@ -81,7 +83,9 @@ export default function BottomSheetComponent({
           <RightIconSVG width={17} height={17} />
         </TouchableOpacity>
       </View>
-      <View className="flex-1 flex-row w-full pt-3">
+      <TouchableOpacity
+        className="flex-1 flex-row w-full pt-3"
+        onPress={onPress}>
         <Image
           source={
             photoUrl
@@ -210,7 +214,7 @@ export default function BottomSheetComponent({
             </View>
           )}
         </View>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
