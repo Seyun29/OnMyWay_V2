@@ -39,6 +39,10 @@ export default function PlaceInputHeader({
           position: 'top',
           topOffset: toastTopOffset,
           visibilityTime: 1500,
+          text1Style: {
+            fontSize: 15,
+            fontWeight: '600',
+          },
         });
       else {
         setIsResult(true);
@@ -51,6 +55,10 @@ export default function PlaceInputHeader({
         position: 'top',
         topOffset: toastTopOffset,
         visibilityTime: 1500,
+        text1Style: {
+          fontSize: 15,
+          fontWeight: '600',
+        },
       });
   };
 
@@ -68,6 +76,10 @@ export default function PlaceInputHeader({
         position: 'top',
         topOffset: toastTopOffset,
         visibilityTime: 1500,
+        text1Style: {
+          fontSize: 15,
+          fontWeight: '600',
+        },
       });
       setLoading(false);
       return;

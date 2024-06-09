@@ -82,6 +82,10 @@ export default function SelectRouteMap({
         position: 'top',
         topOffset: headerHeight + insets.top,
         visibilityTime: 2500,
+        text1Style: {
+          fontSize: 13,
+          fontWeight: '600',
+        },
       });
     }, 500);
   };
@@ -161,6 +165,10 @@ export default function SelectRouteMap({
       text1: '이동 경로를 선택해주세요',
       visibilityTime: 2000,
       topOffset: headerHeight + insets.top,
+      text1Style: {
+        fontSize: 13,
+        fontWeight: '600',
+      },
     });
   };
 
