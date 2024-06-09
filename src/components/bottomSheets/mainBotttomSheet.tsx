@@ -166,6 +166,9 @@ export default function MainBottomSheet({
                   originalDuration: selectedRoute?.duration,
                 }}
                 stopByLoading={stopByLoading}
+                onPress={() => {
+                  bottomSheetModalRef.current?.snapToIndex(1);
+                }}
               />
             </View>
           )}
