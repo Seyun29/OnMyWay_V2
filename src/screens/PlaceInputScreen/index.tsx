@@ -25,18 +25,22 @@ import Spinner from '../../components/spinner';
 import PlaceQueryResult from '../../components/placeQueryResult';
 import {recentPlaceDetail} from '../../config/types/place';
 import Toast from 'react-native-toast-message';
+import {headerHeightState} from '../../atoms/headerHeightState';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 
 export default function PlaceInputScreen() {
   //FIXME: choose what to edit
   //FIXME: add 'keyboard.dismiss()' when user clicks outside of the input box
   //FIXME: use keyboardavoidingview so that the SVG is located differently when the keyboard is open
   //TODO: use asyncstorage => Use JSON.stringify() and JSON.parse() to store and retrieve objects and arrays.
-  //FIXME: "검색 결과가 없습니다!!" 표시해주기!!!
+  const insets = useSafeAreaInsets();
   const [resultList, setResultList] = useState<any[]>([]);
   const [isResult, setIsResult] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [, setNav] = useRecoilState(navigationState);
   const whichNav = useRecoilValue(whichNavState);
+  const headerHeight = useRecoilValue(headerHeightState);
   const navigation = useNavigation();
 
   const handlePress = async (result: any) => {
@@ -141,10 +145,22 @@ export default function PlaceInputScreen() {
       });
     } catch (error) {
       console.error(error);
-      Alert.alert(
-        '',
-        '현재 위치를 가져오는데 실패했습니다.\n설정에서 위치 권한을 확인해주세요',
-      );
+      Toast.show({
+        type: 'error',
+        text1: '현재 위치를 가져오는데 실패했습니다.',
+        text2: '설정에서 위치 권한을 확인해주세요.',
+        position: 'top',
+        topOffset: ROUGH_HEADER_HEIGHT + insets.top,
+        visibilityTime: 2500,
+        text1Style: {
+          fontSize: 13,
+          fontWeight: '600',
+        },
+        text2Style: {
+          fontSize: 11,
+          fontWeight: '400',
+        },
+      });
     }
   };
 
