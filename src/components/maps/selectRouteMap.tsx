@@ -28,7 +28,10 @@ import CandidatePaths, {
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {calculateIsInBoundary, getZoomLevel} from '../../config/helpers/route';
 import SelectRouteItem from '../selectRouteItem';
-import {SELECT_ROUTE_ITEM_WIDTH} from '../../config/consts/style';
+import {
+  ROUGH_HEADER_HEIGHT,
+  SELECT_ROUTE_ITEM_WIDTH,
+} from '../../config/consts/style';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {loadingState} from '../../atoms/loadingState';
 import Toast from 'react-native-toast-message';
@@ -250,10 +253,16 @@ export default function SelectRouteMap({
         <Spinner />
       ) : (
         <>
+          <View
+            style={{
+              height: ROUGH_HEADER_HEIGHT,
+            }}
+          />
           <NaverMapView
             style={{
               width: '100%',
-              height: '100%',
+              // height: '100%',
+              flex: 1,
             }}
             zoomControl={false}
             center={center}
