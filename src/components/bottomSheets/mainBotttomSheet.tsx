@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {LayoutAnimation, Text, TouchableOpacity, View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -18,6 +18,7 @@ import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
 import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
+import {getReviewSummary} from '../../api/getReviewSummary';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -46,6 +47,10 @@ export default function MainBottomSheet({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
+  const [reviewSummaryLoading, setReviewSummaryLoading] =
+    useState<boolean>(false);
+
+  const [reviewSummary, setReviewSummary] = useState<string>('');
 
   const getStopBy = async () => {
     if (!curPlace) return;
@@ -58,7 +63,7 @@ export default function MainBottomSheet({
     setStopByLoading(false);
   };
 
-  const snapPoints = useMemo(() => ['23%', '70%'], []);
+  const snapPoints = useMemo(() => ['23%', '60%', '82%'], []);
 
   //@ts-ignore
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
@@ -99,6 +104,14 @@ export default function MainBottomSheet({
     });
   };
 
+  const onReviewSummaryPress = async () => {
+    setReviewSummaryLoading(true);
+    const res = await getReviewSummary(placeId);
+    if (res) setReviewSummary(res);
+    bottomSheetModalRef.current?.snapToIndex(2);
+    setReviewSummaryLoading(false);
+  };
+
   useEffect(() => {
     if (modalVisible) {
       setListModalVisible(false);
@@ -112,8 +125,13 @@ export default function MainBottomSheet({
     if (curPlace) {
       getStopBy();
       setExtraData();
+      setReviewSummary('');
     }
   }, [curPlace]);
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [reviewSummary]);
 
   return (
     <BottomSheetModalProvider>
@@ -140,12 +158,38 @@ export default function MainBottomSheet({
           }}>
           {curPlace && (
             <View className="flex-1">
-              <TouchableOpacity className="flex-row mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg items-center">
-                <BlinkStarsSVG width={17} height={17} />
-                <Text className="text-sm ml-1">
-                  AI 리뷰 요약을 확인해보세요
-                </Text>
-                <Text className="text-xs ml-1 text-gray-600">{'(클릭!)'}</Text>
+              <TouchableOpacity
+                className="mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg justify-center"
+                onPress={onReviewSummaryPress}
+                disabled={reviewSummaryLoading || reviewSummary.length > 0}>
+                <View className="flex-row w-full">
+                  <BlinkStarsSVG width={17} height={17} />
+                  {reviewSummary.length > 0 ? (
+                    <>
+                      <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                        AI 리뷰 요약
+                      </Text>
+                    </>
+                  ) : reviewSummaryLoading ? (
+                    <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                      리뷰 요약을 생성하는 중 입니다...
+                    </Text>
+                  ) : (
+                    <>
+                      <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                        AI 리뷰 요약을 확인해보세요
+                      </Text>
+                      <Text className="absolute right-4 text-sm ml-1 text-[#2D7FF9]">
+                        Click!
+                      </Text>
+                    </>
+                  )}
+                </View>
+                {reviewSummary.length > 0 && (
+                  <Text className="text-xs mt-1 text-[#3D3D3D] font-semibold">
+                    {reviewSummary}
+                  </Text>
+                )}
               </TouchableOpacity>
               <WebView
                 source={{
