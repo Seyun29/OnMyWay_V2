@@ -33,6 +33,7 @@ import {mapCenterState} from '../../atoms/mapCenterState';
 import {loadingState} from '../../atoms/loadingState';
 import Toast from 'react-native-toast-message';
 import {headerHeightState} from '../../atoms/headerHeightState';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 // @ts-ignore
 const getItemLayout = (data, index) => ({
@@ -46,6 +47,8 @@ export default function SelectRouteMap({
 }: {
   setSelectedRoute: any;
 }) {
+  const insets = useSafeAreaInsets();
+
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
   const [, setGlobalCenter] = useRecoilState<Center>(mapCenterState);
@@ -77,7 +80,7 @@ export default function SelectRouteMap({
         type: 'info',
         text1: '검색 반경 설정 후 원하는 장소를 검색해보세요!',
         position: 'top',
-        topOffset: headerHeight + 20,
+        topOffset: headerHeight + insets.top,
         visibilityTime: 2500,
       });
     }, 500);
@@ -157,7 +160,7 @@ export default function SelectRouteMap({
       type: 'info',
       text1: '이동 경로를 선택해주세요',
       visibilityTime: 2000,
-      topOffset: headerHeight + 20,
+      topOffset: headerHeight + insets.top,
     });
   };
 

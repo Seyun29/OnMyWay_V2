@@ -12,6 +12,7 @@ import FavoriteSVG from '../../assets/images/favorite.svg';
 import Toast from 'react-native-toast-message';
 import {get} from '../../config/helpers/storage';
 import {FAVORITE_KEY} from '../../config/consts/storage';
+import {useSafeAreaInsets} from 'react-native-safe-area-context';
 
 export default function PlaceInputHeader({
   setResultList,
@@ -26,6 +27,7 @@ export default function PlaceInputHeader({
 }) {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [toastTopOffset, setToastTopOffset] = useState<number>(200);
+  const insets = useSafeAreaInsets();
 
   const onFavoritePress = async () => {
     const favorites = await get(FAVORITE_KEY);
@@ -96,7 +98,9 @@ export default function PlaceInputHeader({
         shadowOpacity: 0.15,
         shadowRadius: 2,
       }}
-      onLayout={e => setToastTopOffset(e.nativeEvent.layout.height + 30)}
+      onLayout={e =>
+        setToastTopOffset(e.nativeEvent.layout.height + insets.top + 10)
+      }
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] ">
       <View className="relative w-full flex-row items-center justify-around">
         <InputBoxEditable handleSubmit={handleSubmit} />
