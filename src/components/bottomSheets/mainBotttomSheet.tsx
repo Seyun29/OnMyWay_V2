@@ -161,7 +161,7 @@ export default function MainBottomSheet({
           style={{
             flex: 1,
           }}>
-          {curPlace && (
+          {curIdx >= 1 && curPlace && (
             <View className="flex-1">
               <TouchableOpacity
                 className="mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg justify-center"

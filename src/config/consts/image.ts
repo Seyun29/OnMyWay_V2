@@ -9,10 +9,13 @@ const markerSmallDefault = require('../../assets/images/markers/markerSmallDefau
 const markerSmallOff = require('../../assets/images/markers/markerSmallOff.png');
 const markerSmallOn = require('../../assets/images/markers/markerSmallOn.png');
 
+const markerSelected = require('../../assets/images/markers/markerSelected.png');
+
 export const markerList = {
   start: markerStart,
   end: markerEnd,
   stopover: markerStopover,
+  selected: markerSelected,
   basic: {
     default: markerBasicDefault,
     off: markerBasicOff,
