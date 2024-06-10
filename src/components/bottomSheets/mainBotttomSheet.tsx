@@ -137,14 +137,17 @@ export default function MainBottomSheet({
           style={{
             flex: 1,
           }}>
-          {curPlace && (
+          {curIdx >= 1 && curPlace && (
             <WebView
               source={{
                 uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
               }}
               style={{flex: 1}}
               nestedScrollEnabled
-              onLoadStart={() => setIsLoading(true)}
+              onLoadStart={() => {
+                setIsLoading(true);
+                console.log('loading');
+              }}
               onLoadEnd={() => {
                 setIsLoading(false);
               }}
