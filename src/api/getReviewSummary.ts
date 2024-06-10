@@ -1,6 +1,7 @@
 //@ts-nocheck
 import axios from 'axios';
 import {LLM_MODEL_NAME} from '../config/consts/api';
+import {Alert} from 'react-native';
 import {DUMMY_REVIEW_SUMMARY} from '../dummy/reviewSummary';
 
 export const getKakaoReviews = async (placeId: string) => {
@@ -58,13 +59,14 @@ export const getReviewSummary = async (placeId: string) => {
     const reviews = await getKakaoReviews(placeId); //TODO: utilize these reviews from kakao
     const postData = {
       model: LLM_MODEL_NAME,
-      prompt: reviews,
+      prompt: '다음 리뷰들을 요약해줘: "' + reviews + '"',
       stream: false,
     };
     // const response = await axios.post(
     // `http://${LOCAL_LLM_URL}:11434/api/generate`,
     //   postData,
     // );
+    //return response.data.response
     const response = await new Promise(resolve =>
       setTimeout(() => {
         resolve({data: reviews.substring(0, 200)});
