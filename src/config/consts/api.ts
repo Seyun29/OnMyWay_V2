@@ -8,5 +8,5 @@ export const GET_ROUTES = '/map/driving-route';
 export const SEARCH_ON_PATH = '/map/search-on-path';
 export const GET_STOPBY_DURATION = '/map/stopby-duration';
 
-export const LOCAL_LLM_URL = 'https://api.example.com'; //FIXME: change this to the local llm server url
-export const LLM_MODEL_NAME = 'gemma_2b_ko_summary-q4_k_m3';
+export const LOCAL_LLM_URL = '10.16.135.41'; //FIXME: change this to the local llm server url
+export const LLM_MODEL_NAME = 'gemma';

@@ -1,14 +1,13 @@
 //@ts-nocheck
 import axios from 'axios';
-import {LLM_MODEL_NAME} from '../config/consts/api';
-import {Alert} from 'react-native';
-import {DUMMY_REVIEW_SUMMARY} from '../dummy/reviewSummary';
+import {LLM_MODEL_NAME, LOCAL_LLM_URL} from '../config/consts/api';
 
 export const getKakaoReviews = async (placeId: string) => {
   try {
     let reviews = '';
     let hasNext = false;
     let nextCommentId = '';
+    let reviewCnt = 0;
     const response = await axios.get(
       'https://place.map.kakao.com/main/v/' + placeId,
     );
@@ -16,6 +15,7 @@ export const getKakaoReviews = async (placeId: string) => {
       hasNext = response.data.comment.hasNext;
       response.data.comment.list.map(rev => {
         reviews += rev.contents + '\n';
+        reviewCnt++;
       });
       nextCommentId =
         response.data.comment.list[response.data.comment.list.length - 1]
@@ -23,12 +23,6 @@ export const getKakaoReviews = async (placeId: string) => {
     }
     while (hasNext) {
       hasNext = false;
-      // console.log(
-      //   'https://place.map.kakao.com/commentlist/v/' +
-      //     placeId +
-      //     '/' +
-      //     nextCommentId,
-      // );
       const res = await axios.get(
         'https://place.map.kakao.com/commentlist/v/' +
           placeId +
@@ -38,15 +32,20 @@ export const getKakaoReviews = async (placeId: string) => {
       if (res.data && res.data.comment && res.data.comment.list) {
         hasNext = res.data.comment?.hasNext;
         res.data.comment?.list.map(rev => {
-          if (rev.contents && rev.contents.length > 0)
+          if (rev.contents && rev.contents.length > 0) {
             reviews += rev.contents + '\n';
+            reviewCnt++;
+            if (reviewCnt > 20) hasNext = false;
+          }
         });
         nextCommentId =
           res.data.comment?.list[res.data.comment.list.length - 1].commentid;
       }
     }
-    console.log(reviews);
-    return reviews;
+    if (reviewCnt < 7) throw new Error('리뷰 개수가 너무 적습니다.');
+    const cleanedReviews = reviews.replace(/[\r\n]+/g, ' ');
+    console.log(cleanedReviews);
+    return cleanedReviews;
   } catch (error) {
     console.error(error);
   }
@@ -54,25 +53,18 @@ export const getKakaoReviews = async (placeId: string) => {
 
 export const getReviewSummary = async (placeId: string) => {
   try {
-    //FIXME: change url in consts/api.ts
-    //FIXME: '다음 리뷰들을 요약해줘 :' 프롬프트 추가 ?
     const reviews = await getKakaoReviews(placeId); //TODO: utilize these reviews from kakao
     const postData = {
       model: LLM_MODEL_NAME,
-      prompt: '다음 리뷰들을 요약해줘: "' + reviews + '"',
+      prompt: '다음 리뷰들을 총 400자 미만으로 요약해줘. : "' + reviews + '"',
       stream: false,
     };
-    // const response = await axios.post(
-    // `http://${LOCAL_LLM_URL}:11434/api/generate`,
-    //   postData,
-    // );
-    //return response.data.response
-    const response = await new Promise(resolve =>
-      setTimeout(() => {
-        resolve({data: reviews.substring(0, 200)});
-      }, 1000),
+    const response = await axios.post(
+      `http://${LOCAL_LLM_URL}:11434/api/generate`,
+      postData,
     );
-    return response.data;
+    const cleanedReviews = response.data.response.replace(/[\r\n]+/g, ' ');
+    return cleanedReviews;
   } catch (error) {
     console.error(error);
   }
