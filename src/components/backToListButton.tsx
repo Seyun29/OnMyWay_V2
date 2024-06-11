@@ -6,7 +6,7 @@ const BackToListButton = ({onPress}: {onPress: () => void}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      className="flex-row px-2 py-1.5 rounded-full bg-white items-center justify-center border border-gray-300"
+      className="flex-row px-2.5 py-1.5 rounded-full bg-white items-center justify-center border border-gray-300 h-10"
       style={{
         shadowColor: '#000',
         shadowOffset: {
@@ -17,8 +17,8 @@ const BackToListButton = ({onPress}: {onPress: () => void}) => {
         shadowRadius: 3.84,
         elevation: 5,
       }}>
-      <BackToListSVG width={20} height={20} />
-      <Text className="text-[#6A6A6A] font-semibold ml-1 text-xs">리스트</Text>
+      <BackToListSVG width={22} height={22} />
+      <Text className="text-[#6A6A6A] font-semibold ml-1 text-sm">리스트</Text>
     </TouchableOpacity>
   );
 };
