@@ -145,7 +145,7 @@ export default function KeywordSearchBox({
             flexDirection: 'row',
           }}>
           <TouchableOpacity
-            className="rounded-full bg-white pl-6 pr-4 py-2 border-2 flex-row"
+            className="rounded-full bg-white pl-5 pr-3 py-1.5 border-2 flex-row"
             style={{
               borderColor: '#9CC7FF',
             }}
@@ -157,10 +157,10 @@ export default function KeywordSearchBox({
               setTimeout(() => inputRef.current.focus(), 300);
             }}>
             <View className="border-r pr-2 mr-2 border-slate-500">
-              <Text className="font-bold text-sm">검색어</Text>
+              <Text className="font-bold text-xs">검색어</Text>
             </View>
-            <Text className="text-sm mr-3">{query}</Text>
-            <KewordSearchButtonSVG height={21} width={21} />
+            <Text className="text-xs mr-3">{query}</Text>
+            <KewordSearchButtonSVG height={'18px'} width={'18px'} />
           </TouchableOpacity>
           {/* <TouchableOpacity className="bg-white rounded-full ml-2 border-3 border-gray-700">
             <BackToListSVG height={27} width={27} />

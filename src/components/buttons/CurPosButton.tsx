@@ -24,7 +24,7 @@ export default function CurPosButton({
       }}
       onPress={onPress}
       activeOpacity={0.2}>
-      <CurPosButtonSVG height="55" width="55" />
+      <CurPosButtonSVG height="45px" width="45px" />
     </TouchableOpacity>
   );
 }

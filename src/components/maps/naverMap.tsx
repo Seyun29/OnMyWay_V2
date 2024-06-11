@@ -241,7 +241,7 @@ export default function NaverMap({
                       <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
                         <CurPosButton
                           onPress={() => setCurPos(false)}
-                          style="relative self-end"
+                          style="relative self-center"
                         />
                         <BackToListButton onPress={backToList} />
                       </View>
@@ -254,7 +254,7 @@ export default function NaverMap({
                           <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
                             <CurPosButton
                               onPress={() => setCurPos(false)}
-                              style="relative self-end"
+                              style="relative self-center"
                             />
                             <BackToListButton onPress={backToList} />
                           </View>

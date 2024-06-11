@@ -77,10 +77,10 @@ const NaverMapLink = ({
   };
   return (
     <TouchableOpacity
-      className="flex-row justify-center items-center rounded-full bg-[#57B04B] px-3.5 py-2.5 shadow-lg"
+      className="flex-row justify-center items-center rounded-full bg-[#57B04B] px-3.5 py-2.5"
       onPress={openNaverMap}>
-      <NaverLogo width={18} height={18} />
-      <Text className="ml-2 text-white text-base">네이버맵 길안내 시작</Text>
+      <NaverLogo width={15} height={15} />
+      <Text className="ml-2 text-white text-xs">네이버맵 길안내 시작</Text>
     </TouchableOpacity>
   );
 };
