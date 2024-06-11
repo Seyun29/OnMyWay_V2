@@ -119,7 +119,7 @@ export default function KeywordSearchBox({
     if (selectedRoute) {
       const res = setMinMaxValue(selectedRoute.distance);
       setMinMax(res);
-      setValue(res[0]);
+      setValue(Math.floor(res[0] + (res[1] - res[0]) * 0.15));
       if (res[0] === res[1]) setIsRangeOn(false);
       setTimeout(() => {
         if (inputRef.current)
