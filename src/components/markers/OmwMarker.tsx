@@ -128,7 +128,7 @@ export default function OmwMarker({
             onClick={() => {
               markerOnClick(item, index);
             }}
-            anchor={{x: 0.5, y: 1}} //FIXME: set anchor
+            anchor={{x: 0.5, y: 1}}
             image={index === selected ? markerList.selected : markerImage}
             zIndex={zIndex}
             //TODO: use different images for different categories
