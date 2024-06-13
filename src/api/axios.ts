@@ -15,6 +15,7 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
+    //FIXME: uncomment if needed
     // Alert.alert(
     //   '오류',
     //   '서버와의 통신에 문제가 발생했습니다. 다시 시도해주세요.',
