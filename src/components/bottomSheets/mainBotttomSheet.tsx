@@ -11,7 +11,11 @@ import WebView from 'react-native-webview';
 import Spinner from '../spinner';
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {getKakaoPlace} from '../../api/getKakaoPlace';
-import {ExtraDetail, PlaceDetail} from '../../config/types/coordinate';
+import {
+  Coordinate,
+  ExtraDetail,
+  PlaceDetail,
+} from '../../config/types/coordinate';
 import BottomSheetComponent from './bottomSheetComponent';
 import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
@@ -27,11 +31,13 @@ export default function MainBottomSheet({
   stopByData: {
     strategy: 'FRONT' | 'REAR' | 'MIDDLE';
     duration: number;
+    path: Coordinate[];
   } | null;
   setStopByData: (
     data: {
       strategy: 'FRONT' | 'REAR' | 'MIDDLE';
       duration: number;
+      path: Coordinate[];
     } | null,
   ) => void;
 }) {
@@ -52,7 +58,11 @@ export default function MainBottomSheet({
     setStopByLoading(true);
     const res = await getStopByDuration(nav, curPlace.coordinate);
     if (res) {
-      setStopByData({duration: res.duration, strategy: res.strategy});
+      setStopByData({
+        duration: res.duration,
+        strategy: res.strategy,
+        path: res.path,
+      });
     }
     setStopByLoading(false);
   };

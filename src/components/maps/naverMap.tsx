@@ -17,7 +17,7 @@ import {headerRoughState} from '../../atoms/headerRoughState';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import {getAddress} from '../../api/getAddress';
-import {SelectedPath} from '../paths/candidatePaths';
+import {DefaultPath, OMWPath, SelectedPath} from '../paths/candidatePaths';
 import {loadingState} from '../../atoms/loadingState';
 import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
@@ -32,6 +32,7 @@ import {listModalState} from '../../atoms/listModalState';
 import {checkPermissions} from '../../hooks/usePermissions';
 import {headerHeightState} from '../../atoms/headerHeightState';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 
 export default function NaverMap({
   selectedRoute,
@@ -46,6 +47,7 @@ export default function NaverMap({
   const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
   const [nav, setNav] = useRecoilState<Navigation>(navigationState);
+  const selected = useRecoilValue<number>(selectedPlaceIndexState);
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
@@ -64,6 +66,7 @@ export default function NaverMap({
   const [stopByData, setStopByData] = useState<{
     strategy: 'FRONT' | 'REAR' | 'MIDDLE';
     duration: number;
+    path: Coordinate[];
   } | null>(null);
 
   const prevNavRef = useRef<Navigation | null>(nav);
@@ -212,13 +215,25 @@ export default function NaverMap({
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
               <>
-                {originalResult && originalResult.length > 0 && result && (
-                  <OmwMarker
-                    resultList={result}
-                    setShowAlternative={setShowAlternative}
-                  />
+                {originalResult && originalResult.length > 0 && result ? (
+                  <>
+                    <OmwMarker
+                      resultList={result}
+                      setShowAlternative={setShowAlternative}
+                    />
+
+                    {stopByData ? (
+                      <>
+                        <DefaultPath path={selectedRoute.path} />
+                        <OMWPath path={stopByData.path} />
+                      </>
+                    ) : (
+                      <SelectedPath path={selectedRoute.path} />
+                    )}
+                  </>
+                ) : (
+                  <SelectedPath path={selectedRoute.path} />
                 )}
-                <SelectedPath path={selectedRoute.path} />
               </>
             )}
           </NaverMapView>

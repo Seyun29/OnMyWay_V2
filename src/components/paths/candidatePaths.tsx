@@ -21,7 +21,20 @@ export function SelectedPath({path}: {path: Coordinate[]}) {
       color={'#20C933'}
       coordinates={path}
       width={10}
-      outlineWidth={2}
+      outlineWidth={1}
+      outlineColor="#FFFFFF"
+      zIndex={1}
+    />
+  );
+}
+
+export function OMWPath({path}: {path: Coordinate[]}) {
+  return (
+    <Path
+      color={'#20C933'}
+      coordinates={path}
+      width={10}
+      outlineWidth={1}
       outlineColor="#FFFFFF"
       zIndex={1}
     />
