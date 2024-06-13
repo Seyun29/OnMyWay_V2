@@ -15,10 +15,10 @@ axiosInstance.interceptors.response.use(
     return response;
   },
   async (error: AxiosError) => {
-    Alert.alert(
-      '오류',
-      '서버와의 통신에 문제가 발생했습니다. 다시 시도해주세요.',
-    );
+    // Alert.alert(
+    //   '오류',
+    //   '서버와의 통신에 문제가 발생했습니다. 다시 시도해주세요.',
+    // );
     onError(error, error?.config?.url);
     return Promise.reject(error);
   },
