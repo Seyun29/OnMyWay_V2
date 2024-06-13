@@ -25,9 +25,6 @@ export default function OmwMarker({
   resultList: PlaceDetail[];
   setShowAlternative: (showAlternative: boolean) => void;
 }) {
-  //FIXME: add types to input props, input type has to be updated (coordList is temporary need other props as well)
-  //TODO: move & zoom smoothly to the selected marker, 'zoom level' is also required to be updated.
-
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
