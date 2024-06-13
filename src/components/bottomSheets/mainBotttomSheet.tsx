@@ -137,7 +137,7 @@ export default function MainBottomSheet({
           style={{
             flex: 1,
           }}>
-          {curIdx >= 1 && curPlace && (
+          {curPlace && (
             <WebView
               source={{
                 uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
