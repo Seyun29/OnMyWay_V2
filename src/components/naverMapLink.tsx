@@ -45,14 +45,15 @@ const NaverMapLink = ({
               '네이버맵이 설치되어있지 않습니다.\n앱스토어로 이동하시겠습니까?',
               [
                 {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
-                // {
-                //   text: 'Apple 지도로 길안내 (출발지~경유지)',
-                //   onPress: () => {
-                //     Linking.openURL(
-                //       `http://maps.apple.com/?saddr=${curPlace.y},${curPlace.x}&daddr=${nav.start?.coordinate.latitude},${nav.start?.coordinate.longitude}&dirflg=d`,
-                //     );
-                //   },
-                // },
+                //FIXME: comment out the following code after update-screening pass
+                {
+                  text: 'Apple 지도로 길안내 (출발지~경유지)',
+                  onPress: () => {
+                    Linking.openURL(
+                      `http://maps.apple.com/?saddr=${curPlace.y},${curPlace.x}&daddr=${nav.start?.coordinate.latitude},${nav.start?.coordinate.longitude}&dirflg=d`,
+                    );
+                  },
+                },
                 {
                   text: '취소',
                   style: 'cancel',
