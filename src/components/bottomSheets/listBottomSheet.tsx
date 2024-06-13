@@ -16,10 +16,12 @@ import {View, Text, TouchableOpacity} from 'react-native';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {
   filterByOpen,
+  filterByParking,
   sortByReview,
   sortByScore,
 } from '../../config/helpers/filter';
 import FilterSVG from '../../assets/images/filter.svg';
+import Spinner from '../spinner';
 
 export default function ListBottomSheet({
   result,
@@ -32,14 +34,15 @@ export default function ListBottomSheet({
   originalResult: PlaceDetail[] | null;
   showAlternative: boolean;
 }) {
-  // console.log(result ? result.length : null);
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
   const [, setSelected] = useRecoilState<number>(selectedPlaceIndexState);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [selectedObj, setSelectedObj] = useState({
     open: false,
+    parking: false,
     score: false,
     review: false,
   });
@@ -66,16 +69,19 @@ export default function ListBottomSheet({
   };
 
   const handleClickIsOpen = () => {
-    //FIXME: async/await 적용, loading 추가
+    setLoading(true);
     if (selectedObj.open) {
       //on unselect
+      const listToSort = selectedObj.parking
+        ? filterByParking(originalResult || [])
+        : originalResult;
       if (selectedObj.score) {
-        const sorted = sortByScore(originalResult || []);
+        const sorted = sortByScore(listToSort || []);
         setResult(sorted);
       } else if (selectedObj.review) {
-        const sorted = sortByReview(originalResult || []);
+        const sorted = sortByReview(listToSort || []);
         setResult(sorted);
-      } else setResult(originalResult || []);
+      } else setResult(listToSort || []);
       setSelectedObj({
         ...selectedObj,
         open: false,
@@ -90,10 +96,44 @@ export default function ListBottomSheet({
         open: true,
       });
     }
+    setTimeout(() => setLoading(false), 50);
+    flatListRef.current?.scrollToOffset({offset: 0, animated: true});
+  };
+
+  const handleClickIsParking = () => {
+    setLoading(true);
+    if (selectedObj.parking) {
+      //on unselect
+      const listToSort = selectedObj.open
+        ? filterByOpen(originalResult || [])
+        : originalResult;
+      if (selectedObj.score) {
+        const sorted = sortByScore(listToSort || []);
+        setResult(sorted);
+      } else if (selectedObj.review) {
+        const sorted = sortByReview(listToSort || []);
+        setResult(sorted);
+      } else setResult(listToSort || []);
+      setSelectedObj({
+        ...selectedObj,
+        parking: false,
+      });
+    } else {
+      if (result) {
+        const filtered = filterByParking(result);
+        setResult(filtered);
+      }
+      setSelectedObj({
+        ...selectedObj,
+        parking: true,
+      });
+    }
+    setTimeout(() => setLoading(false), 50);
     flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
   const handleSortByScore = () => {
+    setLoading(true);
     if (selectedObj.score) {
       //on unselect
       if (selectedObj.open) {
@@ -117,10 +157,12 @@ export default function ListBottomSheet({
         score: true,
       });
     }
+    setTimeout(() => setLoading(false), 50);
     flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
   const handleSortByReview = () => {
+    setLoading(true);
     if (selectedObj.review) {
       //on unselect
       if (selectedObj.open) {
@@ -142,6 +184,7 @@ export default function ListBottomSheet({
         review: true,
       });
     }
+    setTimeout(() => setLoading(false), 50);
     flatListRef.current?.scrollToOffset({offset: 0, animated: true});
   };
 
@@ -160,6 +203,7 @@ export default function ListBottomSheet({
       open: false,
       score: false,
       review: false,
+      parking: false,
     });
   }, [originalResult]);
 
@@ -215,6 +259,19 @@ export default function ListBottomSheet({
             <TouchableOpacity
               className="px-2 py-1.5 rounded-xl border-[0.5px]"
               style={{
+                borderColor: selectBorderColor(selectedObj.parking),
+                backgroundColor: selectBGColor(selectedObj.parking),
+              }}
+              onPress={handleClickIsParking}>
+              <Text
+                className="text-xs"
+                style={{color: selectTextColor(selectedObj.parking)}}>
+                주차 가능
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              style={{
                 borderColor: selectBorderColor(selectedObj.score),
                 backgroundColor: selectBGColor(selectedObj.score),
               }}
@@ -239,28 +296,31 @@ export default function ListBottomSheet({
               </Text>
             </TouchableOpacity>
           </View>
-          {result && (
-            <FlatList
-              ref={flatListRef}
-              className="flex-1 w-full pt-2 flex-col"
-              data={result}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item, index}) => (
-                <ListBottomSheetComponent
-                  placeInfo={{
-                    ...item,
-                  }}
-                  onSelect={() => {
-                    setListModalVisible(false);
-                    setModalVisible(true);
-                    setSelected(index);
-                  }}
-                />
-              )}
-              initialNumToRender={20}
-              maxToRenderPerBatch={20}
-            />
-          )}
+          {result &&
+            (loading ? (
+              <Spinner />
+            ) : (
+              <FlatList
+                ref={flatListRef}
+                className="flex-1 w-full pt-2 flex-col"
+                data={result}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({item, index}) => (
+                  <ListBottomSheetComponent
+                    placeInfo={{
+                      ...item,
+                    }}
+                    onSelect={() => {
+                      setListModalVisible(false);
+                      setModalVisible(true);
+                      setSelected(index);
+                    }}
+                  />
+                )}
+                initialNumToRender={20}
+                maxToRenderPerBatch={20}
+              />
+            ))}
         </BottomSheetView>
       </BottomSheetModal>
     </BottomSheetModalProvider>

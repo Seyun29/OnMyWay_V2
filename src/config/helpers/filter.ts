@@ -7,6 +7,11 @@ export const filterByOpen = result => {
   // return filtered;
 };
 
+export const filterByParking = result => {
+  const filteredY = result.filter(item => item.parking === 'Y');
+  return filteredY;
+};
+
 export const sortByScore = result => {
   const sorted = [...result].sort((a, b) => {
     let aScore = a.scoreAvg;

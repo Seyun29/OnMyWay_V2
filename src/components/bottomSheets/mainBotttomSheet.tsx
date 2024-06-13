@@ -146,7 +146,6 @@ export default function MainBottomSheet({
               nestedScrollEnabled
               onLoadStart={() => {
                 setIsLoading(true);
-                console.log('loading');
               }}
               onLoadEnd={() => {
                 setIsLoading(false);

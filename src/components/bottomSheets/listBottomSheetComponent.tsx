@@ -33,6 +33,7 @@ export default function ListBottomSheetComponent({
     commentCnt,
     reviewCnt,
     scoreAvg,
+    parking,
   } = placeInfo;
 
   const placeName = place_name ? place_name : address_name;
@@ -48,7 +49,7 @@ export default function ListBottomSheetComponent({
         style={{width: 70, height: 70, marginRight: 20, borderRadius: 12}}
       />
       <View>
-        <View className="flex-row items-center gap-x-2">
+        <View className="flex-row items-center gap-x-1.5">
           <Text
             className={
               'font-semibold ' +
@@ -75,6 +76,22 @@ export default function ListBottomSheetComponent({
                   color: open === 'Y' ? '#338A17' : '#FF4D4D',
                 }}>
                 {open === 'Y' ? '영업중' : '영업종료'}
+              </Text>
+            </View>
+          )}
+          {parking && (
+            <View
+              className="rounded-lg px-1 py-0.5 justify-center items-center"
+              style={{
+                borderWidth: 1,
+                borderColor: parking === 'Y' ? '#338A17' : '#FF4D4D',
+              }}>
+              <Text
+                className="text-xs"
+                style={{
+                  color: parking === 'Y' ? '#338A17' : '#FF4D4D',
+                }}>
+                {parking === 'Y' ? '주차가능' : '주차불가'}
               </Text>
             </View>
           )}

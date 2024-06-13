@@ -42,6 +42,7 @@ export default function BottomSheetComponent({
     reviewCnt,
     scoreAvg,
     max_length,
+    parking,
   } = placeInfo;
 
   const [selected, setSelected] = useRecoilState<number>(
@@ -51,14 +52,18 @@ export default function BottomSheetComponent({
   return (
     <View className="flex-1 px-5">
       <View className="w-full flex-row justify-between gap-x-1.5 items-center">
-        <TouchableOpacity
-          onPress={() => {
-            if (selected >= 0 && selected <= max_length)
-              setSelected(selected - 1);
-          }}
-          disabled={stopByLoading}>
-          <LeftIconSVG width={17} height={17} />
-        </TouchableOpacity>
+        {selected > 0 ? (
+          <TouchableOpacity
+            onPress={() => {
+              if (selected > 0 && selected <= max_length - 1)
+                setSelected(selected - 1);
+            }}
+            disabled={stopByLoading}>
+            <LeftIconSVG width={17} height={17} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{width: 17, height: 17}} />
+        )}
         <View className="flex-1 flex-row px-4 py-1.5 bg-[#EBF2FF] rounded-lg items-center">
           <BlinkStarsSVG width={17} height={17} />
           {stopByDuration ? (
@@ -75,14 +80,18 @@ export default function BottomSheetComponent({
             <Text className="text-sm ml-1">경유 시간을 계산 중 입니다...</Text>
           )}
         </View>
-
-        <TouchableOpacity
-          onPress={() => {
-            setSelected(selected + 1);
-          }}
-          disabled={stopByLoading}>
-          <RightIconSVG width={17} height={17} />
-        </TouchableOpacity>
+        {selected < max_length - 1 ? (
+          <TouchableOpacity
+            onPress={() => {
+              if (selected >= 0 && selected < max_length - 1)
+                setSelected(selected + 1);
+            }}
+            disabled={stopByLoading}>
+            <RightIconSVG width={17} height={17} />
+          </TouchableOpacity>
+        ) : (
+          <View style={{width: 17, height: 17}} />
+        )}
       </View>
       <TouchableOpacity
         className="flex-1 flex-row w-full pt-3"
@@ -99,14 +108,18 @@ export default function BottomSheetComponent({
           <View className="flex-row items-center gap-x-2">
             <Text
               className={
-                'font-semibold ' +
+                'font-semibold ' + //FIXME: 글자 크기 fix, parking이 있는걸로 인식되나? 확인
                 (place_name.length > 14
                   ? 'text-xs'
                   : place_name.length > 10
                   ? 'text-sm'
                   : place_name.length > 7
+                  ? open && parking
+                    ? 'text-sm'
+                    : 'text-base'
+                  : open && parking
                   ? 'text-base'
-                  : 'text-xl')
+                  : 'text-lg')
               }>
               {place_name}
             </Text>
@@ -126,6 +139,22 @@ export default function BottomSheetComponent({
                 </Text>
               </View>
             )}
+            {parking && (
+              <View
+                className="rounded-lg px-1 py-0.5 justify-center items-center"
+                style={{
+                  borderWidth: 1,
+                  borderColor: parking === 'Y' ? '#338A17' : '#FF4D4D',
+                }}>
+                <Text
+                  className="text-xs"
+                  style={{
+                    color: parking === 'Y' ? '#338A17' : '#FF4D4D',
+                  }}>
+                  {parking === 'Y' ? '주차가능' : '주차불가'}
+                </Text>
+              </View>
+            )}
           </View>
           <View className="flex-row items-center">
             {scoreAvg && (
@@ -140,7 +169,7 @@ export default function BottomSheetComponent({
                 <Stars scoreAvg={parseFloat(scoreAvg)} />
                 {commentCnt && (
                   <Text
-                    className="text-sm ml-1"
+                    className="text-sm ml-1 mr-1"
                     style={{
                       color: '#7C7C7C',
                     }}>
@@ -151,7 +180,7 @@ export default function BottomSheetComponent({
             )}
             {reviewCnt && (
               <Text
-                className="text-sm ml-2"
+                className="text-sm"
                 style={{
                   color: '#7C7C7C',
                 }}>

@@ -24,6 +24,7 @@ export const getExtraPlaceData = async (placeId: string) => {
         : null,
       commentCnt: res.comment?.kamapComntcnt,
       reviewCnt: res.blogReview?.blogrvwcnt,
+      parking: res.basicInfo?.facilityInfo?.parking,
       scoreAvg,
     };
   } catch (error) {

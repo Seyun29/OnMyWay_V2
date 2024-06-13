@@ -17,6 +17,7 @@ export interface ExtraDetail {
   commentCnt?: number; //별점
   reviewCnt?: number;
   scoreAvg?: string;
+  parking?: string; //'Y' | 'N' | undefined
 }
 
 export interface PlaceDetail extends ExtraDetail {
