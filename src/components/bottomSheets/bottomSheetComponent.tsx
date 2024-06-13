@@ -64,10 +64,11 @@ export default function BottomSheetComponent({
           {stopByDuration ? (
             <>
               <Text className="text-sm ml-1">{'경유시 도착지까지 '}</Text>
-              <Text className="text-sm text-[#FF4D4D] font-semibold">{`${
+              <Text className="text-sm text-[#FF4D4D] font-semibold">{`${Math.max(
+                0,
                 Math.floor(stopByDuration / 60) -
-                Math.floor(originalDuration / 60)
-              }분`}</Text>
+                  Math.floor(originalDuration / 60),
+              )}분`}</Text>
               <Text className="text-sm">{' 더 소요됩니다.'}</Text>
             </>
           ) : (

@@ -81,10 +81,8 @@ export default function OmwMarker({
       {resultList.map((item: PlaceDetail, index: number) => {
         let markerImage = markerList.basic.default;
         let zIndex = index === selected ? 10 : 5;
-        let width =
-          index === selected ? LARGE_MARKER_WIDTH : DEFAULT_MARKER_WIDTH;
-        let height =
-          index === selected ? LARGE_MARKER_HEIGHT : DEFAULT_MARKER_HEIGHT;
+        let width = DEFAULT_MARKER_WIDTH;
+        let height = DEFAULT_MARKER_HEIGHT;
         if (
           !item.reviewCnt ||
           item.reviewCnt === 0 ||
@@ -123,8 +121,8 @@ export default function OmwMarker({
               latitude: item.coordinate.latitude,
               longitude: item.coordinate.longitude,
             }}
-            width={width}
-            height={height}
+            width={index === selected ? LARGE_MARKER_WIDTH : width}
+            height={index === selected ? LARGE_MARKER_HEIGHT : height}
             onClick={() => {
               markerOnClick(item, index);
             }}
