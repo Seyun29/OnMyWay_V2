@@ -51,6 +51,7 @@ export default function MainBottomSheet({
     useState<boolean>(false);
 
   const [reviewSummary, setReviewSummary] = useState<string>('');
+  const [dots, setDots] = useState<string>('.');
 
   const getStopBy = async () => {
     if (!curPlace) return;
@@ -138,6 +139,20 @@ export default function MainBottomSheet({
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [reviewSummary]);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (reviewSummaryLoading)
+      interval = setInterval(() => {
+        setDots(currentDots => {
+          if (currentDots.length > 4) return '.';
+          else return currentDots + '.';
+        });
+      }, 1000);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [reviewSummaryLoading]);
+
   return (
     <BottomSheetModalProvider>
       <BottomSheetModal
@@ -177,7 +192,7 @@ export default function MainBottomSheet({
                     </>
                   ) : reviewSummaryLoading ? (
                     <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
-                      리뷰 요약을 생성하는 중 입니다...
+                      {`리뷰 요약을 생성하는 중 입니다${dots}`}
                     </Text>
                   ) : (
                     <>
@@ -191,7 +206,7 @@ export default function MainBottomSheet({
                   )}
                 </View>
                 {reviewSummary.length > 0 && (
-                  <Text className="text-xs mt-1 text-[#3D3D3D] font-semibold">
+                  <Text className="text-sm mt-1 text-[#3D3D3D] font-semibold leading-4">
                     {reviewSummary}
                   </Text>
                 )}
@@ -202,10 +217,10 @@ export default function MainBottomSheet({
                 }}
                 style={{flex: 1}}
                 nestedScrollEnabled
-                onLoadStart={() => setIsLoading(true)}
-                onLoadEnd={() => {
-                  setIsLoading(false);
-                }}
+                // onLoadStart={() => setIsLoading(true)}
+                // onLoadEnd={() => {
+                //   setIsLoading(false);
+                // }}
               />
             </View>
           )}
