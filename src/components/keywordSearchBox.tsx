@@ -339,10 +339,10 @@ export default function KeywordSearchBox({
                 value={query}
                 onChangeText={setQuery}
                 // autoFocus
-                onSubmitEditing={onSubmit}
+                onSubmitEditing={() => onSubmit()}
                 // onFocus={() => setIsRangeOn(true)}
               />
-              <TouchableOpacity onPress={onSubmit}>
+              <TouchableOpacity onPress={() => onSubmit()}>
                 <KewordSearchButtonSVG height={'24px'} width={'24px'} />
               </TouchableOpacity>
             </TouchableOpacity>
