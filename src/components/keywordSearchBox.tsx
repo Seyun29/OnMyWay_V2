@@ -338,9 +338,7 @@ export default function KeywordSearchBox({
                 placeholder="검색어 입력"
                 value={query}
                 onChangeText={setQuery}
-                // autoFocus
                 onSubmitEditing={() => onSubmit()}
-                // onFocus={() => setIsRangeOn(true)}
               />
               <TouchableOpacity onPress={() => onSubmit()}>
                 <KewordSearchButtonSVG height={'24px'} width={'24px'} />
