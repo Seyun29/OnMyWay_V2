@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
   Keyboard,
+  Alert,
 } from 'react-native';
 import {Slider} from '@react-native-assets/slider';
 import SelectRangeButtonOffSVG from '../assets/images/selectRangeButtonOff.svg';
@@ -25,6 +26,9 @@ import {listModalState} from '../atoms/listModalState';
 import {getExtraPlaceData} from '../api/getExtraPlaceData';
 import {headerHeightState} from '../atoms/headerHeightState';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {ScrollView} from 'react-native-gesture-handler';
+import {CATEGORY_LIST} from '../config/consts/query';
+import CategorySVG from './categorySVG';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -62,7 +66,7 @@ export default function KeywordSearchBox({
     setIsRangeOn(!isRangeOn);
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (categoryQuery?: string) => {
     Keyboard.dismiss();
     setLoading(true);
     const path: number[][] = [];
@@ -71,7 +75,12 @@ export default function KeywordSearchBox({
     });
     const radius = value > 20 ? 20000 : value * 1000;
     const totalDistance = selectedRoute?.distance;
-    const data = await searchOnPath({query, path, totalDistance, radius});
+    const data = await searchOnPath({
+      query: categoryQuery || query,
+      path,
+      totalDistance,
+      radius,
+    });
     if (data && data.length > 0) {
       let resultList = data.map((res: PlaceDetail) => ({
         ...res,
@@ -157,137 +166,188 @@ export default function KeywordSearchBox({
               setTimeout(() => inputRef.current.focus(), 300);
             }}>
             <View className="border-r pr-2 mr-2 border-slate-500">
-              <Text className="font-bold text-xs">검색어</Text>
+              <Text className="font-bold text-xs">
+                {query.startsWith('카테고리 :') ? '카테고리' : '검색어'}
+              </Text>
             </View>
-            <Text className="text-xs mr-3">{query}</Text>
+            <Text className="text-xs mr-3">
+              {query.startsWith('카테고리 :')
+                ? query.split(':')[1].trim()
+                : query}
+            </Text>
             <KewordSearchButtonSVG height={'18px'} width={'18px'} />
           </TouchableOpacity>
-          {/* <TouchableOpacity className="bg-white rounded-full ml-2 border-3 border-gray-700">
-            <BackToListSVG height={27} width={27} />
-          </TouchableOpacity> */}
         </View>
       ) : (
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={70} // 여기서 조정
-          className="flex-1 absolute bottom-10 px-[16px] w-full">
-          {isRangeOn && (
-            <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[20px] shadow-md">
-              <View className="flex flex-col w-full">
-                <View className="flex-row justify-between w-full pb-1">
-                  <Text className="text-[#A8A8A8] text-[12px] font-bold">
-                    검색 반경
-                  </Text>
-                  <Text className="text-[#3D3D3D] text-[12px] font-semibold">
-                    {value}km
-                  </Text>
-                </View>
-                <Slider
-                  value={value}
-                  onValueChange={setValue}
-                  step={0.5}
-                  minimumValue={minMax[0]}
-                  maximumValue={minMax[1]}
-                  trackStyle={{
-                    height: 4,
-                    backgroundColor: '#9CC7FF',
-                    borderCurve: 'circular',
-                  }}
-                  thumbSize={17}
-                  thumbStyle={{
-                    backgroundColor: '#FFFFFF',
-                    borderColor: '#B5B9BD',
-                    borderWidth: 0.5,
+        <>
+          <View
+            style={{
+              position: 'absolute',
+              backgroundColor: 'transparent',
+              top: headerHeight,
+              width: WINDOW_WIDTH,
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'row',
+            }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingHorizontal: 12,
+                paddingVertical: 4,
+              }}>
+              {CATEGORY_LIST.map((category, index) => (
+                <TouchableOpacity
+                  key={index}
+                  className="flex-row px-2.5 py-1.5 justify-center items-center bg-white mr-3 rounded-full gap-x-1"
+                  style={{
+                    elevation: 5,
                     shadowColor: '#000',
-                    shadowOffset: {width: 0, height: 4},
-                    shadowOpacity: 0.1,
-                    shadowRadius: 8,
-                    elevation: 1,
+                    shadowOffset: {
+                      width: 0,
+                      height: 2,
+                    },
+                    shadowOpacity: 0.15,
+                    shadowRadius: 2,
                   }}
-                />
-                <View className="flex-row justify-between w-full">
-                  <Text
-                    className={`text-[12px] ${
-                      value >= Math.floor(minMax[0])
-                        ? 'text-[#3D3D3D]'
-                        : 'text-[#A8A8A8]'
-                    }`}>
-                    {`${minMax[0].toFixed(1)}km`}
+                  onPress={() => {
+                    const newQuery = '카테고리 : ' + category.label;
+                    onSubmit(newQuery);
+                    setQuery(newQuery);
+                  }}>
+                  <CategorySVG code={category.code} />
+                  <Text className="text-xs text-[#3D3D3D] font-semibold">
+                    {category.label}
                   </Text>
-                  <Text
-                    className={`text-[12px] ${
-                      value >= minMax[0] + (minMax[1] - minMax[0]) / 4
-                        ? 'text-[#3D3D3D]'
-                        : 'text-[#A8A8A8]'
-                    }`}>
-                    {`${(minMax[0] + (minMax[1] - minMax[0]) / 4).toFixed(
-                      1,
-                    )}km`}
-                  </Text>
-                  <Text
-                    className={`text-[12px] ${
-                      value >= minMax[0] + (2 * (minMax[1] - minMax[0])) / 4
-                        ? 'text-[#3D3D3D]'
-                        : 'text-[#A8A8A8]'
-                    }`}>
-                    {`${(minMax[0] + (2 * (minMax[1] - minMax[0])) / 4).toFixed(
-                      1,
-                    )}km`}
-                  </Text>
-                  <Text
-                    className={`text-[12px] ${
-                      value >= minMax[0] + (3 * (minMax[1] - minMax[0])) / 4
-                        ? 'text-[#3D3D3D]'
-                        : 'text-[#A8A8A8]'
-                    }`}>
-                    {`${(minMax[0] + (3 * (minMax[1] - minMax[0])) / 4).toFixed(
-                      1,
-                    )}km`}
-                  </Text>
-                  <Text
-                    className={`text-[12px] ${
-                      value >= Math.floor(minMax[1])
-                        ? 'text-[#3D3D3D]'
-                        : 'text-[#A8A8A8]'
-                    }`}>
-                    {`${minMax[1].toFixed(1)}km`}
-                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={70} // 여기서 조정
+            className="flex-1 absolute bottom-10 px-[16px] w-full">
+            {isRangeOn && (
+              <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[20px] shadow-md">
+                <View className="flex flex-col w-full">
+                  <View className="flex-row justify-between w-full pb-1">
+                    <Text className="text-[#A8A8A8] text-[12px] font-bold">
+                      검색 반경
+                    </Text>
+                    <Text className="text-[#3D3D3D] text-[12px] font-semibold">
+                      {value}km
+                    </Text>
+                  </View>
+                  <Slider
+                    value={value}
+                    onValueChange={setValue}
+                    step={0.5}
+                    minimumValue={minMax[0]}
+                    maximumValue={minMax[1]}
+                    trackStyle={{
+                      height: 4,
+                      backgroundColor: '#9CC7FF',
+                      borderCurve: 'circular',
+                    }}
+                    thumbSize={17}
+                    thumbStyle={{
+                      backgroundColor: '#FFFFFF',
+                      borderColor: '#B5B9BD',
+                      borderWidth: 0.5,
+                      shadowColor: '#000',
+                      shadowOffset: {width: 0, height: 4},
+                      shadowOpacity: 0.1,
+                      shadowRadius: 8,
+                      elevation: 1,
+                    }}
+                  />
+                  <View className="flex-row justify-between w-full">
+                    <Text
+                      className={`text-[12px] ${
+                        value >= Math.floor(minMax[0])
+                          ? 'text-[#3D3D3D]'
+                          : 'text-[#A8A8A8]'
+                      }`}>
+                      {`${minMax[0].toFixed(1)}km`}
+                    </Text>
+                    <Text
+                      className={`text-[12px] ${
+                        value >= minMax[0] + (minMax[1] - minMax[0]) / 4
+                          ? 'text-[#3D3D3D]'
+                          : 'text-[#A8A8A8]'
+                      }`}>
+                      {`${(minMax[0] + (minMax[1] - minMax[0]) / 4).toFixed(
+                        1,
+                      )}km`}
+                    </Text>
+                    <Text
+                      className={`text-[12px] ${
+                        value >= minMax[0] + (2 * (minMax[1] - minMax[0])) / 4
+                          ? 'text-[#3D3D3D]'
+                          : 'text-[#A8A8A8]'
+                      }`}>
+                      {`${(
+                        minMax[0] +
+                        (2 * (minMax[1] - minMax[0])) / 4
+                      ).toFixed(1)}km`}
+                    </Text>
+                    <Text
+                      className={`text-[12px] ${
+                        value >= minMax[0] + (3 * (minMax[1] - minMax[0])) / 4
+                          ? 'text-[#3D3D3D]'
+                          : 'text-[#A8A8A8]'
+                      }`}>
+                      {`${(
+                        minMax[0] +
+                        (3 * (minMax[1] - minMax[0])) / 4
+                      ).toFixed(1)}km`}
+                    </Text>
+                    <Text
+                      className={`text-[12px] ${
+                        value >= Math.floor(minMax[1])
+                          ? 'text-[#3D3D3D]'
+                          : 'text-[#A8A8A8]'
+                      }`}>
+                      {`${minMax[1].toFixed(1)}km`}
+                    </Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          )}
-          <TouchableOpacity
-            className="w-full h-[45px] bg-white rounded-full shadow-md flex-row items-center px-[16px] justify-between"
-            activeOpacity={0.8}
-            disabled={result === null || result.length === 0}
-            onPress={() => {
-              // setIsRangeOn(true);
-              //@ts-ignore
-              if (inputRef.current) inputRef.current.focus();
-            }}>
-            <TouchableOpacity onPress={handleSelectRangeButton} className="">
-              {isRangeOn ? (
-                <SelectRangeButtonOnSVG height={'24px'} width={'24px'} />
-              ) : (
-                <SelectRangeButtonOffSVG height={'24px'} width={'24px'} />
-              )}
+            )}
+            <TouchableOpacity
+              className="w-full h-[45px] bg-white rounded-full shadow-md flex-row items-center px-[16px] justify-between"
+              activeOpacity={0.8}
+              disabled={result === null || result.length === 0}
+              onPress={() => {
+                // setIsRangeOn(true);
+                //@ts-ignore
+                if (inputRef.current) inputRef.current.focus();
+              }}>
+              <TouchableOpacity onPress={handleSelectRangeButton} className="">
+                {isRangeOn ? (
+                  <SelectRangeButtonOnSVG height={'24px'} width={'24px'} />
+                ) : (
+                  <SelectRangeButtonOffSVG height={'24px'} width={'24px'} />
+                )}
+              </TouchableOpacity>
+              <TextInput
+                ref={inputRef}
+                className="w-[80%] h-full pl-3 text-black"
+                placeholderTextColor={'#A8A8A8'}
+                placeholder="검색어 입력"
+                value={query}
+                onChangeText={setQuery}
+                // autoFocus
+                onSubmitEditing={onSubmit}
+                // onFocus={() => setIsRangeOn(true)}
+              />
+              <TouchableOpacity onPress={onSubmit}>
+                <KewordSearchButtonSVG height={'24px'} width={'24px'} />
+              </TouchableOpacity>
             </TouchableOpacity>
-            <TextInput
-              ref={inputRef}
-              className="w-[80%] h-full pl-3 text-black"
-              placeholderTextColor={'#A8A8A8'}
-              placeholder="검색어 입력"
-              value={query}
-              onChangeText={setQuery}
-              // autoFocus
-              onSubmitEditing={onSubmit}
-              // onFocus={() => setIsRangeOn(true)}
-            />
-            <TouchableOpacity onPress={onSubmit}>
-              <KewordSearchButtonSVG height={'24px'} width={'24px'} />
-            </TouchableOpacity>
-          </TouchableOpacity>
-        </KeyboardAvoidingView>
+          </KeyboardAvoidingView>
+        </>
       )}
     </>
   );
