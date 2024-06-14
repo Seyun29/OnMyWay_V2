@@ -295,7 +295,7 @@ export default function SelectRouteMap({
             <CandidatePaths routes={sortRoutes(routes)} />
           </NaverMapView>
           <TouchableOpacity
-            className="absolute left-4 bottom-[137px] flex-row px-2.5 py-2 justify-center items-center rounded-xl"
+            className="absolute left-4 bottom-[117px] flex-row px-2.5 py-2 justify-center items-center rounded-xl"
             style={{
               elevation: 5,
               shadowColor: '#000',
@@ -322,16 +322,16 @@ export default function SelectRouteMap({
               setAvoidToll(!avoidToll);
             }}>
             <Text
-              className="text-sm font-bold"
+              className="text-xs font-bold"
               style={{
-                color: avoidToll ? '#fff' : 'gray',
+                color: avoidToll ? '#FFFFFF' : '#A8A8A8',
               }}>
               무료도로
             </Text>
           </TouchableOpacity>
           <CurPosButton
             onPress={setCurPos}
-            style="absolute right-4 bottom-[130px]"
+            style="absolute right-4 bottom-[110px]"
           />
           <View className="absolute w-full bottom-4 bg-transparent">
             <FlatList
