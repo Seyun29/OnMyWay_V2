@@ -84,8 +84,8 @@ export default function SelectRouteMap({
         type: 'info',
         text1: '검색 반경 설정 후 원하는 장소를 검색해보세요!',
         position: 'top',
-        topOffset: headerHeight + insets.top,
-        visibilityTime: 2500,
+        topOffset: headerHeight + insets.top + 50,
+        visibilityTime: 1500,
         text1Style: {
           fontSize: 13,
           fontWeight: '600',
