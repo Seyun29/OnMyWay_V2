@@ -322,7 +322,7 @@ export default function SelectRouteMap({
               setAvoidToll(!avoidToll);
             }}>
             <Text
-              className="text-xs font-bold"
+              className="text-sm font-bold"
               style={{
                 color: avoidToll ? '#fff' : 'gray',
               }}>
