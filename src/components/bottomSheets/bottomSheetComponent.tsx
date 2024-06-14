@@ -48,6 +48,23 @@ export default function BottomSheetComponent({
   const [selected, setSelected] = useRecoilState<number>(
     selectedPlaceIndexState,
   );
+  const [dots, setDots] = useState<string>('');
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (!stopByDuration)
+      interval = setInterval(() => {
+        setDots(currentDots => {
+          if (currentDots.length > 4) return '.';
+          else return currentDots + '.';
+        });
+      }, 500);
+    else if (interval) clearInterval(interval);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, []);
 
   return (
     <View className="flex-1 px-5">
@@ -74,10 +91,10 @@ export default function BottomSheetComponent({
                 Math.floor(stopByDuration / 60) -
                   Math.floor(originalDuration / 60),
               )}분`}</Text>
-              <Text className="text-sm">{' 더 소요됩니다.'}</Text>
+              <Text className="text-sm">{' 더 소요됩니다'}</Text>
             </>
           ) : (
-            <Text className="text-sm ml-1">경유 시간을 계산 중 입니다...</Text>
+            <Text className="text-sm ml-1">{`경유 시간을 계산 중 입니다${dots}`}</Text>
           )}
         </View>
         {selected < max_length - 1 ? (
