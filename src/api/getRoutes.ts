@@ -3,10 +3,7 @@ import {axiosInstance} from './axios';
 import {GET_ROUTES} from '../config/consts/api';
 import {Navigation} from '../config/types/navigation';
 
-export const getRoutes = async (
-  params: Navigation,
-  // avoid?: string
-) => {
+export const getRoutes = async (params: Navigation, avoid?: string) => {
   try {
     const origin = `${params.start?.coordinate.longitude},${params.start?.coordinate.latitude}`;
     const destination = `${params.end?.coordinate.longitude},${params.end?.coordinate.latitude}`;
@@ -20,6 +17,7 @@ export const getRoutes = async (
         origin,
         destination,
         waypoints,
+        avoid,
       },
     });
     return response.data?.data;

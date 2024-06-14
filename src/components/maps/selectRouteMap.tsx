@@ -4,6 +4,8 @@ import {
   FlatList,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Text,
+  TouchableOpacity,
   View,
 } from 'react-native';
 import {ANAM} from '../../dummy/coord'; //using dummy for initial data
@@ -70,6 +72,7 @@ export default function SelectRouteMap({
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
   const [zoom, setZoom] = useState<number>(14);
   const [toastTrigger, setToastTrigger] = useState<boolean>(false);
+  const [avoidToll, setAvoidToll] = useState<boolean>(false);
 
   const onSelect = () => {
     Toast.hide();
@@ -129,9 +132,10 @@ export default function SelectRouteMap({
     sLon: number,
     eLat: number,
     eLon: number,
+    avoid?: string,
   ) => {
     setLoading(true);
-    const data = await getRoutes(nav);
+    const data = await getRoutes(nav, avoid);
     const initialZoom = getZoomLevel(data[0]?.distance);
     setRoutes(data);
     if (nav.wayPoints.length === 0)
@@ -206,6 +210,7 @@ export default function SelectRouteMap({
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
+          avoidToll ? 'toll' : undefined,
         );
         setToastTrigger(true);
       }
@@ -289,6 +294,41 @@ export default function SelectRouteMap({
             <NavMarker />
             <CandidatePaths routes={sortRoutes(routes)} />
           </NaverMapView>
+          <TouchableOpacity
+            className="absolute left-4 bottom-[137px] flex-row px-2.5 py-2 justify-center items-center rounded-xl"
+            style={{
+              elevation: 5,
+              shadowColor: '#000',
+              shadowOffset: {
+                width: 0,
+                height: 2,
+              },
+              shadowOpacity: 0.15,
+              shadowRadius: 2,
+              backgroundColor: avoidToll ? '#20C933' : '#fff',
+            }}
+            onPress={async () => {
+              if (nav.start && nav.end) {
+                setIsRough(true);
+                await setPath(
+                  nav.start.coordinate.latitude,
+                  nav.start.coordinate.longitude,
+                  nav.end.coordinate.latitude,
+                  nav.end.coordinate.longitude,
+                  !avoidToll ? 'toll' : undefined,
+                );
+                setToastTrigger(true);
+              }
+              setAvoidToll(!avoidToll);
+            }}>
+            <Text
+              className="text-xs font-bold"
+              style={{
+                color: avoidToll ? '#fff' : 'gray',
+              }}>
+              무료도로
+            </Text>
+          </TouchableOpacity>
           <CurPosButton
             onPress={setCurPos}
             style="absolute right-4 bottom-[130px]"
@@ -299,7 +339,6 @@ export default function SelectRouteMap({
               className="w-full overflow-hidden"
               horizontal
               data={routes}
-              // pagingEnabled
               bounces={false}
               overScrollMode="never"
               showsHorizontalScrollIndicator={false}
