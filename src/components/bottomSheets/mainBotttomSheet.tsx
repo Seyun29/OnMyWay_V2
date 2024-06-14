@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {Alert, View} from 'react-native';
+import {View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -49,6 +49,7 @@ export default function MainBottomSheet({
 
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isWebViewLoading, setIsWebViewLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
 
@@ -119,6 +120,12 @@ export default function MainBottomSheet({
 
   useEffect(() => {
     if (curPlace) {
+      //webview bug fix (network error alert)
+      setIsLoading(true);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 500); //bug fix ends
+
       getStopBy();
       setExtraData();
     }
@@ -147,27 +154,31 @@ export default function MainBottomSheet({
           style={{
             flex: 1,
           }}>
-          {curPlace && (
-            <WebView
-              source={{
-                uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
-              }}
-              style={{flex: 1}}
-              nestedScrollEnabled
-              onLoadStart={() => {
-                setIsLoading(true);
-              }}
-              onLoadEnd={() => {
-                setIsLoading(false);
-              }}
-            />
-          )}
-          {isLoading && (
-            <View className="absolute w-full h-full">
-              <Spinner />
-              <View className="w-full h-1/4 bg-white" />
-            </View>
-          )}
+          {curPlace &&
+            (isLoading ? (
+              <View className="absolute w-full h-full">
+                <Spinner />
+                <View className="w-full h-1/4 bg-white" />
+              </View>
+            ) : (
+              <>
+                <WebView
+                  source={{
+                    uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
+                  }}
+                  style={{flex: 1}}
+                  nestedScrollEnabled
+                  onLoadStart={() => setIsWebViewLoading(true)}
+                  onLoadEnd={() => setIsWebViewLoading(false)}
+                />
+                {isWebViewLoading && (
+                  <View className="absolute w-full h-full">
+                    <Spinner />
+                  </View>
+                )}
+              </>
+            ))}
+
           {curIdx === 0 && curPlace && (
             <View className="absolute w-full h-full bg-white">
               <BottomSheetComponent

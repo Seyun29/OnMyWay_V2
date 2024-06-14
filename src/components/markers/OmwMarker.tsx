@@ -50,12 +50,12 @@ export default function OmwMarker({
 
   useEffect(() => {
     if (selected >= 0 && selected < resultList.length) {
-      setCurPlace({...resultList[selected], max_length: resultList.length});
       setCenter({
         latitude: resultList[selected].coordinate.latitude,
         longitude: resultList[selected].coordinate.longitude,
         zoom: lastCenter.zoom,
       });
+      setCurPlace({...resultList[selected], max_length: resultList.length});
     }
   }, [selected]);
 
