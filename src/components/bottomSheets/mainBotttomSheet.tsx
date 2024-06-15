@@ -206,7 +206,7 @@ export default function MainBottomSheet({
                   )}
                 </View>
                 {reviewSummary.length > 0 && (
-                  <Text className="text-sm mt-1 text-[#3D3D3D] font-semibold leading-4">
+                  <Text className="text-sm mt-1 text-[#616060] leading-4">
                     {reviewSummary}
                   </Text>
                 )}

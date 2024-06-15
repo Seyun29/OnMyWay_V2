@@ -1,6 +1,8 @@
 //@ts-nocheck
 import axios from 'axios';
 import {LLM_MODEL_NAME, LOCAL_LLM_URL} from '../config/consts/api';
+import {GET_REVIEW_SUMMARY} from '../config/consts/api';
+import {axiosInstance} from './axios';
 
 export const getKakaoReviews = async (placeId: string) => {
   try {
@@ -44,28 +46,36 @@ export const getKakaoReviews = async (placeId: string) => {
     }
     if (reviewCnt < 7) throw new Error('리뷰 개수가 너무 적습니다.');
     const cleanedReviews = reviews.replace(/[\r\n]+/g, ' ');
-    console.log(cleanedReviews);
     return cleanedReviews;
   } catch (error) {
     console.error(error);
   }
 };
 
+//FIXME: add type here
 export const getReviewSummary = async (placeId: string) => {
   try {
-    const reviews = await getKakaoReviews(placeId); //TODO: utilize these reviews from kakao
-    const postData = {
-      model: LLM_MODEL_NAME,
-      prompt: '다음 리뷰들을 총 400자 미만으로 요약해줘. : "' + reviews + '"',
-      stream: false,
-    };
-    const response = await axios.post(
-      `http://${LOCAL_LLM_URL}:11434/api/generate`,
-      postData,
-    );
-    const cleanedReviews = response.data.response.replace(/[\r\n]+/g, ' ');
-    return cleanedReviews;
+    const reviews = await getKakaoReviews(placeId); //eviews from kakao
+    const body = {corpus: reviews.replace('\n', '')};
+    //below is the api using chatGPT 3.5 Turbo
+    const response = await axiosInstance.post(GET_REVIEW_SUMMARY, body);
+    return response.data.data;
+
+    //TODO: uncomment this after setting up the local llm server
+    // const postData = {
+    //   model: LLM_MODEL_NAME,
+    //   prompt: '다음 리뷰들을 총 400자 미만으로 요약해줘. : "' + reviews + '"',
+    //   stream: false,
+    // };
+    // const response = await axios.post(
+    //   `http://${LOCAL_LLM_URL}:11434/api/generate`,
+    //   postData,
+    // );
+    // const cleanedReviews = response.data.response.replace(/[\r\n]+/g, ' ');
+    // return cleanedReviews;
   } catch (error) {
+    console.error('getReviewSummary error');
     console.error(error);
+    return null;
   }
 };
