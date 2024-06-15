@@ -102,7 +102,7 @@ export default function SelectRouteMap({
 
   const setCurPos = async () => {
     try {
-      const curPos = await getCurPosition();
+      const curPos = await getCurPosition(false, headerHeight + insets.top);
       setCurPosition(curPos);
       setCenter({...curPos, zoom: 13}); //Cheat Shortcut for fixing centering bug
       setCenter({...curPos, zoom: zoom});

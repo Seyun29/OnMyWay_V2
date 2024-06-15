@@ -68,7 +68,7 @@ export default function NaverMap({
 
   const setCurPos = async (initial?: boolean) => {
     try {
-      const curPos = await getCurPosition(initial);
+      const curPos = await getCurPosition(initial, headerHeight + insets.top);
       setCurPosition(curPos);
       setCenter({...curPos, zoom: 15}); //Cheat Shortcut for fixing centering bug
       setCenter({...curPos, zoom: lastCenter.zoom || DEFAULT_ZOOM});

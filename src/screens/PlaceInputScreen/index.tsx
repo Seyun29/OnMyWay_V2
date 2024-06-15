@@ -136,7 +136,10 @@ export default function PlaceInputScreen() {
 
   const onCurPosPress = async () => {
     try {
-      const curPos = await getCurPosition();
+      const curPos = await getCurPosition(
+        false,
+        ROUGH_HEADER_HEIGHT + insets.top + 30,
+      );
       const res = await getAddress(curPos);
       handlePress({
         addressName: res.address,

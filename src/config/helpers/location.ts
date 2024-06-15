@@ -1,5 +1,7 @@
 import Geolocation from '@react-native-community/geolocation';
 import {Coordinate} from '../types/coordinate';
+import {Platform} from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const fetchIpAndLocation = async () => {
   try {
@@ -22,7 +24,10 @@ const fetchIpAndLocation = async () => {
   }
 };
 
-export const getCurPosition = (initial?: boolean): Promise<Coordinate> => {
+export const getCurPosition = (
+  initial?: boolean,
+  topOffset?: number,
+): Promise<Coordinate> => {
   return new Promise((resolve, reject) => {
     Geolocation.getCurrentPosition(
       info =>
@@ -32,10 +37,25 @@ export const getCurPosition = (initial?: boolean): Promise<Coordinate> => {
         }),
       async error => {
         // console.error(error);
-        if (!initial) {
+        //FIXME: 안드로이드 위치 문제 해결 ㅠㅠ
+        if (!initial && Platform.OS === 'android') {
           const locationByIp = await fetchIpAndLocation();
-          if (locationByIp) resolve(locationByIp);
-          else reject(error);
+          if (locationByIp) {
+            Toast.show({
+              type: 'info',
+              text1: '위치 정보가 정확하지 않을 수 있습니다.',
+              text2:
+                '일부 안드로이드 앱에서 발생하는 현상입니다. 양해 부탁드립니다.',
+              position: 'top',
+              topOffset: topOffset,
+              visibilityTime: 2500,
+              text1Style: {
+                fontSize: 12,
+                fontWeight: '600',
+              },
+            });
+            resolve(locationByIp);
+          } else reject(error);
         }
         reject(error);
       },
