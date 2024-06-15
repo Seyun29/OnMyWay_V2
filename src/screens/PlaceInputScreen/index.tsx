@@ -150,7 +150,7 @@ export default function PlaceInputScreen() {
         text1: '현재 위치를 가져오는데 실패했습니다.',
         text2: '설정에서 위치 권한을 확인해주세요.',
         position: 'top',
-        topOffset: ROUGH_HEADER_HEIGHT + insets.top,
+        topOffset: ROUGH_HEADER_HEIGHT + insets.top + 30,
         visibilityTime: 2500,
         text1Style: {
           fontSize: 13,
