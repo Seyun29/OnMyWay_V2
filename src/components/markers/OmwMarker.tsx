@@ -18,6 +18,18 @@ import {lastCenterState} from '../../atoms/lastCenterState';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {listModalState} from '../../atoms/listModalState';
 
+const SelectedMarker = (props: any) => {
+  return (
+    <Marker
+      {...props}
+      image={markerList.selected}
+      width={LARGE_MARKER_WIDTH}
+      height={LARGE_MARKER_HEIGHT}
+      zIndex={10}
+    />
+  );
+};
+
 export default function OmwMarker({
   resultList,
   setShowAlternative,
@@ -36,7 +48,7 @@ export default function OmwMarker({
     selectedPlaceIndexState,
   );
 
-  const markerOnClick = (item: PlaceDetail, index: number) => {
+  const markerOnClick = (index: number) => {
     setModalVisible(true);
     setSelected(index);
     setShowAlternative(true);
@@ -76,26 +88,31 @@ export default function OmwMarker({
   return (
     <>
       {resultList.map((item: PlaceDetail, index: number) => {
-        let markerImage = markerList.basic.default;
-        let zIndex = index === selected ? 10 : 5;
-        let width = DEFAULT_MARKER_WIDTH;
-        let height = DEFAULT_MARKER_HEIGHT;
-        if (
-          !item.reviewCnt ||
-          item.reviewCnt === 0 ||
-          !item.scoreAvg ||
-          !item.commentCnt ||
-          item.commentCnt === 0
-        ) {
-          if (index === selected) {
-            zIndex = 10;
-            markerImage =
-              item.open === 'Y'
-                ? markerList.basic.on
-                : item.open === 'N'
-                ? markerList.basic.off
-                : markerList.basic.default;
-          } else {
+        if (index === selected)
+          return (
+            <SelectedMarker
+              key={index}
+              coordinate={{
+                latitude: item.coordinate.latitude,
+                longitude: item.coordinate.longitude,
+              }}
+              onClick={() => {
+                markerOnClick(index);
+              }}
+            />
+          );
+        else {
+          let markerImage = markerList.basic.default;
+          let zIndex = 5;
+          let width = DEFAULT_MARKER_WIDTH;
+          let height = DEFAULT_MARKER_HEIGHT;
+          if (
+            !item.reviewCnt ||
+            item.reviewCnt === 0 ||
+            !item.scoreAvg ||
+            !item.commentCnt ||
+            item.commentCnt === 0
+          ) {
             if (item.open === 'Y') {
               zIndex = 5;
               markerImage = markerList.basic.on;
@@ -108,27 +125,27 @@ export default function OmwMarker({
               width = ELLIPSE_MARKER_WIDTH;
               height = ELLIPSE_MARKER_HEIGHT;
             }
-          }
-        } else if (item.open === 'Y') markerImage = markerList.basic.on;
-        else if (item.open === 'N') markerImage = markerList.basic.off;
-        return (
-          <Marker
-            key={index}
-            coordinate={{
-              latitude: item.coordinate.latitude,
-              longitude: item.coordinate.longitude,
-            }}
-            width={index === selected ? LARGE_MARKER_WIDTH : width}
-            height={index === selected ? LARGE_MARKER_HEIGHT : height}
-            onClick={() => {
-              markerOnClick(item, index);
-            }}
-            anchor={{x: 0.5, y: 1}}
-            image={index === selected ? markerList.selected : markerImage}
-            zIndex={zIndex}
-            //TODO: use different images for different categories
-          />
-        );
+          } else if (item.open === 'Y') markerImage = markerList.basic.on;
+          else if (item.open === 'N') markerImage = markerList.basic.off;
+          return (
+            <Marker
+              key={index}
+              coordinate={{
+                latitude: item.coordinate.latitude,
+                longitude: item.coordinate.longitude,
+              }}
+              width={width}
+              height={height}
+              onClick={() => {
+                markerOnClick(index);
+              }}
+              anchor={{x: 0.5, y: 1}}
+              image={markerImage}
+              zIndex={zIndex}
+              //TODO: use different images for different categories
+            />
+          );
+        }
       })}
     </>
   );
