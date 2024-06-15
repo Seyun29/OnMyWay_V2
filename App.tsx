@@ -26,8 +26,6 @@ function App(): React.JSX.Element {
       Platform.OS === 'android' &&
       UIManager.setLayoutAnimationEnabledExperimental
     ) {
-      //for layout animation enabled in Android
-      //TODO: see if layout animation really works in Android
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
     console.log('App Version:', DeviceInfo.getVersion());
