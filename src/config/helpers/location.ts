@@ -19,7 +19,7 @@ export const getCurPosition = (): Promise<Coordinate> => {
         PERMISSION_DENIED: 사용자가 위치 정보 접근을 거부한 경우의 에러 코드입니다.
         POSITION_UNAVAILABLE: 위치 정보를 사용할 수 없는 경우의 에러 코드입니다.
         TIMEOUT: 위치 정보를 가져오는 데 시간이 초과된 경우의 에러 코드입니다. */
-      {enableHighAccuracy: true, timeout: 2000, maximumAge: 2000},
+      {enableHighAccuracy: true, timeout: 1000, maximumAge: 2000},
     );
   });
 };
