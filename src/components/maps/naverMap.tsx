@@ -24,7 +24,6 @@ import {RouteDetail} from '../../config/types/routes';
 import OmwMarker from '../markers/OmwMarker';
 import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
 import Toast from 'react-native-toast-message';
-import MainBottomSheet from '../bottomSheets/mainBotttomSheet';
 import BackToListButton from '../backToListButton';
 import NaverMapLink from '../naverMapLink';
 import ListBottomSheet from '../bottomSheets/listBottomSheet';
@@ -32,12 +31,13 @@ import {listModalState} from '../../atoms/listModalState';
 import {checkPermissions} from '../../hooks/usePermissions';
 import {headerHeightState} from '../../atoms/headerHeightState';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 
 export default function NaverMap({
   selectedRoute,
+  stopByData,
 }: {
   selectedRoute: RouteDetail | null;
+  stopByData: any;
 }) {
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
@@ -47,7 +47,6 @@ export default function NaverMap({
   const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
   const [nav, setNav] = useRecoilState<Navigation>(navigationState);
-  const selected = useRecoilValue<number>(selectedPlaceIndexState);
 
   const [center, setCenter] = useRecoilState<Center>(mapCenterState);
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
@@ -63,11 +62,6 @@ export default function NaverMap({
 
   const [query, setQuery] = useState<string>('');
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
-  const [stopByData, setStopByData] = useState<{
-    strategy: 'FRONT' | 'REAR' | 'MIDDLE';
-    duration: number;
-    path: Coordinate[];
-  } | null>(null);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -287,11 +281,7 @@ export default function NaverMap({
           )}
         </>
       )}
-      <MainBottomSheet
-        selectedRoute={selectedRoute}
-        stopByData={stopByData}
-        setStopByData={setStopByData}
-      />
+
       <ListBottomSheet
         result={result}
         setResult={setResult}

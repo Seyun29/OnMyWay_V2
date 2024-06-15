@@ -68,7 +68,7 @@ export default function MainBottomSheet({
     setStopByLoading(false);
   };
 
-  const snapPoints = useMemo(() => ['23%', '80%'], []);
+  const snapPoints = useMemo(() => ['23%', '83%', '93%'], []);
 
   //@ts-ignore
   const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
@@ -153,6 +153,7 @@ export default function MainBottomSheet({
         <BottomSheetView
           style={{
             flex: 1,
+            zIndex: 100,
           }}>
           {curPlace &&
             (isLoading ? (
@@ -178,7 +179,6 @@ export default function MainBottomSheet({
                 )}
               </>
             ))}
-
           {curIdx === 0 && curPlace && (
             <View className="absolute w-full h-full bg-white">
               <BottomSheetComponent
