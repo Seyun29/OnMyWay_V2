@@ -89,7 +89,7 @@ export default function KeywordSearchBox({
           color: '#3D3D3D',
         },
       });
-    }, 4000);
+    }, 10000);
 
     const path: number[][] = [];
     selectedRoute?.path?.map(coord => {
