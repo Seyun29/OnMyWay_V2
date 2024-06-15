@@ -46,14 +46,14 @@ const NaverMapLink = ({
               [
                 {text: '확인', onPress: () => Linking.openURL(STORE_URL)},
                 //FIXME: comment out the following code after update-screening pass
-                {
-                  text: 'Apple 지도로 길안내 (출발지~경유지)',
-                  onPress: () => {
-                    Linking.openURL(
-                      `http://maps.apple.com/?saddr=${curPlace.y},${curPlace.x}&daddr=${nav.start?.coordinate.latitude},${nav.start?.coordinate.longitude}&dirflg=d`,
-                    );
-                  },
-                },
+                // {
+                //   text: 'Apple 지도로 길안내 (출발지~경유지)',
+                //   onPress: () => {
+                //     Linking.openURL(
+                //       `http://maps.apple.com/?saddr=${curPlace.y},${curPlace.x}&daddr=${nav.start?.coordinate.latitude},${nav.start?.coordinate.longitude}&dirflg=d`,
+                //     );
+                //   },
+                // },
                 {
                   text: '취소',
                   style: 'cancel',
