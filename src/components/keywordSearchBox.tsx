@@ -78,7 +78,7 @@ export default function KeywordSearchBox({
         text2: '정확한 추천을 위해 잠시만 기다려 주세요',
         position: 'top',
         topOffset: headerHeight + insets.top,
-        visibilityTime: 1200,
+        visibilityTime: 5000,
         text1Style: {
           fontSize: 12,
           fontWeight: '600',
@@ -89,7 +89,7 @@ export default function KeywordSearchBox({
           color: '#3D3D3D',
         },
       });
-    }, 2000);
+    }, 4000);
 
     const path: number[][] = [];
     selectedRoute?.path?.map(coord => {
@@ -120,12 +120,14 @@ export default function KeywordSearchBox({
       resultList = await Promise.all(promises);
       // clear timer for timeout
       clearTimeout(timeoutId);
+      Toast.hide();
 
       setResult(resultList);
       setOriginalResult(resultList);
       setListModalVisible(true);
       //FIXME: BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
     } else {
+      Toast.hide();
       clearTimeout(timeoutId);
       Toast.show({
         type: 'error',
