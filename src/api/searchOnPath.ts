@@ -6,7 +6,7 @@ export const searchOnPath = async (params: any) => {
     const response = await axiosInstance.post(SEARCH_ON_PATH, params);
     return response.data.data;
   } catch (error) {
-    console.log('searchOnPath error, Params: ', params);
+    console.log('searchOnPath error');
     return null;
   }
 };
