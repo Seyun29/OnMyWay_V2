@@ -131,11 +131,7 @@ export default function PlaceInputHeader({
         <TouchableOpacity onPress={onFavoritePress}>
           <FavoriteSVG />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            //FIXME: pass state, setState to SelectMap screen
-            navigation.navigate('SelectMap');
-          }}>
+        <TouchableOpacity onPress={() => navigation.navigate('SelectMap')}>
           <SelectOnMapSVG />
         </TouchableOpacity>
       </View>

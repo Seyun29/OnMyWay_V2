@@ -5,10 +5,9 @@ import {
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {listModalState} from '../../atoms/listModalState';
-import BottomSheetComponent from './bottomSheetComponent';
 import {PlaceDetail} from '../../config/types/coordinate';
 import ListBottomSheetComponent from './listBottomSheetComponent';
 import {FlatList} from 'react-native-gesture-handler';

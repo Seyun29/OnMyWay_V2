@@ -1,10 +1,10 @@
 import React, {useState} from 'react';
-import {TextInput, View} from 'react-native';
-import {placeQuery} from '../../api/placeQuery';
+import {TextInput, TouchableOpacity, View} from 'react-native';
 import {whichNavState} from '../../atoms/whichNavState';
 import {useRecoilValue} from 'recoil';
 import {navigationState} from '../../atoms/navigationState';
 import {Navigation, WhichNav} from '../../config/types/navigation';
+import ClearInputSVG from '../../assets/images/clearInput.svg';
 
 const placeHolder = {
   start: '출발지 검색',
@@ -43,7 +43,7 @@ export default function InputBoxEditable({
   const [query, setQuery] = useState<string>(initialQuery(whichNav, nav));
 
   return (
-    <View className="w-full pr-[20px]">
+    <View className="flex w-full pr-[20px]">
       <TextInput
         value={query}
         onChangeText={setQuery}
@@ -54,6 +54,11 @@ export default function InputBoxEditable({
         }
         autoFocus
       />
+      <TouchableOpacity
+        style={{position: 'absolute', right: 28, top: 12}}
+        onPress={() => setQuery('')}>
+        <ClearInputSVG width={16} height={16} />
+      </TouchableOpacity>
     </View>
   );
 }

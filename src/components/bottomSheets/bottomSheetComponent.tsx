@@ -64,7 +64,7 @@ export default function BottomSheetComponent({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, []);
+  }, [stopByLoading]);
 
   return (
     <View className="flex-1 px-5">

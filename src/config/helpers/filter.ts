@@ -16,10 +16,20 @@ export const sortByScore = result => {
   const sorted = [...result].sort((a, b) => {
     let aScore = a.scoreAvg;
     let bScore = b.scoreAvg;
+    let aCnt = a.reviewCnt;
+    let bCnt = b.reviewCnt;
+
     if (aScore === undefined) aScore = 0;
     if (bScore === undefined) bScore = 0;
-    return bScore - aScore;
+    if (aCnt === undefined) aCnt = 0;
+    if (bCnt === undefined) bCnt = 0;
+
+    if (a) {
+      if (aScore === bScore) return bCnt - aCnt;
+      else return bScore - aScore;
+    }
   });
+
   return sorted;
 };
 
@@ -27,9 +37,16 @@ export const sortByReview = result => {
   const sorted = [...result].sort((a, b) => {
     let aCnt = a.reviewCnt;
     let bCnt = b.reviewCnt;
+    let aScore = a.scoreAvg;
+    let bScore = b.scoreAvg;
+
     if (aCnt === undefined) aCnt = 0;
     if (bCnt === undefined) bCnt = 0;
-    return bCnt - aCnt;
+    if (aScore === undefined) aScore = 0;
+    if (bScore === undefined) bScore = 0;
+
+    if (aCnt === bCnt) return bScore - aScore;
+    else return bCnt - aCnt;
   });
   return sorted;
 };
