@@ -57,7 +57,12 @@ export default function MainBottomSheet({
     if (!curPlace) return;
     setStopByData(null);
     setStopByLoading(true);
-    const res = await getStopByDuration(nav, curPlace.coordinate);
+    const res = await getStopByDuration(
+      nav,
+      curPlace.coordinate,
+      selectedRoute?.priority,
+      selectedRoute?.avoidTolls,
+    );
     if (res) {
       setStopByData({
         duration: res.duration,

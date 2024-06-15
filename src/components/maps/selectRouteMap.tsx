@@ -72,12 +72,15 @@ export default function SelectRouteMap({
   const [coveringRegion, setCoveringRegion] = useState<Coordinate[]>([]);
   const [zoom, setZoom] = useState<number>(14);
   const [toastTrigger, setToastTrigger] = useState<boolean>(false);
-  const [avoidToll, setAvoidToll] = useState<boolean>(false);
+  const [avoidTolls, setAvoidTolls] = useState<boolean>(false);
 
   const onSelect = () => {
     Toast.hide();
     setOnSelectRoute(false);
-    setSelectedRoute(routes[curRouteIdx]);
+    setSelectedRoute({
+      ...routes[curRouteIdx],
+      avoidTolls: avoidTolls,
+    });
     setGlobalCenter(center);
     setTimeout(() => {
       Toast.show({
@@ -210,7 +213,7 @@ export default function SelectRouteMap({
           nav.start.coordinate.longitude,
           nav.end.coordinate.latitude,
           nav.end.coordinate.longitude,
-          avoidToll ? 'toll' : undefined,
+          avoidTolls ? 'toll' : undefined,
         );
         setToastTrigger(true);
       }
@@ -305,7 +308,7 @@ export default function SelectRouteMap({
               },
               shadowOpacity: 0.15,
               shadowRadius: 2,
-              backgroundColor: avoidToll ? '#20C933' : '#fff',
+              backgroundColor: avoidTolls ? '#20C933' : '#fff',
             }}
             onPress={async () => {
               if (nav.start && nav.end) {
@@ -315,16 +318,16 @@ export default function SelectRouteMap({
                   nav.start.coordinate.longitude,
                   nav.end.coordinate.latitude,
                   nav.end.coordinate.longitude,
-                  !avoidToll ? 'toll' : undefined,
+                  !avoidTolls ? 'toll' : undefined,
                 );
                 setToastTrigger(true);
               }
-              setAvoidToll(!avoidToll);
+              setAvoidTolls(!avoidTolls);
             }}>
             <Text
               className="text-xs font-bold"
               style={{
-                color: avoidToll ? '#FFFFFF' : '#A8A8A8',
+                color: avoidTolls ? '#FFFFFF' : '#A8A8A8',
               }}>
               무료도로
             </Text>

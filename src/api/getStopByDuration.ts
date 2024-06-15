@@ -6,6 +6,8 @@ import {axiosInstance} from './axios';
 export const getStopByDuration = async (
   nav: Navigation,
   stopBy: Coordinate,
+  priority?: string,
+  avoidTolls?: boolean,
 ) => {
   try {
     const origin = `${nav.start?.coordinate.longitude},${nav.start?.coordinate.latitude}`;
@@ -21,6 +23,8 @@ export const getStopByDuration = async (
         origin,
         destination,
         waypoints,
+        priority,
+        avoid: avoidTolls ? 'toll' : undefined,
         stopby: `${stopBy.longitude},${stopBy.latitude}`,
       },
     });
