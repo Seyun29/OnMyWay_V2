@@ -233,7 +233,7 @@ export default function ListBottomSheet({
           }}>
           <View className="flex-row gap-x-2 items-center">
             <View
-              className="flex-row justify-center items-center gap-x-1 border-[0.5px] pl-1 pr-2 py-1 rounded-full"
+              className="flex-row justify-center items-center gap-x-1 border pl-1 pr-2 py-1 rounded-full"
               style={{
                 borderColor: selectedNum() ? '#9CC7FF' : '#A8A8A8',
                 backgroundColor: selectedNum() ? '#EBF2FF' : 'transparent',
@@ -244,7 +244,7 @@ export default function ListBottomSheet({
               )}
             </View>
             <TouchableOpacity
-              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              className="px-2 py-1.5 rounded-xl border"
               style={{
                 borderColor: selectBorderColor(selectedObj.open),
                 backgroundColor: selectBGColor(selectedObj.open),
@@ -257,7 +257,7 @@ export default function ListBottomSheet({
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              className="px-2 py-1.5 rounded-xl border"
               style={{
                 borderColor: selectBorderColor(selectedObj.parking),
                 backgroundColor: selectBGColor(selectedObj.parking),
@@ -270,7 +270,7 @@ export default function ListBottomSheet({
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              className="px-2 py-1.5 rounded-xl border"
               style={{
                 borderColor: selectBorderColor(selectedObj.score),
                 backgroundColor: selectBGColor(selectedObj.score),
@@ -283,7 +283,7 @@ export default function ListBottomSheet({
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              className="px-2 py-1.5 rounded-xl border-[0.5px]"
+              className="px-2 py-1.5 rounded-xl border"
               style={{
                 borderColor: selectBorderColor(selectedObj.review),
                 backgroundColor: selectBGColor(selectedObj.review),

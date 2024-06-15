@@ -51,7 +51,8 @@ export default function PlaceInputHeader({
     } else
       Toast.show({
         type: 'error',
-        text1: '즐겨찾기를 가져오는데 실패했습니다',
+        // text1: '즐겨찾기를 가져오는데 실패했습니다',
+        text1: '즐겨찾기가 없습니다',
         position: 'top',
         topOffset: toastTopOffset,
         visibilityTime: 1500,

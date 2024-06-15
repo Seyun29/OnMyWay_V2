@@ -32,7 +32,6 @@ function App(): React.JSX.Element {
     console.log('Latest Version:', '1.0.4');
     if (DeviceInfo.getVersion() < '1.0.4') {
       //FIXME: see if it works practically
-      console.log('Update Available');
       Alert.alert(
         '새 버전이 출시되었습니다.',
         '새로운 기능 적용을 위해\n앱을 업데이트 해주세요.',
