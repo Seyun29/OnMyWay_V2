@@ -78,7 +78,7 @@ export default function KeywordSearchBox({
         text2: '정확한 추천을 위해 잠시만 기다려 주세요',
         position: 'top',
         topOffset: headerHeight + insets.top,
-        visibilityTime: 5000,
+        visibilityTime: 10000,
         text1Style: {
           fontSize: 12,
           fontWeight: '600',
@@ -89,7 +89,7 @@ export default function KeywordSearchBox({
           color: '#3D3D3D',
         },
       });
-    }, 10000);
+    }, 4000);
 
     const path: number[][] = [];
     selectedRoute?.path?.map(coord => {
