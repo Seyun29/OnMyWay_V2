@@ -137,6 +137,29 @@ const NaverMapLink = ({
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
   }, [initialPressed]);
 
+  if (Platform.OS === 'ios')
+    return (
+      <TouchableOpacity
+        className="flex-row justify-center items-center rounded-full mb-[7px]"
+        onPress={openNaverMap}
+        style={{
+          backgroundColor: '#57B04B',
+          paddingVertical: 10,
+          paddingHorizontal: 10,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 2,
+          },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 5,
+        }}>
+        <NaverLogo width={15} height={15} />
+        <Text className="ml-2 text-white text-xs">네이버맵 길안내 시작</Text>
+      </TouchableOpacity>
+    );
+
   return (
     <View className="pb-2">
       {initialPressed && (
