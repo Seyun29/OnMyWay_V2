@@ -30,9 +30,10 @@ function App(): React.JSX.Element {
     }
 
     // FIXME: react-native-device-info 사용은 1.0.5부터 적용필요 => pod install (ios), re build (android) required
-    // console.log('App Version:', DeviceInfo.getVersion());
-    // console.log('Latest Version:', '1.0.5');
+    console.log('App Version:', DeviceInfo.getVersion());
+    console.log('Latest Version:', '1.0.5');
     if (DeviceInfo.getVersion() < '1.0.5') {
+      //FIXME: set latest version here
       //FIXME: see if it works practically
       Alert.alert(
         '새 버전이 출시되었습니다.',
