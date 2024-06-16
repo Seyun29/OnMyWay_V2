@@ -34,7 +34,13 @@ export default function RootStackNavigation() {
         <Stack.Screen name="SelectMap" component={SelectMapScreen} />
         <Stack.Screen name="ShowMap" component={ShowMapScreen} />
         {/* FIXME: add bottom-up modal like animations when screen transition */}
-        <Stack.Screen name="PlaceInput" component={PlaceInputScreen} />
+        <Stack.Screen
+          name="PlaceInput"
+          component={PlaceInputScreen}
+          options={{
+            animation: 'fade_from_bottom',
+          }}
+        />
 
         <Stack.Screen name="Test" component={TestScreen} />
       </Stack.Navigator>

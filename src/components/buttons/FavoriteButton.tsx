@@ -52,7 +52,7 @@ export default function FavoriteButton({
       };
       if (favorites)
         await store(FAVORITE_KEY, {
-          places: [...favorites.places, newFavorite],
+          places: [newFavorite, ...favorites.places],
         });
       else await store(FAVORITE_KEY, {places: [newFavorite]});
       setIsFav(true);

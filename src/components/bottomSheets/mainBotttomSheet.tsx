@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View} from 'react-native';
+import {LayoutAnimation, Text, TouchableOpacity, View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -21,6 +21,8 @@ import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
+import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
+import {getKakaoReviews, getReviewSummary} from '../../api/getReviewSummary';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -52,6 +54,11 @@ export default function MainBottomSheet({
   const [isWebViewLoading, setIsWebViewLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
+  const [reviewSummaryLoading, setReviewSummaryLoading] =
+    useState<boolean>(false);
+
+  const [reviewSummary, setReviewSummary] = useState<string>('');
+  const [dots, setDots] = useState<string>('.');
 
   const getStopBy = async () => {
     if (!curPlace) return;
@@ -114,6 +121,19 @@ export default function MainBottomSheet({
     });
   };
 
+  const onReviewSummaryPress = async () => {
+    setReviewSummaryLoading(true);
+    // const res = await getReviewSummary(placeId);
+    const res = await getReviewSummary(placeId);
+    if (res) setReviewSummary(res);
+    else
+      setReviewSummary(
+        '리뷰 요약을 생성할 수 없습니다.\n리뷰 개수가 너무 적거나 현재 서비스가 불안정합니다.',
+      );
+    bottomSheetModalRef.current?.snapToIndex(2);
+    setReviewSummaryLoading(false);
+  };
+
   useEffect(() => {
     if (modalVisible) {
       setListModalVisible(false);
@@ -133,8 +153,27 @@ export default function MainBottomSheet({
 
       getStopBy();
       setExtraData();
+      setReviewSummary('');
     }
   }, [curPlace]);
+
+  useEffect(() => {
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+  }, [reviewSummary]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (reviewSummaryLoading)
+      interval = setInterval(() => {
+        setDots(currentDots => {
+          if (currentDots.length > 4) return '.';
+          else return currentDots + '.';
+        });
+      }, 1000);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [reviewSummaryLoading]);
 
   return (
     <BottomSheetModalProvider>
@@ -167,22 +206,52 @@ export default function MainBottomSheet({
                 <View className="w-full h-1/4 bg-white" />
               </View>
             ) : (
-              <>
+              <View className="flex-1">
+                <TouchableOpacity
+                  className="mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg justify-center"
+                  onPress={onReviewSummaryPress}
+                  disabled={reviewSummaryLoading || reviewSummary.length > 0}>
+                  <View className="flex-row w-full">
+                    <BlinkStarsSVG width={17} height={17} />
+                    {reviewSummary.length > 0 ? (
+                      <>
+                        <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                          AI 리뷰 요약
+                        </Text>
+                      </>
+                    ) : reviewSummaryLoading ? (
+                      <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                        {`리뷰 요약을 생성하는 중 입니다${dots}`}
+                      </Text>
+                    ) : (
+                      <>
+                        <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                          AI 리뷰 요약을 확인해보세요
+                        </Text>
+                        <Text className="absolute right-4 text-sm ml-1 text-[#2D7FF9]">
+                          Click!
+                        </Text>
+                      </>
+                    )}
+                  </View>
+                  {reviewSummary.length > 0 && (
+                    <Text className="text-sm mt-1 text-[#616060] leading-4">
+                      {reviewSummary}
+                    </Text>
+                  )}
+                </TouchableOpacity>
                 <WebView
                   source={{
                     uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
                   }}
                   style={{flex: 1}}
                   nestedScrollEnabled
-                  onLoadStart={() => setIsWebViewLoading(true)}
-                  onLoadEnd={() => setIsWebViewLoading(false)}
+                  // onLoadStart={() => setIsLoading(true)}
+                  // onLoadEnd={() => {
+                  //   setIsLoading(false);
+                  // }}
                 />
-                {isWebViewLoading && (
-                  <View className="absolute w-full h-full">
-                    <Spinner />
-                  </View>
-                )}
-              </>
+              </View>
             ))}
           {curIdx === 0 && curPlace && (
             <View className="absolute w-full h-full bg-white">
