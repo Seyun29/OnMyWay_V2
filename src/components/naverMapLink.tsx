@@ -72,6 +72,7 @@ const NaverMapLink = ({
 
   const openTMap = () => {
     //FIXME: Android only for now
+    //FIXME: 경유지, 출발지 넣는 기능 추가!
     if (curPlace) {
       TMap.openNavi(
         curPlace.place_name,
