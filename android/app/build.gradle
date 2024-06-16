@@ -113,6 +113,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation("com.facebook.react:flipper-integration")
     implementation ("com.naver.maps:map-sdk:3.18.0")
+    implementation files('libs/com.skt.Tmap_1.75.jar')
     if (hermesEnabled.toBoolean()) {
         implementation("com.facebook.react:hermes-android")
     } else {
