@@ -6,6 +6,13 @@ export const NMAP_URL_SCHEME_SUFFIX = `&appname=${
   Platform.OS === 'ios' ? IOS_BUNDLE_ID : ANDROID_PACKAGE_NAME
 }`;
 
+export const tmapPlayStoreUrl =
+  'https://play.google.com/store/apps/details?id=com.skt.tmap.ku';
+export const tmapAppStoreUrl =
+  'https://apps.apple.com/kr/app/%ED%8B%B0%EB%A7%B5-%EB%8C%80%EC%A4%91%EA%B5%90%ED%86%B5-%EB%8C%80%EB%A6%AC%EC%9A%B4%EC%A0%84-%EC%A3%BC%EC%B0%A8-%EB%A0%8C%ED%84%B0%EC%B9%B4-%EA%B3%B5%ED%95%AD%EB%B2%84%EC%8A%A4/id431589174';
+export const TMAP_STORE_URL =
+  Platform.OS === 'ios' ? tmapAppStoreUrl : tmapPlayStoreUrl;
+
 export const playStoreUrl = 'market://details?id=com.nhn.android.nmap';
 export const appStoreUrl = 'http://itunes.apple.com/app/id311867728?mt=8';
 export const STORE_URL = Platform.OS === 'ios' ? appStoreUrl : playStoreUrl;

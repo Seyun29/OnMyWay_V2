@@ -48,8 +48,10 @@ function App(): React.JSX.Element {
           },
           {
             text: '취소',
+            style: 'cancel',
           },
         ],
+        {cancelable: true},
       );
     }
   }, []);
