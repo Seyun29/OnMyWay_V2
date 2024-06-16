@@ -140,12 +140,10 @@ const NaverMapLink = ({
   if (Platform.OS === 'ios')
     return (
       <TouchableOpacity
-        className="flex-row justify-center items-center rounded-full mb-[7px]"
+        className="flex-row justify-center items-center rounded-full px-3.5 py-2.5 mb-1"
         onPress={openNaverMap}
         style={{
           backgroundColor: '#57B04B',
-          paddingVertical: 10,
-          paddingHorizontal: 10,
           shadowColor: '#000',
           shadowOffset: {
             width: 0,
