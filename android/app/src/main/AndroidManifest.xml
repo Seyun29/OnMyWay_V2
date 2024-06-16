@@ -29,6 +29,7 @@
     </application>
     <queries>
         <package android:name="com.omw.omw_front"/>
+        <package android:name="com.skt.tmap.ku" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="nmap" />
