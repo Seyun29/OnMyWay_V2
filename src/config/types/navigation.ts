@@ -1,6 +1,6 @@
 import {Coordinate} from './coordinate';
 
-type NavDetail = {
+export type NavDetail = {
   name: string;
   coordinate: Coordinate;
 };

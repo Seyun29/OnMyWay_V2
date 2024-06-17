@@ -8,6 +8,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.skt.Tmap.TMapTapi;
 import org.jetbrains.annotations.NotNull;
+import androidx.annotation.Nullable;
 import java.util.HashMap;
 
 public class TMapModule extends ReactContextBaseJavaModule {
@@ -25,20 +26,35 @@ public class TMapModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void openNavi(String name, String longitude, String latitude, String vehicle, Promise promise) {
+    public void openNavi(String rGoName, String rGoLongitude, String rGoLatitude, @Nullable String rV1Name, @Nullable String rV1Longitude, @Nullable String rV1Latitude, @Nullable String rV2Name, @Nullable String rV2Longitude, @Nullable String rV2Latitude, @Nullable String rV3Name, @Nullable String rV3Longitude, @Nullable String rV3Latitude, Promise promise) {
         TMapTapi tMapTapi = new TMapTapi(getReactApplicationContext());
         boolean isTMapApp = tMapTapi.isTmapApplicationInstalled();
         if (isTMapApp) {
             HashMap pathInfo = new HashMap();
-            pathInfo.put("rGoName", name);
-            pathInfo.put("rGoX", longitude);
-            pathInfo.put("rGoY", latitude);
-            pathInfo.put("rSOpt", vehicle.equals("MOTORCYCLE") ? "6" : "0");
+            pathInfo.put("rGoName", rGoName);
+            pathInfo.put("rGoX", rGoLongitude);
+            pathInfo.put("rGoY", rGoLatitude);
+            pathInfo.put("rSOpt", "0");
+            if (rV1Name != null && rV1Longitude != null && rV1Latitude != null) {
+                pathInfo.put("rV1Name", rV1Name);
+                pathInfo.put("rV1X", rV1Longitude);
+                pathInfo.put("rV1Y", rV1Latitude);
+            }
+            if (rV2Name != null && rV2Longitude != null && rV2Latitude != null) {
+                pathInfo.put("rV2Name", rV2Name);
+                pathInfo.put("rV2X", rV2Longitude);
+                pathInfo.put("rV2Y", rV2Latitude);
+            }
+            if (rV3Name != null && rV3Longitude != null && rV3Latitude != null) {
+                pathInfo.put("rV3Name", rV3Name);
+                pathInfo.put("rV3X", rV3Longitude);
+                pathInfo.put("rV3Y", rV3Latitude);
+            }
             boolean result = tMapTapi.invokeRoute(pathInfo);
             if (result) {
                 promise.resolve(true);
             } else {
-                promise.resolve(true);
+                promise.resolve(false);
             }
         } else {
             promise.resolve(false);

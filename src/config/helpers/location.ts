@@ -36,7 +36,7 @@ export const getCurPosition = (
           longitude: info.coords.longitude,
         }),
       async error => {
-        // console.error(error);
+        console.error(error);
         //FIXME: 안드로이드 위치 문제 해결 ㅠㅠ
         if (!initial && Platform.OS === 'android') {
           const locationByIp = await fetchIpAndLocation();

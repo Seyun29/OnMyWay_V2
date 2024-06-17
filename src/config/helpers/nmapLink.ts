@@ -17,7 +17,7 @@ export const createURLScheme = (
   let NAMP_WAYPOINTS = `v1lat=${stopByLat}&v1lng=${stopByLng}&v1name=${stopByName}`;
   if (wayPoints) {
     if (wayPoints.length === 1) {
-      if (stopByStrategy === 'FRONT')
+      if (stopByStrategy === 'REAR')
         NAMP_WAYPOINTS = `v1lat=${wayPoints[0].coordinate.latitude}&v1lng=${wayPoints[0].coordinate.longitude}&v1name=${wayPoints[0].name}&v2lat=${stopByLat}&v2lng=${stopByLng}&v2name=${stopByName}`;
       else
         NAMP_WAYPOINTS = `v1lat=${stopByLat}&v1lng=${stopByLng}&v1name=${stopByName}&v2lat=${wayPoints[0].coordinate.latitude}&v2lng=${wayPoints[0].coordinate.longitude}&v2name=${wayPoints[0].name}`;

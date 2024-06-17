@@ -18,6 +18,7 @@ import {curPlaceState} from '../atoms/curPlaceState';
 import {createURLScheme} from '../config/helpers/nmapLink';
 import TMapLogo from '../assets/images/tMapLogo.svg';
 import TMap from '../modules/TMap';
+import {createTmapWaypoints} from '../config/helpers/tmapLink';
 
 const NaverMapLink = ({
   stopByStrategy,
@@ -72,13 +73,26 @@ const NaverMapLink = ({
 
   const openTMap = () => {
     //FIXME: Android only for now
-    //FIXME: 경유지, 출발지 넣는 기능 추가!
-    if (curPlace) {
+    //FIXME: 경유지, 출발지 넣는 기능 추가! -> 경유지의 경우, 해당하지 않으면 null로 세팅할것!!
+    if (curPlace && nav.start && nav.end) {
+      const tMapWaypoints = createTmapWaypoints(
+        nav.wayPoints,
+        curPlace,
+        stopByStrategy,
+      );
       TMap.openNavi(
-        curPlace.place_name,
-        curPlace.coordinate.longitude.toString(),
-        curPlace.coordinate.latitude.toString(),
-        'MOTORCYCLE',
+        nav.end.name,
+        nav.end.coordinate.longitude.toString(),
+        nav.end.coordinate.latitude.toString(),
+        tMapWaypoints.rV1Name,
+        tMapWaypoints.rV1Longitude,
+        tMapWaypoints.rV1Latitude,
+        tMapWaypoints.rV2Name,
+        tMapWaypoints.rV2Longitude,
+        tMapWaypoints.rV2Latitude,
+        tMapWaypoints.rV3Name,
+        tMapWaypoints.rV3Longitude,
+        tMapWaypoints.rV3Latitude,
       ).then(data => {
         if (!data) {
           Alert.alert(
