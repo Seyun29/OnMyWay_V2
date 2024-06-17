@@ -5,7 +5,6 @@ export const getAddress = async (params: {
   longitude: number;
   latitude: number;
 }) => {
-  //FIXME: add types
   try {
     const response = await axiosInstance.get(COORD_TO_ADDRESS, {
       params: {
