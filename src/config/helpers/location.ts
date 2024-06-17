@@ -60,6 +60,7 @@ export const getCurPosition = (
         reject(error);
       },
       {
+        // enableHighAccuracy: Platform.OS === 'ios' ? true : false, //FIXME: fixme..
         enableHighAccuracy: true,
         timeout: Platform.OS === 'android' ? 1000 : 2000,
         maximumAge: 2000,
