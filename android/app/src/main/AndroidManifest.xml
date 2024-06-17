@@ -26,6 +26,11 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <service
+        android:name="com.voximplant.foregroundservice.VIForegroundService"
+        android:foregroundServiceType="location"
+        android:exported="false">
+      </service>
     </application>
     <queries>
         <package android:name="com.omw.omw_front"/>
