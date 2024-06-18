@@ -158,11 +158,11 @@ export default function KeywordSearchBox({
       setMinMax(res);
       setValue(Math.floor(res[0] + (res[1] - res[0]) * 0.15));
       if (res[0] === res[1]) setIsRangeOn(false);
-      // setTimeout(() => {
-      //   if (inputRef.current)
-      //     //@ts-ignore
-      //     inputRef.current.focus();
-      // }, 300);
+      setTimeout(() => {
+        if (inputRef.current)
+          //@ts-ignore
+          inputRef.current.focus();
+      }, 300);
     }
   }, [selectedRoute]);
 
