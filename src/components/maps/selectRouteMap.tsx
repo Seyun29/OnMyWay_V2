@@ -85,7 +85,7 @@ export default function SelectRouteMap({
     setTimeout(() => {
       Toast.show({
         type: 'info',
-        text1: '검색 반경 설정 후 원하는 장소를 검색해보세요!',
+        text1: '카테고리나 키워드로 원하는 장소를 검색해보세요!',
         position: 'top',
         topOffset: headerHeight + insets.top + 50,
         visibilityTime: 1500,
