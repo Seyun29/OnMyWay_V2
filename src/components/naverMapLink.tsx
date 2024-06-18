@@ -195,7 +195,6 @@ const NaverMapLink = ({
           <Text className="ml-2 text-white text-xs">네이버맵 길안내 시작</Text>
         </TouchableOpacity>
       )}
-
       <TouchableOpacity
         className="flex-row justify-center items-center rounded-full bg-[#ffffff] px-3.5 pl-2.5 py-[5px] mt-2"
         style={{
