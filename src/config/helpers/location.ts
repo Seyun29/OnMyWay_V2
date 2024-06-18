@@ -61,7 +61,7 @@ export const getCurPosition = (
       },
       {
         enableHighAccuracy: Platform.OS === 'ios' ? true : false, //FIXME: fixme..
-        timeout: Platform.OS === 'android' ? 1000 : 2000,
+        timeout: 2000,
         maximumAge: 2000,
       },
     );
