@@ -56,7 +56,7 @@ export default function KeywordSearchBox({
   const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [value, setValue] = useState<number>(1);
-  const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
+  const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
   const [minMax, setMinMax] = useState<number[]>([0, 20]);
 
   const inputRef = React.useRef(null);
