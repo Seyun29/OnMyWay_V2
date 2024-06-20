@@ -16,8 +16,8 @@ export const sortByScore = result => {
   const sorted = [...result].sort((a, b) => {
     let aScore = a.scoreAvg;
     let bScore = b.scoreAvg;
-    let aCnt = a.reviewCnt;
-    let bCnt = b.reviewCnt;
+    let aCnt = a.commentCnt;
+    let bCnt = b.commentCnt;
 
     if (aScore === undefined) aScore = 0;
     if (bScore === undefined) bScore = 0;
@@ -35,8 +35,8 @@ export const sortByScore = result => {
 
 export const sortByReview = result => {
   const sorted = [...result].sort((a, b) => {
-    let aCnt = a.reviewCnt;
-    let bCnt = b.reviewCnt;
+    let aCnt = a.commentCnt;
+    let bCnt = b.commentCnt;
     let aScore = a.scoreAvg;
     let bScore = b.scoreAvg;
 
