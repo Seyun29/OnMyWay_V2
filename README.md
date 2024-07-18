@@ -2,5 +2,5 @@
 ## Repository for OnMyWay Auth Server
 
 ### Tech Stacks
-- Java, Springboot, SpringSecurity, MySQL, Docker ,,,
+- Java, Springboot, SpringSecurity, MySQL, Redis, Docker ,,,
 - TBU
