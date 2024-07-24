@@ -5,6 +5,7 @@
 - Java, Springboot, SpringSecurity, MySQL, Redis, Docker ,,,
 - TBU
 - Logging ?
+- .env, secuirty ?
 
 ### Dependencies
 - JDK 17
