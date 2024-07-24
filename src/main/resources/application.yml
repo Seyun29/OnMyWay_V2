@@ -1,0 +1,49 @@
+spring:
+  config:
+    activate:
+      on-profile: local
+
+  datasource:
+    url: "jdbc:h2:mem:onmyway;MODE=MYSQL;NON_KEYWORDS=USER" #user라는건 키워드가 아니다 -> 테이블로 만들수있다 라는 뜻
+    username: "temp"
+    password: "kj76081460!"
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+
+  datasource:
+    #jdbc = java database connector
+    url: "jdbc:mysql://localhost:3306/onmyway" #TODO: migrate to AWS RDS
+    username: "root" #FIXME: fix username
+    password: "kj76081460!" #FIXME: 보안처리
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: none #Spring이 시작할때 DB에 있는 테이블을 어떻게 처리할지
+      #create : 기존 테이블 삭제 후 다시 생성
+      #create-drop : create와 같으나 종료시점에 테이블 drop
+      #update : 변경분만 반영
+      #validate : 엔티티와 테이블이 정상 매핑되었는지 확인
+      #none : 사용하지 않음
+
+    properties:
+      hibernate:
+        show_sql: true #JPA를 사용해 DB에 SQL을 날릴때 SQL을 보여줄 것인가
+        format_sql: true #sql을 보여줄때 이쁘게 포맷할것인가
+        dialect: org.hibernate.dialect.MySQL8Dialect #MySQL8에 맞는 dialect를 사용할 것인가, DB별로 조금씩 다른 SQL을 수정해준다.

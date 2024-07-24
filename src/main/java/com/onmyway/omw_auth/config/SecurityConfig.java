@@ -1,10 +1,12 @@
 package com.onmyway.omw_auth.config;
 
+import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -30,8 +32,12 @@ public class SecurityConfig {
         //http basic 인증 방식 disable
         http.httpBasic(AbstractHttpConfigurer::disable);
 
+        http.headers((headerConfig) -> headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
+
         //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/login", "/", "/join")
+        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/auth/register", "/")
+                .permitAll()
+                .requestMatchers(PathRequest.toH2Console())//h2-console 접근 허용
                 .permitAll()
                 .requestMatchers("/admin")
                 .hasRole("ADMIN")

@@ -4,9 +4,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-public class MainController {
+public class ProxyController {
     @GetMapping("/")
     public String home() {
-        return "Main Controller";
+        return "Proxy Controller TBU";
     }
 }
