@@ -1,4 +1,4 @@
-package com.onmyway.omw_auth.servivce;
+package com.onmyway.omw_auth.service;
 
 import com.onmyway.omw_auth.domain.User;
 import com.onmyway.omw_auth.dto.request.RegisterRequest;
@@ -27,7 +27,7 @@ public class RegisterService {
         boolean isExist = userRepository.existsByUsername(username);
 
         if (isExist) {
-
+            //FIXME: fixme
             return;
         }
 

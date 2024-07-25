@@ -1,7 +1,7 @@
 package com.onmyway.omw_auth.controller;
 
 import com.onmyway.omw_auth.dto.request.RegisterRequest;
-import com.onmyway.omw_auth.servivce.RegisterService;
+import com.onmyway.omw_auth.service.RegisterService;
 import org.springframework.web.bind.annotation.*;
 
 @RestController()
@@ -21,8 +21,8 @@ public class AuthController {
         return "success"; //FIXME: return 값 수정 필요, 예외처리
     }
 
-    @GetMapping("/login")
-    public String login() {
+    @PostMapping("/login")
+    public String login(@RequestBody RegisterRequest loginRequest) { //FIXME: RegisterRequest -> LoginRequest
         return "Login API TBU";
     }
 

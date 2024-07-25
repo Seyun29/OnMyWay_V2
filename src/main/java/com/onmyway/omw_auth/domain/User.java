@@ -24,7 +24,7 @@ public class User {
     private LocalDateTime createdAt; //mapped to TIMESTAMP data type in SQL
 
     @Column(name = "role", nullable = false)
-    private String role; //Should this be connected with DB?
+    private String role;
 
     @Column(name = "is_deleted")
     private boolean isDeleted = false;
