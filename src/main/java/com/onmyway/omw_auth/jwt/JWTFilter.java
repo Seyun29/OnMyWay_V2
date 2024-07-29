@@ -39,7 +39,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             System.out.println("JWTFilter : token is null"); //FIXME: use logger here
-            filterChain.doFilter(request, response);
+            customDoFilter(request, response, filterChain, false);
             return;
         }
 
@@ -47,8 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorization.split(" ")[1];
         if (jwtUtil.isExpired(token)) {
             System.out.println("JWTFilter : token expired"); //FIXME: user logger here
-            filterChain.doFilter(request, response);
-
+            customDoFilter(request, response, filterChain, false);
             return;
         }
 
@@ -67,11 +66,15 @@ public class JWTFilter extends OncePerRequestFilter {
         SecurityContextHolder.getContext()
                 .setAuthentication(authToken);
 
+        customDoFilter(request, response, filterChain, true);
+    }
+
+    private void customDoFilter(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain, boolean isUser) throws ServletException, IOException {
         HttpServletRequest wrappedRequest = new HttpServletRequestWrapper(request) {
             @Override
             public String getHeader(String name) {
                 if ("is_user".equals(name)) {
-                    return "true"; // 헤더 값 설정
+                    return isUser ? "true" : "false";
                 }
                 return super.getHeader(name);
             }
@@ -79,12 +82,11 @@ public class JWTFilter extends OncePerRequestFilter {
             @Override
             public java.util.Enumeration<String> getHeaders(String name) {
                 if ("is_user".equals(name)) {
-                    return Collections.enumeration(Collections.singletonList("true"));
+                    return Collections.enumeration(Collections.singletonList(isUser ? "true" : "false"));
                 }
                 return super.getHeaders(name);
             }
         };
-
         filterChain.doFilter(wrappedRequest, response);
     }
 }

@@ -5,10 +5,11 @@ spring:
       mvc:
         routes:
           - id: proxy_route
-            uri: http://api.on-my-way.store
+            #            uri: http://api.on-my-way.store
+            uri: http://localhost:80
             predicates:
               - Path=/map/**
-
+  
   config:
     activate:
       on-profile: local
@@ -44,17 +45,10 @@ spring:
     gateway:
       mvc:
         routes:
-          - id: auth_routes
-            uri: http://localhost:8080
-            predicates:
-              - Path=/auth/**
           - id: proxy_routes
-            uri: http://localhost:3000 #FIXME: change to production server url
+            uri: http://api.on-my-way.store
             predicates:
-              - Path=/**
-  #          filters:
-  #            #            - StripPrefix=1
-  #            - name: JwtFilter
+              - Path=/map/**
 
   jwt:
     secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbonmyway"
