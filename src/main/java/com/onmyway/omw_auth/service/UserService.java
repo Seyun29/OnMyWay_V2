@@ -96,9 +96,11 @@ public class UserService {
                 .getLatitude());
 
         User user = userRepository.findByUsername(request.getUsername());
+
         if (user == null) {
             throw new RuntimeException("User not found");
         }
+        
         data.setUser(user);
 
         historyRepository.save(data);

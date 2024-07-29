@@ -6,6 +6,8 @@ import com.onmyway.omw_auth.dto.request.AddFavoritesRequest;
 import com.onmyway.omw_auth.dto.request.AddHistoryRequest;
 import com.onmyway.omw_auth.dto.request.RegisterRequest;
 import com.onmyway.omw_auth.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -36,8 +38,9 @@ public class UserController {
     }
 
     @GetMapping("/favorites")
-    public List<Favorites> favorites(@RequestParam String username) { //TBU
-        return userService.getFavorites(username);
+    public List<Favorites> favorites() { //TBU
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userService.getFavorites(authentication.getName());
     }
 
     @PostMapping("/favorites")
@@ -47,8 +50,9 @@ public class UserController {
     }
 
     @GetMapping("/history")
-    public List<History> history(@RequestParam String username) { //TBU
-        return userService.getHistory(username);
+    public List<History> history() { //TBU
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return userService.getHistory(authentication.getName());
     }
 
     @PostMapping("/history")
