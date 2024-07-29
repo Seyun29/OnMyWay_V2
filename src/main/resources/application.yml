@@ -1,7 +1,20 @@
 spring:
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: proxy_route
+            uri: http://api.on-my-way.store
+            predicates:
+              - Path=/map/**
+
   config:
     activate:
       on-profile: local
+
+  jwt:
+    secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbonmyway"
 
   datasource:
     url: "jdbc:h2:mem:onmyway;MODE=MYSQL;NON_KEYWORDS=USER" #user라는건 키워드가 아니다 -> 테이블로 만들수있다 라는 뜻
@@ -26,6 +39,25 @@ spring:
   config:
     activate:
       on-profile: dev
+
+  cloud:
+    gateway:
+      mvc:
+        routes:
+          - id: auth_routes
+            uri: http://localhost:8080
+            predicates:
+              - Path=/auth/**
+          - id: proxy_routes
+            uri: http://localhost:3000 #FIXME: change to production server url
+            predicates:
+              - Path=/**
+  #          filters:
+  #            #            - StripPrefix=1
+  #            - name: JwtFilter
+
+  jwt:
+    secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbonmyway"
 
   datasource:
     #jdbc = java database connector

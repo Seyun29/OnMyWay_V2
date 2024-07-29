@@ -1,7 +1,8 @@
 package com.onmyway.omw_auth.config;
 
+import com.onmyway.omw_auth.jwt.JWTFilter;
+import com.onmyway.omw_auth.jwt.JWTUtil;
 import com.onmyway.omw_auth.jwt.LoginFilter;
-import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,8 +23,11 @@ public class SecurityConfig {
     //AuthenticationManager가 인자로 받을 AuthenticationConfiguraion 객체 생성자 주입
     private final AuthenticationConfiguration authenticationConfiguration;
 
-    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration) {
+    private final JWTUtil jwtUtil;
+
+    public SecurityConfig(AuthenticationConfiguration authenticationConfiguration, JWTUtil jwtUtil) {
         this.authenticationConfiguration = authenticationConfiguration;
+        this.jwtUtil = jwtUtil;
     }
 
     @Bean
@@ -51,19 +55,23 @@ public class SecurityConfig {
 
         http.headers((headerConfig) -> headerConfig.frameOptions(HeadersConfigurer.FrameOptionsConfig::disable));
 
-        //경로별 인가 작업
-        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/auth/**", "/")
-                .permitAll()
-                .requestMatchers(PathRequest.toH2Console())//h2-console 접근 허용
-                .permitAll()
-                .requestMatchers("/admin")
-                .hasRole("ADMIN")
-                .anyRequest()
-                .authenticated());
+        //경로별 인가 -> 리뷰 요약 요청, 즐겨찾기, 최근 기록의 경우 USER 권한이 있어야 함 = jwt 인증 후 header에 isUser true 세팅해서 proxy, 나머지는 그대로 proxy
+        http.authorizeHttpRequests((auth) -> auth.anyRequest()
+                .permitAll());
+//        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/auth/**", "/")
+//                .permitAll()
+//                .requestMatchers(PathRequest.toH2Console())//h2-console 접근 허용
+//                .permitAll()
+//                .requestMatchers("/admin")
+//                .hasRole("ADMIN")
+//                .anyRequest()
+//                .authenticated());
 
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
         //param : Filter, 위치는 어디인가;
-        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration)), UsernamePasswordAuthenticationFilter.class);
+        http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class); //proxy할때만 사용
+        http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
+
 
         //세션 설정 - STATELESS => JWT 토큰 사용
         http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
