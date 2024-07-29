@@ -53,6 +53,7 @@ public class UserController {
 
     @PostMapping("/history")
     public String addHistory(@RequestBody AddHistoryRequest addHistoryRequest) {
-        return "addHistory TBU";
+        userService.addHistory(addHistoryRequest);
+        return "addHistory success"; //FIXME: TBU
     }
 }

@@ -1,5 +1,6 @@
 package com.onmyway.omw_auth.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,7 @@ public class Favorites {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User user;
 
 //    public Favorites(String placeName, String roadAddressName, String addressName, String latitude, String longitude) {

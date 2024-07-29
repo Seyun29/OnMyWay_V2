@@ -4,6 +4,7 @@ import com.onmyway.omw_auth.domain.Favorites;
 import com.onmyway.omw_auth.domain.History;
 import com.onmyway.omw_auth.domain.User;
 import com.onmyway.omw_auth.dto.request.AddFavoritesRequest;
+import com.onmyway.omw_auth.dto.request.AddHistoryRequest;
 import com.onmyway.omw_auth.dto.request.RegisterRequest;
 import com.onmyway.omw_auth.enums.Role;
 import com.onmyway.omw_auth.repository.FavoritesRepository;
@@ -84,8 +85,23 @@ public class UserService {
     }
 
     @Transactional
-    public void addHistory() {
+    public void addHistory(AddHistoryRequest request) {
+        History data = new History();
+        data.setPlaceName(request.getPlaceName());
+        data.setAddressName(request.getAddressName());
+        data.setRoadAddressName(request.getRoadAddressName());
+        data.setLongitude(request.getCoordinate()
+                .getLongitude());
+        data.setLatitude(request.getCoordinate()
+                .getLatitude());
 
+        User user = userRepository.findByUsername(request.getUsername());
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        data.setUser(user);
+
+        historyRepository.save(data);
     }
 
     public List<History> getHistory(String username) {

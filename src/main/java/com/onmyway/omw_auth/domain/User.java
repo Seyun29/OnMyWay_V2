@@ -28,7 +28,7 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "is_deleted", nullable = true)
+    @Column(name = "is_deleted")
     private boolean isDeleted = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
