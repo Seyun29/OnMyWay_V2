@@ -64,6 +64,5 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setCharacterEncoding("UTF-8");
         response.getWriter()
                 .write("{\"error\": \"failed to authenticate\"}");
-        //FIXME: how to send body with error message?
     }
 }

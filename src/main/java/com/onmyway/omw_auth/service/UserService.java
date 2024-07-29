@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class RegisterService {
+public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public RegisterService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public UserService(UserRepository userRepository, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
@@ -44,4 +44,19 @@ public class RegisterService {
         userRepository.save(data);
     }
 
+    public void addFavorites() {
+
+    }
+
+    public void getFavorites() {
+
+    }
+
+    public void addHistory() {
+
+    }
+
+    public void getHistory() {
+
+    }
 }

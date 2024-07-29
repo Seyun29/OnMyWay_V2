@@ -33,21 +33,30 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
-        System.out.println("JWTFilter : requestURI starts with /map/");
-
         String authorization = request.getHeader("Authorization");
 
         if (authorization == null || !authorization.startsWith("Bearer ")) {
-            System.out.println("JWTFilter : token is null"); //FIXME: use logger here
-            customDoFilter(request, response, filterChain, false);
+            System.out.println("JWTFilter : invalid token"); //FIXME: use logger here
+            if (requestURI.startsWith("/map/get-review-summary")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter()
+                        .write("{\"error\": \"Invalid Token\"}");
+            } else customDoFilter(request, response, filterChain, false);
             return;
         }
 
-//        String token = authorization.substring("Bearer ".length());
         String token = authorization.split(" ")[1];
         if (jwtUtil.isExpired(token)) {
             System.out.println("JWTFilter : token expired"); //FIXME: user logger here
-            customDoFilter(request, response, filterChain, false);
+            if (requestURI.startsWith("/map/get-review-summary")) {
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter()
+                        .write("{\"error\": \"Token Expired\"}");
+            } else customDoFilter(request, response, filterChain, false);
             return;
         }
 

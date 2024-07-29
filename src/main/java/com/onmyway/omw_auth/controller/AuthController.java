@@ -1,7 +1,7 @@
 package com.onmyway.omw_auth.controller;
 
 import com.onmyway.omw_auth.dto.request.RegisterRequest;
-import com.onmyway.omw_auth.service.RegisterService;
+import com.onmyway.omw_auth.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -11,16 +11,16 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final RegisterService registerService;
+    private final UserService userService;
 
-    public AuthController(RegisterService registerService) {
-        this.registerService = registerService;
+    public AuthController(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/register")
     public String register(@RequestBody RegisterRequest registerRequest) {
         //FIXME: exception hadnling (try-catch), validation (java.validation.valid), responseentity.ok().body(...)
-        registerService.register(registerRequest);
+        userService.register(registerRequest);
         return "success"; //FIXME: return 값 수정 필요, 예외처리
     }
 
