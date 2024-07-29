@@ -27,17 +27,18 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
+        boolean jwtNotRequired = requestURI.startsWith("/user/register") || requestURI.startsWith("/user/login") || requestURI.startsWith("/user/logout") || requestURI.startsWith("/h2-console");
+        boolean authRequired = requestURI.startsWith("/map/get-review-summary") || requestURI.startsWith("/user/favorites") || requestURI.startsWith("/user/history");
+        String authorization = request.getHeader("Authorization");
 
-        if (!requestURI.startsWith("/map/")) {
+        if (jwtNotRequired) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String authorization = request.getHeader("Authorization");
-
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             System.out.println("JWTFilter : invalid token"); //FIXME: use logger here
-            if (requestURI.startsWith("/map/get-review-summary")) {
+            if (authRequired) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -50,7 +51,7 @@ public class JWTFilter extends OncePerRequestFilter {
         String token = authorization.split(" ")[1];
         if (jwtUtil.isExpired(token)) {
             System.out.println("JWTFilter : token expired"); //FIXME: user logger here
-            if (requestURI.startsWith("/map/get-review-summary")) {
+            if (authRequired) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");

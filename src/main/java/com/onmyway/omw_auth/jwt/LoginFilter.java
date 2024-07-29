@@ -23,7 +23,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
-        this.setFilterProcessesUrl("/auth/login");
+        this.setFilterProcessesUrl("/user/login");
     }
 
     @Override
@@ -51,7 +51,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60 * 60 * 10L);
+        String token = jwtUtil.createJwt(username, role, 60 * 60 * 1000L);
 
         response.addHeader("Authorization", "Bearer " + token);
     }

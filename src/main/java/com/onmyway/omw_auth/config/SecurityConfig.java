@@ -58,7 +58,7 @@ public class SecurityConfig {
         //경로별 인가 -> 리뷰 요약 요청, 즐겨찾기, 최근 기록의 경우 USER 권한이 있어야 함 = jwt 인증 후 header에 isUser true 세팅해서 proxy, 나머지는 그대로 proxy
         http.authorizeHttpRequests((auth) -> auth.anyRequest()
                 .permitAll());
-//        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/auth/**", "/")
+//        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/user/**", "/")
 //                .permitAll()
 //                .requestMatchers(PathRequest.toH2Console())//h2-console 접근 허용
 //                .permitAll()
@@ -68,10 +68,8 @@ public class SecurityConfig {
 //                .authenticated());
 
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
-        //param : Filter, 위치는 어디인가;
         http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class); //proxy할때만 사용
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil), UsernamePasswordAuthenticationFilter.class);
-
 
         //세션 설정 - STATELESS => JWT 토큰 사용
         http.sessionManagement((session) -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

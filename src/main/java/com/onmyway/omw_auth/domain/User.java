@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -14,7 +16,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int userId;
 
-    @Column(name = "username", nullable = false)
+    @Column(name = "username", nullable = false, unique = true)
     private String username;
 
     @Column(name = "password", nullable = false)
@@ -26,6 +28,12 @@ public class User {
     @Column(name = "role", nullable = false)
     private String role;
 
-    @Column(name = "is_deleted")
+    @Column(name = "is_deleted", nullable = true)
     private boolean isDeleted = false;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorites> favorites = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<History> history = new ArrayList<>();
 }
