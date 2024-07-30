@@ -4,7 +4,8 @@ LABEL authors="Seyun Jang"
 
 WORKDIR /app
 
-COPY package.json .
+COPY package.json /app
+COPY pnpm-lock.yaml /app
 
 RUN npm install pnpm -g
 
@@ -12,7 +13,7 @@ RUN npm install pm2 -g
 
 RUN pnpm install
 
-COPY . .
+COPY . /app
 
 EXPOSE 80
 
