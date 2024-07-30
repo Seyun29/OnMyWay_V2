@@ -1,50 +1,52 @@
-name: Deploy to Development Server
-on:
-  push:
-    branches: ['develop']
+# Disable CI/CD Github Action for V2
 
-jobs:
-  build-and-deploy:
-    runs-on: self-hosted
+# name: Deploy to Development Server
+# on:
+#   push:
+#     branches: ['develop']
 
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+# jobs:
+#   build-and-deploy:
+#     runs-on: self-hosted
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4.0.2
-        with:
-          node-version-file: .nvmrc
-      - name: Add .env file
-        run: |
-          touch .env
-          echo "${{ secrets.DEV_ENV }}" > .env
+#     steps:
+#       - name: Checkout Repository
+#         uses: actions/checkout@v3
 
-      - name: Install pnpm and dependencies
-        run: |
-          npm install -g pnpm
-          pnpm install
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v4.0.2
+#         with:
+#           node-version-file: .nvmrc
+#       - name: Add .env file
+#         run: |
+#           touch .env
+#           echo "${{ secrets.DEV_ENV }}" > .env
 
-      - name: Kill existing process
-        run: sudo pm2 kill
+#       - name: Install pnpm and dependencies
+#         run: |
+#           npm install -g pnpm
+#           pnpm install
 
-      - name: Build & Run Development Server
-        run: |
-          pnpm build
-          sudo pnpm start:prod
+#       - name: Kill existing process
+#         run: sudo pm2 kill
 
-      - name: Notify to Slack on Success
-        if: ${{ success() }}
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{ secrets.OMW_SLACK_WEBHOOK }}
-          SLACK_TITLE: 'DEPLOYMENT SUCCESS in Development Environment'
-          SLACK_MESSAGE: '${{ github.repository }}'
+#       - name: Build & Run Development Server
+#         run: |
+#           pnpm build
+#           sudo pnpm start:prod
 
-      - name: Notify to Slack on Failure,,
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2.2.0
-        env:
-          SLACK_WEBHOOK: ${{ secrets.OMW_SLACK_WEBHOOK }}
-          SLACK_TITLE: 'DEPLOYMENT FAILED in Development Environment'
-          SLACK_MESSAGE: '${{ github.repository }}'
+#       - name: Notify to Slack on Success
+#         if: ${{ success() }}
+#         uses: rtCamp/action-slack-notify@v2.2.0
+#         env:
+#           SLACK_WEBHOOK: ${{ secrets.OMW_SLACK_WEBHOOK }}
+#           SLACK_TITLE: 'DEPLOYMENT SUCCESS in Development Environment'
+#           SLACK_MESSAGE: '${{ github.repository }}'
+
+#       - name: Notify to Slack on Failure,,
+#         if: ${{ failure() }}
+#         uses: rtCamp/action-slack-notify@v2.2.0
+#         env:
+#           SLACK_WEBHOOK: ${{ secrets.OMW_SLACK_WEBHOOK }}
+#           SLACK_TITLE: 'DEPLOYMENT FAILED in Development Environment'
+#           SLACK_MESSAGE: '${{ github.repository }}'
