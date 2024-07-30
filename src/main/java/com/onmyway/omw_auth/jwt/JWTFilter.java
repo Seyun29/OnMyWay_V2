@@ -27,7 +27,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String requestURI = request.getRequestURI();
-        boolean jwtNotRequired = requestURI.startsWith("/user/register") || requestURI.startsWith("/user/login") || requestURI.startsWith("/user/logout") || requestURI.startsWith("/h2-console");
+        boolean jwtNotRequired = requestURI.startsWith("/user/register") || requestURI.startsWith("/user/login") || requestURI.startsWith("/user/logout") || requestURI.startsWith("/auth/refresh");
         boolean authRequired = requestURI.startsWith("/map/get-review-summary") || requestURI.startsWith("/user/favorites") || requestURI.startsWith("/user/history");
 
         if (jwtNotRequired) {
