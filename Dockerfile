@@ -17,4 +17,4 @@ COPY . /app
 
 EXPOSE 80
 
-CMD ["pnpm", "start"]
+CMD ["pnpm", "start:prod"]
