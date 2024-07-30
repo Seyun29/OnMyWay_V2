@@ -40,7 +40,7 @@ spring:
       mvc:
         routes:
           - id: proxy_routes
-            uri: http://api.on-my-way.store #FIXME: fix this to AWS ELB of the ECS service of the API server
+            uri: http://alb-omw-986932733.ap-northeast-2.elb.amazonaws.com
             predicates:
               - Path=/map/**
 
