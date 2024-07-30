@@ -48,9 +48,9 @@ spring:
     secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbonmyway"
 
   datasource:
-    url: "jdbc:mysql://localhost:3306/onmyway" #TODO: update to AWS RDS
-    username: "root" #FIXME: fix username according to RDS
-    password: "kj76081460!" #FIXME: 보안처리!!! (매우중요)
+    url: "jdbc:mysql://onmyway-db-test.cnuan9yf9psv.ap-northeast-2.rds.amazonaws.com:3306/onmyway" #TODO: update to AWS RDS
+    username: "root"
+    password: "admin_lgcns" #FIXME: security issue
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
