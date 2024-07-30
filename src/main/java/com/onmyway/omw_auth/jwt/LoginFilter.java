@@ -4,6 +4,7 @@ import com.onmyway.omw_auth.dto.CustomUserDetails;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -51,9 +52,13 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(username, role, 60 * 60 * 1000L);
+        String accessToken = jwtUtil.createJwt("access", username, role, 600000L);
+        String refreshToken = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
-        response.addHeader("Authorization", "Bearer " + token);
+        response.addHeader("accessToken", "Bearer " + accessToken);
+        response.addHeader("refreshToken", "Bearer " + refreshToken);
+
+        response.setStatus(HttpStatus.OK.value());
     }
 
     @Override

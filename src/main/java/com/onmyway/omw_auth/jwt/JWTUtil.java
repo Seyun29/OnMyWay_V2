@@ -53,14 +53,25 @@ public class JWTUtil { //v.12.3
         }
     }
 
-    public String createJwt(String username, String role, Long expiredMs) {
+    public String createJwt(String type, String username, String role, Long expiredMs) {
 
         return Jwts.builder()
+                .claim("type", type)
                 .claim("username", username)
                 .claim("role", role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiredMs))
                 .signWith(secretKey)
                 .compact();
+    }
+
+    public String getType(String token) {
+        //token = access || refresh
+        return Jwts.parser()
+                .verifyWith(secretKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload()
+                .get("type", String.class);
     }
 }
