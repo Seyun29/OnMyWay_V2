@@ -29,17 +29,10 @@ public class UserController {
         return "success"; //FIXME: return 값 수정 필요, 예외처리
     }
 
-//    @PostMapping("/login") //Filter layer에서 처리=> 필요 없음
-
-    @GetMapping("/logout")
-    public String logout() { //서버에서 구현 필요?
-        userService.logout();
-        return "Logout API TBU";
-    }
-
     @GetMapping("/favorites")
     public List<Favorites> favorites() { //TBU
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
         return userService.getFavorites(authentication.getName());
     }
 
@@ -51,7 +44,8 @@ public class UserController {
 
     @GetMapping("/history")
     public List<History> history() { //TBU
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
         return userService.getHistory(authentication.getName());
     }
 

@@ -1,4 +1,4 @@
-package com.onmyway.omw_auth.jwt;
+package com.onmyway.omw_auth.auth;
 
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Value;

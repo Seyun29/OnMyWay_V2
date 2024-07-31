@@ -1,8 +1,9 @@
 package com.onmyway.omw_auth.config;
 
-import com.onmyway.omw_auth.jwt.JWTFilter;
-import com.onmyway.omw_auth.jwt.JWTUtil;
-import com.onmyway.omw_auth.jwt.LoginFilter;
+import com.onmyway.omw_auth.auth.CustomLogoutFilter;
+import com.onmyway.omw_auth.auth.JWTFilter;
+import com.onmyway.omw_auth.auth.JWTUtil;
+import com.onmyway.omw_auth.auth.LoginFilter;
 import com.onmyway.omw_auth.repository.RefreshRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -16,6 +17,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -61,16 +63,9 @@ public class SecurityConfig {
         //경로별 인가 -> 리뷰 요약 요청, 즐겨찾기, 최근 기록의 경우 USER 권한이 있어야 함 = jwt 인증 후 header에 isUser true 세팅해서 proxy, 나머지는 그대로 proxy
         http.authorizeHttpRequests((auth) -> auth.anyRequest()
                 .permitAll());
-//        http.authorizeHttpRequests((auth) -> auth.requestMatchers("/user/**", "/")
-//                .permitAll()
-//                .requestMatchers(PathRequest.toH2Console())//h2-console 접근 허용
-//                .permitAll()
-//                .requestMatchers("/admin")
-//                .hasRole("ADMIN")
-//                .anyRequest()
-//                .authenticated());
 
         //필터 추가 LoginFilter()는 인자를 받음 (AuthenticationManager() 메소드에 authenticationConfiguration 객체를 넣어야 함) 따라서 등록 필요
+        http.addFilterBefore(new CustomLogoutFilter(jwtUtil, refreshRepository), LogoutFilter.class);
         http.addFilterAt(new JWTFilter(jwtUtil), LoginFilter.class); //proxy할때만 사용
         http.addFilterAt(new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, refreshRepository), UsernamePasswordAuthenticationFilter.class);
 

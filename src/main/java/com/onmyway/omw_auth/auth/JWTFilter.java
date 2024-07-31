@@ -1,4 +1,4 @@
-package com.onmyway.omw_auth.jwt;
+package com.onmyway.omw_auth.auth;
 
 import com.onmyway.omw_auth.domain.User;
 import com.onmyway.omw_auth.dto.CustomUserDetails;

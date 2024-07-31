@@ -1,7 +1,7 @@
 package com.onmyway.omw_auth.controller;
 
+import com.onmyway.omw_auth.auth.JWTUtil;
 import com.onmyway.omw_auth.domain.Refresh;
-import com.onmyway.omw_auth.jwt.JWTUtil;
 import com.onmyway.omw_auth.repository.RefreshRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +37,7 @@ public class JWTController {
         }
 
         String type = jwtUtil.getType(token);
-        if (!type.equals("refresh") || !refreshToken.startsWith("Bearer ")) {
+        if (!type.equals("refresh")) {
             return new ResponseEntity<>("invalid refresh token", HttpStatus.BAD_REQUEST);
         }
 
