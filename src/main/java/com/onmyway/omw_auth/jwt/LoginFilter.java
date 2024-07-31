@@ -1,6 +1,8 @@
 package com.onmyway.omw_auth.jwt;
 
+import com.onmyway.omw_auth.domain.Refresh;
 import com.onmyway.omw_auth.dto.CustomUserDetails;
+import com.onmyway.omw_auth.repository.RefreshRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,16 +16,19 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
     private final AuthenticationManager authenticationManager;
 
     private final JWTUtil jwtUtil;
+    private final RefreshRepository refreshRepository;
 
-    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
+    public LoginFilter(AuthenticationManager authenticationManager, JWTUtil jwtUtil, RefreshRepository refreshRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtUtil = jwtUtil;
+        this.refreshRepository = refreshRepository;
         this.setFilterProcessesUrl("/user/login");
     }
 
@@ -55,6 +60,10 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         String accessToken = jwtUtil.createJwt("access", username, role, 600000L);
         String refreshToken = jwtUtil.createJwt("refresh", username, role, 86400000L);
 
+
+        //Refresh 토큰 저장
+        addRefreshEntity(username, refreshToken, 86400000L);
+
         response.addHeader("accessToken", "Bearer " + accessToken);
         response.addHeader("refreshToken", "Bearer " + refreshToken);
 
@@ -69,5 +78,12 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         response.setCharacterEncoding("UTF-8");
         response.getWriter()
                 .write("{\"error\": \"failed to authenticate\"}");
+    }
+
+    private void addRefreshEntity(String username, String refresh, Long expiredMs) {
+
+        Date date = new Date(System.currentTimeMillis() + expiredMs);
+        Refresh refreshEntity = new Refresh(username, refresh, date.toString());
+        refreshRepository.save(refreshEntity);
     }
 }
