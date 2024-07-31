@@ -6,6 +6,6 @@ export class AppService {
     return 'Welcome to OnMyWay Dev Api Server!';
   }
   getHealth(): string {
-    return 'Server is running!';
+    return 'ok';
   }
 }
