@@ -48,7 +48,8 @@ spring:
     secret: "vmfhaltmskdlstkfkdgodyroqkfwkdbalroqkfwkdbalaaaaaaaaaaaaaaaabbbbbonmyway"
 
   datasource:
-    url: "jdbc:mysql://onmyway-db-test.cnuan9yf9psv.ap-northeast-2.rds.amazonaws.com:3306/onmyway" #TODO: update to AWS RDS
+    #    url: "jdbc:mysql://onmyway-db-test.cnuan9yf9psv.ap-northeast-2.rds.amazonaws.com:3306/onmyway" #TODO: update to AWS RDS
+    url: "jdbc:mysql://onmyway-db-prod.cnuan9yf9psv.ap-northeast-2.rds.amazonaws.com:3306/onmyway" #TODO: update to AWS RDS
     username: "root"
     password: "admin_lgcns" #FIXME: security issue
     driver-class-name: com.mysql.cj.jdbc.Driver
