@@ -10,6 +10,7 @@ import AddStopOverSVG from '../../assets/images/addStopOver.svg';
 import ChangeDirectionSVG from '../../assets/images/changeDirection.svg';
 import RemoveStopoOverSVG from '../../assets/images/removeStopOver.svg';
 import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
+import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
 import {useRecoilState, useRecoilValue} from 'recoil';
@@ -75,20 +76,12 @@ export default function MainHeader({
       }}
       onLayout={e => setHeaderHeight(e.nativeEvent.layout.height)}
       className="bg-white w-full justify-start items-start px-[16px] pt-[16px] pb-[13px] gap-y-[13px]">
-      <View
-        className={`w-full flex-row ${
-          nav.start || nav.end || nav.wayPoints.length > 0
-            ? 'justify-between'
-            : 'justify-center'
-        } align-center`}>
+      <View className={'w-full flex-row align-center justify-between'}>
         <Pressable onPress={() => setIsDrawerOpen(!isDrawerOpen)}>
-          {/* <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} /> */}
-          {(nav.start || nav.end || nav.wayPoints.length > 0) && (
-            <View style={{height: 24, width: 24}} />
-          )}
+          <MenuIconSVG height={HEADER_LOGO_HEIGHT} width={HEADER_LOGO_HEIGHT} />
         </Pressable>
         <HeaderLogoSVG height={HEADER_LOGO_HEIGHT} />
-        {(nav.start || nav.end || nav.wayPoints.length > 0) && (
+        {nav.start || nav.end || nav.wayPoints.length > 0 ? (
           <TouchableOpacity
             onPress={() => {
               setNav({
@@ -101,6 +94,8 @@ export default function MainHeader({
             disabled={isLoading}>
             <CancelSVG width={25} height={25} />
           </TouchableOpacity>
+        ) : (
+          <View style={{width: 25, height: 25}} />
         )}
       </View>
       <View className="relative flex-row items-center justify-between">

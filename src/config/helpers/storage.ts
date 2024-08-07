@@ -29,3 +29,13 @@ export const get = async (
   }
   return null;
 };
+
+export const remove = async (key: string): Promise<void> => {
+  try {
+    await AsyncStorage.removeItem(key);
+    // Successfully removed
+  } catch (e) {
+    // error removing value
+    console.log('error while removing:', e);
+  }
+};

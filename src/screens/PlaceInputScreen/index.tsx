@@ -168,7 +168,7 @@ export default function PlaceInputScreen() {
   };
 
   const onMount = async () => {
-    const history = await get(RECENT_KEY);
+    const history = await get(RECENT_KEY); //FIXME: add sorting, deleting feature
     if (history) {
       setIsResult(true);
       setResultList(history.places);

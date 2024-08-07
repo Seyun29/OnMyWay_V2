@@ -1,6 +1,26 @@
 import axios, {AxiosError} from 'axios';
 import {BASE_URL} from '../config/consts/api';
-import {Alert} from 'react-native';
+import {get} from '../config/helpers/storage';
+// import {Alert} from 'react-native';
+
+export const axiosDefault = axios.create({
+  baseURL: BASE_URL,
+  // baseURL: 'http://localhost:8080',
+  timeout: 20000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+axiosDefault.interceptors.response.use(
+  response => {
+    return response;
+  },
+  async (error: AxiosError) => {
+    onError(error, error?.config?.url);
+    return Promise.reject(error);
+  },
+);
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
@@ -8,6 +28,15 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+axiosInstance.interceptors.request.use(async (config: any) => {
+  const accessToken = await get('accessToken');
+  // console.log("axiosPrivate interceptor request:", config.headers);
+  if (accessToken)
+    config.headers = {...config.headers, accessToken: accessToken};
+  // console.log("axiosPrivate interceptor, request header:", config.headers);
+  return config;
 });
 
 axiosInstance.interceptors.response.use(
@@ -44,13 +73,12 @@ kakaoInstance.interceptors.response.use(
 );
 
 const onError = (err: AxiosError, apiUrl: string | undefined) => {
-  console.log('Response error', err.message);
   if (err.response) {
     console.log(
       apiUrl,
       ': ',
       '요청이 이루어 졌으나 서버가 2xx의 범위를 벗어나는 상태 코드로 응답했습니다.',
-      err.response,
+      // err.message,
     );
   } else if (err.request) {
     console.log(
