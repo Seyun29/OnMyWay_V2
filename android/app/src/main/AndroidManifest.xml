@@ -26,9 +26,15 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+      <service
+        android:name="com.voximplant.foregroundservice.VIForegroundService"
+        android:foregroundServiceType="location"
+        android:exported="false">
+      </service>
     </application>
     <queries>
         <package android:name="com.omw.omw_front"/>
+        <package android:name="com.skt.tmap.ku" />
         <intent>
             <action android:name="android.intent.action.VIEW" />
             <data android:scheme="nmap" />

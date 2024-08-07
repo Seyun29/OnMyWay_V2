@@ -56,7 +56,7 @@ export default function KeywordSearchBox({
   const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [value, setValue] = useState<number>(1);
-  const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
+  const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
   const [minMax, setMinMax] = useState<number[]>([0, 20]);
 
   const inputRef = React.useRef(null);
@@ -78,7 +78,7 @@ export default function KeywordSearchBox({
         text2: '정확한 추천을 위해 잠시만 기다려 주세요',
         position: 'top',
         topOffset: headerHeight + insets.top,
-        visibilityTime: 5000,
+        visibilityTime: 10000,
         text1Style: {
           fontSize: 12,
           fontWeight: '600',
@@ -158,11 +158,11 @@ export default function KeywordSearchBox({
       setMinMax(res);
       setValue(Math.floor(res[0] + (res[1] - res[0]) * 0.15));
       if (res[0] === res[1]) setIsRangeOn(false);
-      // setTimeout(() => {
-      //   if (inputRef.current)
-      //     //@ts-ignore
-      //     inputRef.current.focus();
-      // }, 300);
+      setTimeout(() => {
+        if (inputRef.current)
+          //@ts-ignore
+          inputRef.current.focus();
+      }, 300);
     }
   }, [selectedRoute]);
 

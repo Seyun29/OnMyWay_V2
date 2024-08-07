@@ -1,6 +1,6 @@
 import NaverMapView from 'react-native-nmap';
 import React, {useRef, useEffect, useState} from 'react';
-import {Keyboard, View} from 'react-native';
+import {Keyboard, Platform, View} from 'react-native';
 import {useRecoilState, useRecoilValue} from 'recoil';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
@@ -246,11 +246,16 @@ export default function NaverMap({
               {showAlternative && (
                 <>
                   {modalVisible ? (
-                    <View className="absolute w-full bottom-1/4 items-center justify-center">
-                      <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5">
+                    <View
+                      className={`absolute w-full bottom-1/4 items-center ${
+                        Platform.OS === 'ios'
+                          ? 'justify-center'
+                          : 'justify-end pb-0'
+                      }`}>
+                      <View className="flex-row-reverse justify-between items-center absolute left-0 right-0 px-2.5 self-end">
                         <CurPosButton
                           onPress={() => setCurPos(false)}
-                          style="relative self-center"
+                          style="relative self-end"
                         />
                         <BackToListButton onPress={backToList} />
                       </View>
@@ -281,7 +286,6 @@ export default function NaverMap({
           )}
         </>
       )}
-
       <ListBottomSheet
         result={result}
         setResult={setResult}

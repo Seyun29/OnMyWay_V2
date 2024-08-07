@@ -36,7 +36,7 @@ export const getCurPosition = (
           longitude: info.coords.longitude,
         }),
       async error => {
-        // console.error(error);
+        console.error(error);
         //FIXME: 안드로이드 위치 문제 해결 ㅠㅠ
         if (!initial && Platform.OS === 'android') {
           const locationByIp = await fetchIpAndLocation();
@@ -60,9 +60,9 @@ export const getCurPosition = (
         reject(error);
       },
       {
-        enableHighAccuracy: true,
-        timeout: Platform.OS === 'android' ? 1000 : 2000,
-        maximumAge: 2000,
+        enableHighAccuracy: Platform.OS === 'ios' ? true : false, //FIXME: fixme..
+        timeout: 3500,
+        maximumAge: 20000,
       },
     );
   });

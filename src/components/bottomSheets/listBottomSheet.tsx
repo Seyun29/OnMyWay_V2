@@ -291,7 +291,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.review)}}>
-                리뷰 많은 순
+                후기 많은 순
               </Text>
             </TouchableOpacity>
           </View>
