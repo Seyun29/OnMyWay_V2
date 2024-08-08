@@ -20,6 +20,7 @@ export const login = async (params: {username: string; password: string}) => {
     const refreshToken = response.headers.refreshtoken;
     await store('accessToken', accessToken);
     await store('refreshToken', refreshToken);
+    await store('username', params.username as any);
     if (response.status >= 200 && response.status < 300) {
       return true;
     } else return false;
@@ -78,6 +79,7 @@ export const logout = async () => {
     //FIXME: remove accesstoken and refreshtoken from asyncstorage here
     remove('accessToken');
     remove('refreshToken');
+    remove('username');
     Alert.alert('로그아웃', '로그아웃 되었습니다');
     if (response.status == 200) {
       return true;

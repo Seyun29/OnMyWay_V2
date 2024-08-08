@@ -55,7 +55,7 @@ export const getKakaoReviews = async (placeId: string) => {
 //FIXME: add type here
 export const getReviewSummary = async (placeId: string) => {
   try {
-    const reviews = await getKakaoReviews(placeId); //eviews from kakao
+    const reviews = await getKakaoReviews(placeId); //reviews from kakao
     const body = {corpus: reviews.replace('\n', '')};
     //below is the api using chatGPT 3.5 Turbo
     const response = await axiosInstance.post(GET_REVIEW_SUMMARY, body);

@@ -22,7 +22,9 @@ import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
 import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
+import LockSVG from '../../assets/images/lock.svg';
 import {getKakaoReviews, getReviewSummary} from '../../api/getReviewSummary';
+import {userState} from '../../atoms/userState';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -59,6 +61,7 @@ export default function MainBottomSheet({
 
   const [reviewSummary, setReviewSummary] = useState<string>('');
   const [dots, setDots] = useState<string>('.');
+  const user = useRecoilValue(userState);
 
   const getStopBy = async () => {
     if (!curPlace) return;
@@ -211,9 +214,17 @@ export default function MainBottomSheet({
                 <TouchableOpacity
                   className="mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg justify-center"
                   onPress={onReviewSummaryPress}
-                  disabled={reviewSummaryLoading || reviewSummary.length > 0}>
-                  <View className="flex-row w-full">
-                    <BlinkStarsSVG width={17} height={17} />
+                  disabled={
+                    reviewSummaryLoading ||
+                    reviewSummary.length > 0 ||
+                    !user.isLoggedIn
+                  }>
+                  <View className="flex-row w-full items-center">
+                    {user.isLoggedIn ? (
+                      <BlinkStarsSVG width={17} height={17} />
+                    ) : (
+                      <LockSVG />
+                    )}
                     {reviewSummary.length > 0 ? (
                       <>
                         <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
@@ -226,12 +237,24 @@ export default function MainBottomSheet({
                       </Text>
                     ) : (
                       <>
-                        <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
-                          AI 리뷰 요약을 확인해보세요
-                        </Text>
-                        <Text className="absolute right-4 text-sm ml-1 text-[#2D7FF9]">
-                          Click!
-                        </Text>
+                        {user.isLoggedIn ? (
+                          <>
+                            <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
+                              AI 리뷰 요약을 확인해보세요
+                            </Text>
+                            <Text className="absolute right-4 text-sm ml-1 text-[#2D7FF9]">
+                              Click!
+                            </Text>
+                          </>
+                        ) : (
+                          <>
+                            <Text className="text-sm ml-1 text-[#616060] font-semibold">
+                              {
+                                'On My Way 회원이 되시면 AI가 장소 리뷰를 요약해드려요'
+                              }
+                            </Text>
+                          </>
+                        )}
                       </>
                     )}
                   </View>
