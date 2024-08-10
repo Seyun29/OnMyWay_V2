@@ -248,7 +248,7 @@ export default function MainBottomSheet({
                           </>
                         ) : (
                           <>
-                            <Text className="text-sm ml-1 text-[#616060] font-semibold">
+                            <Text className="text-xs ml-1 text-[#616060] font-semibold">
                               {
                                 'On My Way 회원이 되시면 AI가 장소 리뷰를 요약해드려요'
                               }

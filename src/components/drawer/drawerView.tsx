@@ -54,6 +54,7 @@ const DrawerView = () => {
             value={username}
             className={'mt-7 w-4/5 px-4 py-2 rounded-full bg-gray-200'}
             placeholder="Username"
+            placeholderTextColor="#9CA3AF"
             autoCapitalize="none"
             onChangeText={text => setUsername(text)}
           />
@@ -61,6 +62,7 @@ const DrawerView = () => {
             value={password}
             className={'mt-4 w-4/5 px-4 py-2 rounded-full bg-gray-200'}
             placeholder="Password"
+            placeholderTextColor="#9CA3AF"
             autoCapitalize="none"
             secureTextEntry
             onChangeText={text => setPassword(text)}
