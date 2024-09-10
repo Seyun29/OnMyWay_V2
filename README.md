@@ -14,7 +14,7 @@ This is a Mono Repo containing 3 sub-repositories.
 - OnMyWay_AUTH : Springboot, Spring Security, Spring Cloud, Spring Data JPA, MySQL, Jenkins
 - OnMyWay_BE : Nest.js, Typescript, KakaoMap API, OpenAI API, Axios, Jenkins
 - OnMyWay_FE : ReactNative, Typescript, NaverMap SDK, TMap SDK, Axios, MS Codepush
-- Deployment & CI/CD : AWS ECS (fargate), EC2, RDS, Cloudwatch & AutoScaling, Jenkins, Docker, Cloudflare
+- Deployment & CI/CD : AWS ECS (fargate), ECR, EC2, RDS, Cloudwatch & AutoScaling, Jenkins, Docker, Cloudflare
 
 
 Please refer to README.md of each sub-repositories for more details.
