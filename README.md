@@ -7,6 +7,9 @@ This is a Mono Repo containing 3 sub-repositories.
 - OnMyWay_BE : Backend Repository
 - OnMyWay_FE : Frontend(Mobile) Repository
 
+![image](https://github.com/user-attachments/assets/06806b05-ce76-46f7-915b-67d33f3513fc)
+
+
 ### Service Architecture
 <img width="480" alt="image" src="https://github.com/user-attachments/assets/16607980-d5a2-4b9d-8b09-9e347c169aa4">
 
