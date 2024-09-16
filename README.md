@@ -18,5 +18,5 @@ Please refer to README.md of each sub-repositories for more details.
 ![image](https://github.com/user-attachments/assets/06806b05-ce76-46f7-915b-67d33f3513fc)
 <img width="420" alt="image" src="https://github.com/user-attachments/assets/2b7c498a-cfee-48f0-8220-6850a2a2c022">
 
-### Service Architecture
+### Service Architecture (V2)
 <img width="480" alt="image" src="https://github.com/user-attachments/assets/16607980-d5a2-4b9d-8b09-9e347c169aa4">
