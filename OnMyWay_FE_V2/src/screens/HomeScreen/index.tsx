@@ -11,7 +11,6 @@ import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail} from '../../config/types/routes';
 import {Coordinate} from '../../config/types/coordinate';
-import {login, logout, register} from '../../api/auth';
 import DrawerView from '../../components/drawer/drawerView';
 
 export const HomeScreen = () => {

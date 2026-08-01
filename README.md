@@ -1,17 +1,17 @@
 # OnMyWay_V2
 ### 경로상 장소 검색/추천 서비스 OnMyWay 통합 레포지토리 (v2)
 
-This is a Mono Repo containing 3 sub-repositories.
+This is a Mono Repo containing 2 active sub-repositories.
 
-- OnMyWay_AUTH : Repository for JWT Authentication & Reverse proxy server
 - OnMyWay_BE : Backend Repository
 - OnMyWay_FE : Frontend(Mobile) Repository
+- legacy/OnMyWay_AUTH_V2 : (Legacy, 미사용) JWT 인증 & 리버스 프록시 서버 — V3부터 서비스에서 제외됨
 
 ### Main Tech Stacks Used
-- OnMyWay_AUTH : Springboot, Spring Security, Spring Cloud, Spring Data JPA, MySQL, Jenkins
-- OnMyWay_BE : Nest.js, Typescript, KakaoMap API, OpenAI API, Axios, Jenkins
-- OnMyWay_FE : ReactNative, Typescript, NaverMap SDK, TMap SDK, Axios, MS Codepush
-- Deployment & CI/CD : AWS ECS (fargate), ECR, EC2, RDS, Cloudwatch & AutoScaling, Jenkins, Docker, Cloudflare
+- OnMyWay_BE : Nest.js, Typescript, KakaoMap API, OpenAI API, Axios
+- OnMyWay_FE : ReactNative, Typescript, NaverMap SDK, Axios
+
+> CI/CD 파이프라인(Jenkins, ECR/ECS 배포)은 V3 개편으로 제거됨. 재구축 계획은 MIGRATION_PLAN.md 참고.
 
 Please refer to README.md of each sub-repositories for more details.
 

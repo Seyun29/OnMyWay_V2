@@ -1,9 +1,6 @@
 import {SERVER_BASEURL} from '@env';
-//TODO: add api related consts here
 
-// export const BASE_URL = SERVER_BASEURL;
-export const BASE_URL =
-  'http://alb-omw-986932733.ap-northeast-2.elb.amazonaws.com:8080/';
+export const BASE_URL = SERVER_BASEURL;
 export const COORD_TO_ADDRESS = '/map/get-address';
 export const PLACE_QUERY = '/map/keyword-search';
 export const GET_ROUTES = '/map/driving-route';

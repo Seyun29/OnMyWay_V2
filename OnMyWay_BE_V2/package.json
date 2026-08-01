@@ -24,17 +24,14 @@
     "@nestjs/common": "^10.3.7",
     "@nestjs/config": "^3.2.1",
     "@nestjs/core": "^10.0.0",
-    "@nestjs/mongoose": "^10.0.4",
     "@nestjs/platform-express": "^10.0.0",
     "@nestjs/swagger": "^7.3.1",
     "axios": "^1.6.8",
-    "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "dotenv": "^16.4.5",
     "express-basic-auth": "^1.2.1",
-    "mongoose": "^8.2.3",
     "openai": "^4.0.0",
     "reflect-metadata": "^0.2.0",
     "rxjs": "^7.8.1"
@@ -43,7 +40,6 @@
     "@nestjs/cli": "^10.0.0",
     "@nestjs/schematics": "^10.0.0",
     "@nestjs/testing": "^10.0.0",
-    "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.2",
     "@types/node": "^20.3.1",
@@ -79,5 +75,6 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  }
+  },
+  "packageManager": "pnpm@11.18.0+sha512.33d83c77da82f49fba836925c6f1b841181ec3132b670639bd012f7075f5c7cf634c5f870147c19aae7478fac01df09d8892e880454896edd23ee9b33757563c"
 }

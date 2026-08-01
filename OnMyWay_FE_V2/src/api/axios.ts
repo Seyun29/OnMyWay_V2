@@ -1,6 +1,5 @@
 import axios, {AxiosError} from 'axios';
 import {BASE_URL} from '../config/consts/api';
-import {get} from '../config/helpers/storage';
 // import {Alert} from 'react-native';
 
 export const axiosDefault = axios.create({
@@ -28,15 +27,6 @@ export const axiosInstance = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-});
-
-axiosInstance.interceptors.request.use(async (config: any) => {
-  const accessToken = await get('accessToken');
-  // console.log("axiosPrivate interceptor request:", config.headers);
-  if (accessToken)
-    config.headers = {...config.headers, accessToken: accessToken};
-  // console.log("axiosPrivate interceptor, request header:", config.headers);
-  return config;
 });
 
 axiosInstance.interceptors.response.use(

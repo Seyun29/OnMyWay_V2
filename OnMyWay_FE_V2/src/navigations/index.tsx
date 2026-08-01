@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {HomeScreen} from '../screens/HomeScreen';
@@ -7,9 +7,6 @@ import {SelectMapScreen} from '../screens/SelectMapScreen';
 import PlaceInputScreen from '../screens/PlaceInputScreen';
 import {ShowMapScreen} from '../screens/ShowMapScreen';
 import {Coordinate} from '../config/types/coordinate';
-import {useRecoilState} from 'recoil';
-import {userState} from '../atoms/userState';
-import {get} from '../config/helpers/storage';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,21 +24,6 @@ export type RootStackParam = {
 };
 
 export default function RootStackNavigation() {
-  const [, setUser] = useRecoilState(userState);
-  const onUseEffect = async () => {
-    const username = await get('username');
-    console.log(username);
-    if (username)
-      setUser({
-        isLoggedIn: true,
-        //@ts-ignore
-        username: username,
-      });
-  };
-  useEffect(() => {
-    onUseEffect();
-  }, []);
-
   return (
     <NavigationContainer>
       {/* FIXME: update animation on screen transition (Android, IOS) */}
