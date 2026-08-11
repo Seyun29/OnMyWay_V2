@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
 import {Pressable, View, Text, TextInput, Button} from 'react-native';
 import NaverMap from '../../components/maps/naverMap';
-import MainBottomSheet from '../../components/bottomSheets/mainBotttomSheet';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import MainBottomSheet from '../../components/bottomSheets/mainBottomSheet';
+// Displays the selected place and route detour details.
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Drawer} from 'react-native-drawer-layout';

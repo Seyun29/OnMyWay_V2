@@ -1,4 +1,4 @@
-import {atom} from 'recoil';
+import {atom} from '../state/atom';
 
 export const onSelectRouteState = atom<boolean>({
   key: 'onSelectRouteState',

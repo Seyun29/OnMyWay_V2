@@ -1,4 +1,4 @@
-import {atom} from 'recoil';
+import {atom} from '../state/atom';
 
 export const listModalState = atom<boolean>({
   key: 'listModalState',

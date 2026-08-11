@@ -1,18 +1,19 @@
 import React, {useState} from 'react';
-import {TouchableOpacity, View, Dimensions, Alert} from 'react-native';
+import {Text, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
 import InputBoxEditable from './inputBoxEditable';
 import CancelSVG from '../../assets/images/cancel.svg';
 import {placeQuery} from '../../api/placeQuery';
-import SelectOnMapSVG from '../../assets/images/selectOnMap.svg';
-import CurPosInputSVG from '../../assets/images/curPosInput.svg';
-import FavoriteSVG from '../../assets/images/favorite.svg';
+import SelectOnMapIcon from '../../assets/images/selectOnMapIcon.svg';
+import CurrentLocationIcon from '../../assets/images/currentLocationIcon.svg';
+import FavoriteIcon from '../../assets/images/favoriteIcon.svg';
 import Toast from 'react-native-toast-message';
 import {get} from '../../config/helpers/storage';
 import {FAVORITE_KEY} from '../../config/consts/storage';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function PlaceInputHeader({
   setResultList,
@@ -25,6 +26,7 @@ export default function PlaceInputHeader({
   onCurPosPress: () => void;
   setLoading: (loading: boolean) => void;
 }) {
+  const {t} = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const [toastTopOffset, setToastTopOffset] = useState<number>(200);
   const insets = useSafeAreaInsets();
@@ -35,7 +37,7 @@ export default function PlaceInputHeader({
       if (favorites?.places.length === 0)
         Toast.show({
           type: 'error',
-          text1: '즐겨찾기가 없습니다',
+          text1: t('favorite.empty'),
           position: 'top',
           topOffset: toastTopOffset,
           visibilityTime: 1500,
@@ -52,7 +54,7 @@ export default function PlaceInputHeader({
       Toast.show({
         type: 'error',
         // text1: '즐겨찾기를 가져오는데 실패했습니다',
-        text1: '즐겨찾기가 없습니다',
+        text1: t('favorite.empty'),
         position: 'top',
         topOffset: toastTopOffset,
         visibilityTime: 1500,
@@ -65,15 +67,18 @@ export default function PlaceInputHeader({
 
   const handleSubmit = async (query: string) => {
     if (query.length === 0) return;
-    //FIXME: 입력값이 '확실한' 주소일 경우, 주소만 resultList로 보여줘야함
     setLoading(true);
     const response = await placeQuery(query);
-    if (response.length === 0) {
+    if (response === null) {
+      setLoading(false);
+      return;
+    }
+    if (!response || response.length === 0) {
       setResultList([]);
       setIsResult(false);
       Toast.show({
         type: 'error',
-        text1: '검색결과가 없습니다.',
+        text1: t('search.noResultsCompact'),
         position: 'top',
         topOffset: toastTopOffset,
         visibilityTime: 1500,
@@ -85,7 +90,6 @@ export default function PlaceInputHeader({
       setLoading(false);
       return;
     }
-    //FIXME: Exception handling required here
     const newList = response.map((res: any) => ({
       placeName: res.place_name,
       addressName: res.address_name,
@@ -124,15 +128,36 @@ export default function PlaceInputHeader({
           <CancelSVG height={25} width={25} />
         </TouchableOpacity>
       </View>
-      <View className="flex-row w-full items-center justify-between">
-        <TouchableOpacity onPress={onCurPosPress}>
-          <CurPosInputSVG />
+      <View className="flex-row w-full items-stretch">
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t('place.current')}
+          className="min-h-[56px] flex-1 flex-row items-center justify-center px-1"
+          onPress={onCurPosPress}>
+          <CurrentLocationIcon />
+          <Text className="ml-1.5 flex-shrink text-center text-[13px] text-[#6A6A6A]">
+            {t('place.current')}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={onFavoritePress}>
-          <FavoriteSVG />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t('favorite.short')}
+          className="min-h-[56px] flex-1 flex-row items-center justify-center px-1"
+          onPress={onFavoritePress}>
+          <FavoriteIcon />
+          <Text className="ml-1.5 flex-shrink text-center text-[13px] text-[#6A6A6A]">
+            {t('favorite.short')}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => navigation.navigate('SelectMap')}>
-          <SelectOnMapSVG />
+        <TouchableOpacity
+          accessibilityRole="button"
+          accessibilityLabel={t('map.selectTitle')}
+          className="min-h-[56px] flex-1 flex-row items-center justify-center px-1"
+          onPress={() => navigation.navigate('SelectMap')}>
+          <SelectOnMapIcon />
+          <Text className="ml-1.5 flex-shrink text-center text-[13px] text-[#6A6A6A]">
+            {t('map.selectTitle')}
+          </Text>
         </TouchableOpacity>
       </View>
     </View>

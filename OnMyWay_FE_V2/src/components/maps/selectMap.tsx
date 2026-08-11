@@ -1,5 +1,5 @@
 import React from 'react';
-import NaverMapView from 'react-native-nmap';
+import OmwMapView from './omwMapView';
 import {View} from 'react-native';
 import {Center, Coordinate} from '../../config/types/coordinate';
 import SelectMarker from '../../assets/images/markers/selectMarker.svg';
@@ -14,7 +14,7 @@ export default function SelectMap({
 }) {
   return (
     <View className="relative w-full h-full">
-      <NaverMapView
+      <OmwMapView
         center={lastCenter} //initial Position
         style={{
           width: '100%',
@@ -28,7 +28,6 @@ export default function SelectMap({
           });
         }}
         scaleBar
-        mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
       />
       <View className="absolute top-1/2 left-1/2">
         <View

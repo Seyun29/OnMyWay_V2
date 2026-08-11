@@ -5,11 +5,11 @@ import GoBackSVG from '../../assets/images/goBack.svg';
 import {RootStackParam} from '../../navigations';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function ShowMapHeader() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-  //FIXME: fix page transition animation (Android, IOS), fix font
-  //FIXME: Fix the header shadow to be the same as MainHeader
+  const {t} = useTranslation();
   return (
     <View
       style={{
@@ -34,7 +34,7 @@ export default function ShowMapHeader() {
             color="black"
           />
         </TouchableOpacity>
-        <Text className="text-lg">지도에서 보기</Text>
+        <Text className="text-lg">{t('map.showTitle')}</Text>
         <View
           className={`w-[${HEADER_LOGO_HEIGHT}] h-[${HEADER_LOGO_HEIGHT}]`}
         />

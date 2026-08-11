@@ -1,6 +1,6 @@
 import React from 'react';
 import {TouchableOpacity, Text} from 'react-native';
-import {useRecoilValue} from 'recoil';
+import {useRecoilValue} from '../../state/atom';
 import {loadingState} from '../../atoms/loadingState';
 
 export default function InputBox({

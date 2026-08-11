@@ -1,11 +1,11 @@
 import React from 'react';
 import {Routes} from '../../config/types/routes';
-import {Path} from 'react-native-nmap';
+import {MapPath} from '../maps/mapPrimitives';
 import {Coordinate} from '../../config/types/coordinate';
 
 export function DefaultPath({path}: {path: Coordinate[]}) {
   return (
-    <Path
+    <MapPath
       color="#949494"
       coordinates={path}
       width={8}
@@ -17,7 +17,7 @@ export function DefaultPath({path}: {path: Coordinate[]}) {
 
 export function SelectedPath({path}: {path: Coordinate[]}) {
   return (
-    <Path
+    <MapPath
       color={'#20C933'}
       coordinates={path}
       width={10}
@@ -30,7 +30,7 @@ export function SelectedPath({path}: {path: Coordinate[]}) {
 
 export function OMWPath({path}: {path: Coordinate[]}) {
   return (
-    <Path
+    <MapPath
       color={'#20C933'}
       coordinates={path}
       width={10}

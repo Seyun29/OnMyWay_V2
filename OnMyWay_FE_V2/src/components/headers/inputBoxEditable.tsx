@@ -1,17 +1,19 @@
 import React, {useState} from 'react';
 import {TextInput, TouchableOpacity, View} from 'react-native';
 import {whichNavState} from '../../atoms/whichNavState';
-import {useRecoilValue} from 'recoil';
+import {useRecoilValue} from '../../state/atom';
 import {navigationState} from '../../atoms/navigationState';
 import {Navigation, WhichNav} from '../../config/types/navigation';
 import ClearInputSVG from '../../assets/images/clearInput.svg';
+import {TranslationKey} from '../../config/language';
+import {useTranslation} from '../../hooks/useTranslation';
 
-const placeHolder = {
-  start: '출발지 검색',
-  end: '도착지 검색',
-  editWayPoint1: '경유지 검색',
-  editWayPoint2: '경유지 검색',
-  newWayPoint: '경유지 검색',
+const placeholderKey: Record<WhichNav, TranslationKey> = {
+  start: 'place.startSearch',
+  end: 'place.endSearch',
+  editWayPoint1: 'place.waypointSearch',
+  editWayPoint2: 'place.waypointSearch',
+  newWayPoint: 'place.waypointSearch',
 };
 
 const initialQuery = (which: WhichNav, nav: Navigation) => {
@@ -34,13 +36,10 @@ export default function InputBoxEditable({
 }: {
   handleSubmit: (query: string) => void;
 }) {
-  //FIXME: add, update proper source of nav states (start, end , waypoints)
-  //TODO: add spinner when loading the results
-  //FIXME: 이전과 변화없으면 아무것도 수행 X
+  const {t} = useTranslation();
   const whichNav = useRecoilValue(whichNavState);
-  const nav = useRecoilValue(navigationState); //nav.start.name, nav.end.name, nav.wayPoints[0].name, nav.wayPoints[1].name
-  //FIXME: type Issue here (undefined | string)
-  const [query, setQuery] = useState<string>(initialQuery(whichNav, nav));
+  const nav = useRecoilValue(navigationState);
+  const [query, setQuery] = useState<string>(initialQuery(whichNav, nav) ?? '');
 
   return (
     <View className="flex w-full pr-[20px]">
@@ -48,7 +47,7 @@ export default function InputBoxEditable({
         value={query}
         onChangeText={setQuery}
         onSubmitEditing={() => handleSubmit(query)}
-        placeholder={placeHolder[whichNav]}
+        placeholder={t(placeholderKey[whichNav])}
         className={
           'w-full h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px] flex-row items-center rounded-sm text-black'
         }

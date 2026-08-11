@@ -1,16 +1,17 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {LayoutAnimation, Text, TouchableOpacity, View} from 'react-native';
+import {View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import WebView from 'react-native-webview';
 import Spinner from '../spinner';
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {getKakaoPlace} from '../../api/getKakaoPlace';
+import {getPlaceDetail} from '../../api/getPlaceDetail';
 import {
   Coordinate,
   ExtraDetail,
@@ -21,8 +22,6 @@ import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
-import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
-import {getKakaoReviews, getReviewSummary} from '../../api/getReviewSummary';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -54,11 +53,6 @@ export default function MainBottomSheet({
   const [isWebViewLoading, setIsWebViewLoading] = useState<boolean>(false);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
-  const [reviewSummaryLoading, setReviewSummaryLoading] =
-    useState<boolean>(false);
-
-  const [reviewSummary, setReviewSummary] = useState<string>('');
-  const [dots, setDots] = useState<string>('.');
 
   const getStopBy = async () => {
     if (!curPlace) return;
@@ -82,8 +76,8 @@ export default function MainBottomSheet({
 
   const snapPoints = useMemo(() => ['23%', '83%', '93%'], []);
 
-  //@ts-ignore
-  const placeId = curPlace ? curPlace.place_url.match(/\/(\d+)$/)[1] : '';
+  // Kakao place_url에서만 숫자 ID를 추출한다. Google 등 다른 provider URL이면 빈 값.
+  const placeId = curPlace?.place_url?.match(/\/(\d+)$/)?.[1] ?? '';
 
   const setExtraData = async () => {
     if (
@@ -94,44 +88,37 @@ export default function MainBottomSheet({
       curPlace?.reviewCnt
     )
       return;
-    const res = await getKakaoPlace(placeId);
 
-    let scoreAvg;
-    if (
-      res.comment?.scorecnt &&
-      res.comment?.scorecnt !== 0 &&
-      res.comment?.scoresum
-    ) {
-      const scorecnt = res.comment?.scorecnt;
-      const scoresum = res.comment?.scoresum;
-      scoreAvg = ((scoresum / (scorecnt * 5)) * 5).toFixed(1);
+    if (placeId) {
+      const res = await getKakaoPlace(placeId);
+      setExtra({
+        open:
+          res.business_hours?.real_time_info?.business_hours_status?.code ===
+          'OPEN',
+        tags: res.place_add_info?.tags,
+        photoUrl: res.photos?.photos[0]?.url
+          ? res.photos.photos[0].url.replace(/^http:\/\//i, 'https://')
+          : null,
+        commentCnt: res.kakaomap_review?.score_set?.review_count,
+        reviewCnt: res.blog_review?.review_count,
+        parking: res.place_add_info?.facilities?.is_parking,
+        scoreAvg: res.kakaomap_review?.score_set?.average_score,
+      });
+      return;
     }
-    setExtra({
-      open: res.basicInfo?.openHour?.realtime?.open,
-      tags: res.basicInfo?.tags,
-      photoUrl: res.photo?.photoList[0].list[0].orgurl
-        ? res.photo?.photoList[0].list[0].orgurl.replace(
-            /^http:\/\//i,
-            'https://',
-          )
-        : null,
-      commentCnt: res.comment?.kamapComntcnt,
-      reviewCnt: res.blogReview?.blogrvwcnt,
-      scoreAvg,
-    });
-  };
 
-  const onReviewSummaryPress = async () => {
-    setReviewSummaryLoading(true);
-    // const res = await getReviewSummary(placeId);
-    const res = await getReviewSummary(placeId);
-    if (res) setReviewSummary(res);
-    else
-      setReviewSummary(
-        '리뷰 요약을 생성할 수 없습니다.\n리뷰 개수가 너무 적거나 현재 서비스가 불안정합니다.',
-      );
-    bottomSheetModalRef.current?.snapToIndex(2);
-    setReviewSummaryLoading(false);
+    // Google 결과: BE /map/place-detail로 보강. null(UNKNOWN)은 badge를 만들지 않도록
+    // undefined로 두고 false로 바꾸지 않는다.
+    if (curPlace?.place_id) {
+      const detail = await getPlaceDetail(curPlace.place_id);
+      if (!detail) return;
+      setExtra({
+        open: detail.open ?? undefined,
+        parking: detail.parking ?? undefined,
+        scoreAvg: detail.rating !== null ? detail.rating.toString() : undefined,
+        commentCnt: detail.rating_count ?? undefined,
+      });
+    }
   };
 
   useEffect(() => {
@@ -152,28 +139,10 @@ export default function MainBottomSheet({
       }, 500); //bug fix ends
 
       getStopBy();
+      setExtra({});
       setExtraData();
-      setReviewSummary('');
     }
   }, [curPlace]);
-
-  useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, [reviewSummary]);
-
-  useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
-    if (reviewSummaryLoading)
-      interval = setInterval(() => {
-        setDots(currentDots => {
-          if (currentDots.length > 4) return '.';
-          else return currentDots + '.';
-        });
-      }, 1000);
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [reviewSummaryLoading]);
 
   return (
     <BottomSheetModalProvider>
@@ -207,40 +176,6 @@ export default function MainBottomSheet({
               </View>
             ) : (
               <View className="flex-1">
-                {/* FIXME: uncomment below to use ChatGPT API */}
-                <TouchableOpacity
-                  className="mx-4 px-4 py-2 bg-[#EBF2FF] rounded-lg justify-center"
-                  onPress={onReviewSummaryPress}
-                  disabled={reviewSummaryLoading || reviewSummary.length > 0}>
-                  <View className="flex-row w-full items-center">
-                    <BlinkStarsSVG width={17} height={17} />
-                    {reviewSummary.length > 0 ? (
-                      <>
-                        <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
-                          AI 리뷰 요약
-                        </Text>
-                      </>
-                    ) : reviewSummaryLoading ? (
-                      <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
-                        {`리뷰 요약을 생성하는 중 입니다${dots}`}
-                      </Text>
-                    ) : (
-                      <>
-                        <Text className="text-sm ml-1 text-[#2D7FF9] font-semibold">
-                          AI 리뷰 요약을 확인해보세요
-                        </Text>
-                        <Text className="absolute right-4 text-sm ml-1 text-[#2D7FF9]">
-                          Click!
-                        </Text>
-                      </>
-                    )}
-                  </View>
-                  {reviewSummary.length > 0 && (
-                    <Text className="text-sm mt-1 text-[#616060] leading-4">
-                      {reviewSummary}
-                    </Text>
-                  )}
-                </TouchableOpacity>
                 <WebView
                   source={{
                     uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
@@ -258,8 +193,8 @@ export default function MainBottomSheet({
             <View className="absolute w-full h-full bg-white">
               <BottomSheetComponent
                 placeInfo={{
-                  ...extra,
                   ...curPlace,
+                  ...extra,
                   stopByDuration: stopByData?.duration,
                   originalDuration: selectedRoute?.duration,
                 }}

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -15,7 +15,7 @@ import KewordSearchButtonSVG from '../assets/images/kewordSearchButton.svg';
 import {searchOnPath} from '../api/searchOnPath';
 import {PlaceDetail} from '../config/types/coordinate';
 import {RouteDetail} from '../config/types/routes';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from '../state/atom';
 import {loadingState} from '../atoms/loadingState';
 import Toast from 'react-native-toast-message';
 import {WINDOW_WIDTH} from '../config/consts/style';
@@ -26,8 +26,13 @@ import {getExtraPlaceData} from '../api/getExtraPlaceData';
 import {headerHeightState} from '../atoms/headerHeightState';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
 import {ScrollView} from 'react-native-gesture-handler';
-import {CATEGORY_LIST} from '../config/consts/query';
+import {
+  CATEGORY_BY_ID,
+  CATEGORY_LIST,
+  PlaceSearchQuery,
+} from '../config/consts/query';
 import CategorySVG from './categorySVG';
+import {useTranslation} from '../hooks/useTranslation';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -43,11 +48,12 @@ export default function KeywordSearchBox({
   result: PlaceDetail[] | null;
   setResult: any;
   setOriginalResult: any;
-  query: string;
-  setQuery: any;
+  query: PlaceSearchQuery;
+  setQuery: React.Dispatch<React.SetStateAction<PlaceSearchQuery>>;
   showAlternative: boolean;
   setShowAlternative: any;
 }) {
+  const {t} = useTranslation();
   const insets = useSafeAreaInsets();
 
   const [, setLoading] = useRecoilState<boolean>(loadingState);
@@ -59,23 +65,39 @@ export default function KeywordSearchBox({
   const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
   const [minMax, setMinMax] = useState<number[]>([0, 20]);
 
-  const inputRef = React.useRef(null);
+  const inputRef = useRef<TextInput>(null);
+  const delayedToastTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+
+  const clearDelayedToastTimeout = () => {
+    if (delayedToastTimeoutRef.current) {
+      clearTimeout(delayedToastTimeoutRef.current);
+      delayedToastTimeoutRef.current = null;
+    }
+  };
 
   const handleSelectRangeButton = () => {
     setIsRangeOn(!isRangeOn);
   };
 
-  const onSubmit = async (categoryQuery?: string) => {
-    if (query.length === 0 && !categoryQuery) return;
+  const onSubmit = async (searchQuery: PlaceSearchQuery = query) => {
+    if (searchQuery.kind === 'keyword' && searchQuery.value.length === 0)
+      return;
+
+    const backendQuery =
+      searchQuery.kind === 'category'
+        ? t(CATEGORY_BY_ID[searchQuery.categoryId].queryKey)
+        : searchQuery.value;
 
     Keyboard.dismiss();
     setLoading(true);
-    // set timer for timeout (minimum 4 seconds)
-    const timeoutId = setTimeout(() => {
+    clearDelayedToastTimeout();
+    delayedToastTimeoutRef.current = setTimeout(() => {
       Toast.show({
         type: 'info',
-        text1: '검색결과가 많아 응답이 지연되고 있습니다',
-        text2: '정확한 추천을 위해 잠시만 기다려 주세요',
+        text1: t('search.delayedTitle'),
+        text2: t('search.delayedDetail'),
         position: 'top',
         topOffset: headerHeight + insets.top,
         visibilityTime: 10000,
@@ -98,19 +120,25 @@ export default function KeywordSearchBox({
     const radius = value > 20 ? 20000 : value * 1000;
     const totalDistance = selectedRoute?.distance;
     const data = await searchOnPath({
-      query: categoryQuery || query,
+      query: backendQuery,
       path,
       totalDistance,
       radius,
     });
-    if (data && data.length > 0) {
+    if (data === null) {
+      clearDelayedToastTimeout();
+      setLoading(false);
+      return;
+    }
+    if (data.length > 0) {
       let resultList = data.map((res: PlaceDetail) => ({
         ...res,
         coordinate: {latitude: res.y, longitude: res.x},
       }));
       const promises = resultList.map(async (curPlace: PlaceDetail) => {
-        //@ts-ignore
-        const placeId = curPlace.place_url.match(/\/(\d+)$/)[1];
+        // Kakao place_url에서만 숫자 ID를 추출한다. 다른 provider URL이면 보강 없이 사용.
+        const placeId = curPlace?.place_url?.match(/\/(\d+)$/)?.[1];
+        if (!placeId) return curPlace;
         const extraData = await getExtraPlaceData(placeId);
         return {
           ...curPlace,
@@ -118,20 +146,18 @@ export default function KeywordSearchBox({
         };
       });
       resultList = await Promise.all(promises);
-      // clear timer for timeout
-      clearTimeout(timeoutId);
+      clearDelayedToastTimeout();
       Toast.hide();
 
       setResult(resultList);
       setOriginalResult(resultList);
       setListModalVisible(true);
-      //FIXME: BottomSheetComponent에서는 이미 extra data가 있는 경우에는 그대로 사용하게끔 수정
     } else {
       Toast.hide();
-      clearTimeout(timeoutId);
+      clearDelayedToastTimeout();
       Toast.show({
         type: 'error',
-        text1: '검색 결과가 없습니다.',
+        text1: t('search.noResults'),
         position: 'top',
         topOffset: headerHeight + insets.top,
         visibilityTime: 2500,
@@ -146,6 +172,13 @@ export default function KeywordSearchBox({
     setLoading(false);
   };
 
+  useEffect(
+    () => () => {
+      clearDelayedToastTimeout();
+    },
+    [],
+  );
+
   useEffect(() => {
     if (result && result.length > 0) {
       setShowAlternative(true);
@@ -159,9 +192,7 @@ export default function KeywordSearchBox({
       setValue(Math.floor(res[0] + (res[1] - res[0]) * 0.15));
       if (res[0] === res[1]) setIsRangeOn(false);
       setTimeout(() => {
-        if (inputRef.current)
-          //@ts-ignore
-          inputRef.current.focus();
+        inputRef.current?.focus();
       }, 300);
     }
   }, [selectedRoute]);
@@ -190,18 +221,21 @@ export default function KeywordSearchBox({
               setShowAlternative(false);
               setModalVisible(false);
               setListModalVisible(false);
-              //@ts-ignore
-              setTimeout(() => inputRef.current.focus(), 300);
+              setTimeout(() => inputRef.current?.focus(), 300);
             }}>
             <View className="border-r pr-2 mr-2 border-slate-500">
               <Text className="font-bold text-xs">
-                {query.startsWith('카테고리 :') ? '카테고리' : '검색어'}
+                {t(
+                  query.kind === 'category'
+                    ? 'search.category'
+                    : 'search.keyword',
+                )}
               </Text>
             </View>
             <Text className="text-xs mr-3">
-              {query.startsWith('카테고리 :')
-                ? query.split(':')[1].trim()
-                : query}
+              {query.kind === 'category'
+                ? t(CATEGORY_BY_ID[query.categoryId].labelKey)
+                : query.value}
             </Text>
             <KewordSearchButtonSVG height={'18px'} width={'18px'} />
           </TouchableOpacity>
@@ -225,9 +259,9 @@ export default function KeywordSearchBox({
                 paddingHorizontal: 12,
                 paddingVertical: 4,
               }}>
-              {CATEGORY_LIST.map((category, index) => (
+              {CATEGORY_LIST.map(category => (
                 <TouchableOpacity
-                  key={index}
+                  key={category.id}
                   className="flex-row px-2.5 py-1.5 justify-center items-center bg-white mr-3 rounded-full gap-x-1"
                   style={{
                     elevation: 5,
@@ -240,13 +274,16 @@ export default function KeywordSearchBox({
                     shadowRadius: 2,
                   }}
                   onPress={() => {
-                    const newQuery = '카테고리 : ' + category.label;
+                    const newQuery: PlaceSearchQuery = {
+                      kind: 'category',
+                      categoryId: category.id,
+                    };
                     onSubmit(newQuery);
                     setQuery(newQuery);
                   }}>
                   <CategorySVG code={category.code} />
                   <Text className="text-xs text-[#3D3D3D] font-semibold">
-                    {category.label}
+                    {t(category.labelKey)}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -261,7 +298,7 @@ export default function KeywordSearchBox({
                 <View className="flex flex-col w-full">
                   <View className="flex-row justify-between w-full pb-1">
                     <Text className="text-[#A8A8A8] text-[12px] font-bold">
-                      검색 반경
+                      {t('search.radius')}
                     </Text>
                     <Text className="text-[#3D3D3D] text-[12px] font-semibold">
                       {value}km
@@ -347,11 +384,7 @@ export default function KeywordSearchBox({
               className="w-full h-[45px] bg-white rounded-full shadow-md flex-row items-center px-[16px] justify-between"
               activeOpacity={0.8}
               disabled={result === null || result.length === 0}
-              onPress={() => {
-                // setIsRangeOn(true);
-                //@ts-ignore
-                if (inputRef.current) inputRef.current.focus();
-              }}>
+              onPress={() => inputRef.current?.focus()}>
               <TouchableOpacity onPress={handleSelectRangeButton} className="">
                 {isRangeOn ? (
                   <SelectRangeButtonOnSVG height={'24px'} width={'24px'} />
@@ -363,9 +396,15 @@ export default function KeywordSearchBox({
                 ref={inputRef}
                 className="w-[80%] h-full pl-3 text-black"
                 placeholderTextColor={'#A8A8A8'}
-                placeholder="검색어 입력"
-                value={query}
-                onChangeText={setQuery}
+                placeholder={t('search.placeholder')}
+                value={
+                  query.kind === 'keyword'
+                    ? query.value
+                    : t(CATEGORY_BY_ID[query.categoryId].labelKey)
+                }
+                onChangeText={inputValue =>
+                  setQuery({kind: 'keyword', value: inputValue})
+                }
                 onSubmitEditing={() => onSubmit()}
               />
               <TouchableOpacity onPress={() => onSubmit()}>

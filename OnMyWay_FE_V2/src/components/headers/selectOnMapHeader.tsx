@@ -5,11 +5,11 @@ import GoBackSVG from '../../assets/images/goBack.svg';
 import {RootStackParam} from '../../navigations';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function SelectOnMapHeader() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
-  //FIXME: fix page transition animation (Android, IOS), fix font
-  //FIXME: Fix the header shadow to be the same as MainHeader
+  const {t} = useTranslation();
   return (
     <View
       style={{
@@ -34,14 +34,14 @@ export default function SelectOnMapHeader() {
             color="black"
           />
         </TouchableOpacity>
-        <Text className="text-lg">지도에서 선택</Text>
+        <Text className="text-lg">{t('map.selectTitle')}</Text>
         <View
           className={`w-[${HEADER_LOGO_HEIGHT}] h-[${HEADER_LOGO_HEIGHT}]`}
         />
       </View>
       <View className="flex-row justify-center align-center py-1 border-b border-gray-500">
         <Text className="text-xs text-gray-500">
-          지도를 움직여 원하는 장소를 선택해주세요
+          {t('map.selectInstruction')}
         </Text>
       </View>
     </View>

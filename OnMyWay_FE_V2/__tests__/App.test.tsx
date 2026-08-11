@@ -1,17 +1,17 @@
-/**
- * @format
- */
-
-import 'react-native';
 import React from 'react';
+import BootSplash from 'react-native-bootsplash';
+import renderer, {act} from 'react-test-renderer';
 import App from '../App';
 
-// Note: import explicitly to use the types shipped with jest.
-import {it} from '@jest/globals';
+jest.mock('../src/navigations', () => () => null);
 
-// Note: test renderer must be required after react-native.
-import renderer from 'react-test-renderer';
+it('hydrates preferences and renders the app root', async () => {
+  let tree: renderer.ReactTestRenderer;
 
-it('renders correctly', () => {
-  renderer.create(<App />);
+  await act(async () => {
+    tree = renderer.create(<App />);
+  });
+
+  expect(tree!.toJSON()).not.toBeNull();
+  expect(BootSplash.hide).toHaveBeenCalledWith({fade: true});
 });

@@ -13,7 +13,7 @@ import HeaderLogoSVG from '../../assets/images/headerLogo.svg';
 import MenuIconSVG from '../../assets/images/menuIcon.svg';
 import {HEADER_LOGO_HEIGHT} from '../../config/consts/style';
 import {headerRoughState} from '../../atoms/headerRoughState';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import {drawerState} from '../../atoms/drawerState';
 import {navigationState} from '../../atoms/navigationState';
 import InputBox from './inputBox';
@@ -27,13 +27,14 @@ import {WhichNav} from '../../config/types/navigation';
 import CancelSVG from '../../assets/images/cancel.svg';
 import {loadingState} from '../../atoms/loadingState';
 import {headerHeightState} from '../../atoms/headerHeightState';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function MainHeader({
   setSelectedRoute,
 }: {
   setSelectedRoute: any;
 }) {
-  //FIXME: utilize components outside
+  const {t} = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   const reverseNav = useNavReverse();
   const [nav, setNav] = useRecoilState(navigationState);
@@ -136,7 +137,7 @@ export default function MainHeader({
               )}
               <InputBox
                 text={nav.start?.name}
-                altText={'출발지 입력'}
+                altText={t('place.startInput')}
                 onPress={() => {
                   setWhichNav('start');
                   navigation.navigate('PlaceInput');
@@ -146,10 +147,11 @@ export default function MainHeader({
                 <InputBox
                   key={idx}
                   text={wayPoint?.name}
-                  altText={'경유지 입력'}
+                  altText={t('place.waypointInput')}
                   onPress={() => {
-                    //@ts-ignore FIXME: type issue
-                    setWhichNav(`editWayPoint${idx + 1}`);
+                    const editTarget: WhichNav =
+                      idx === 0 ? 'editWayPoint1' : 'editWayPoint2';
+                    setWhichNav(editTarget);
                     navigation.navigate('PlaceInput');
                   }}
                   children={
@@ -166,7 +168,7 @@ export default function MainHeader({
               ))}
               <InputBox
                 text={nav.end?.name}
-                altText={'도착지 입력'}
+                altText={t('place.endInput')}
                 onPress={() => {
                   setWhichNav('end');
                   navigation.navigate('PlaceInput');

@@ -1,8 +1,7 @@
-import {atom} from 'recoil';
-import {ANAM} from '../dummy/coord';
+import {atom} from '../state/atom';
 import {Center} from '../config/types/coordinate';
 
-export const mapCenterState = atom<Center>({
+export const mapCenterState = atom<Center | null>({
   key: 'mapCenterState',
-  default: {...ANAM, zoom: 14},
+  default: null,
 });

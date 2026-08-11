@@ -5,7 +5,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {useRecoilState} from 'recoil';
+import {useRecoilState} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import {listModalState} from '../../atoms/listModalState';
 import {PlaceDetail} from '../../config/types/coordinate';
@@ -21,6 +21,7 @@ import {
 } from '../../config/helpers/filter';
 import FilterSVG from '../../assets/images/filter.svg';
 import Spinner from '../spinner';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function ListBottomSheet({
   result,
@@ -33,6 +34,7 @@ export default function ListBottomSheet({
   originalResult: PlaceDetail[] | null;
   showAlternative: boolean;
 }) {
+  const {t} = useTranslation();
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
@@ -57,15 +59,8 @@ export default function ListBottomSheet({
     selected ? '#9CC7FF' : '#A8A8A8';
   const selectBGColor = (selected: boolean): string =>
     selected ? '#EBF2FF' : 'transparent';
-  //@ts-ignore
-  const selectedNum = () => {
-    let count = 0;
-    for (const key in selectedObj) {
-      //@ts-ignore
-      if (selectedObj[key]) count++;
-    }
-    return count;
-  };
+  const selectedNum = () =>
+    Object.values(selectedObj).filter(Boolean).length;
 
   const handleClickIsOpen = () => {
     setLoading(true);
@@ -252,7 +247,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.open)}}>
-                영업중
+                {t('bottom.open')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -265,7 +260,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.parking)}}>
-                주차 가능
+                {t('bottom.parkingSpaced')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -278,7 +273,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.score)}}>
-                평점 좋은 순
+                {t('bottom.bestRated')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -291,7 +286,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.review)}}>
-                후기 많은 순
+                {t('bottom.mostReviewed')}
               </Text>
             </TouchableOpacity>
           </View>

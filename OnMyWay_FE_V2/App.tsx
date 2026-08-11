@@ -1,70 +1,103 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
  * @format
  */
 
-import React, {useEffect} from 'react';
-import {Alert, Linking, Platform, UIManager} from 'react-native';
+import React, {type PropsWithChildren, useEffect, useState} from 'react';
+import {Platform, UIManager} from 'react-native';
 import 'react-native-gesture-handler';
-import SplashScreen from 'react-native-splash-screen';
+import './global.css';
+import BootSplash from 'react-native-bootsplash';
 import RootStackNavigation from './src/navigations';
-import {RecoilRoot, useRecoilState} from 'recoil';
+import {
+  RecoilRoot,
+  useRecoilState,
+  useRecoilValue,
+} from './src/state/atom';
 import Toast from 'react-native-toast-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
-import CodePush from 'react-native-code-push';
-import DeviceInfo from 'react-native-device-info';
-import {OMW_APPSTORE_URL, OMW_PLAYSTORE_URL} from './src/config/consts/link';
+import {languageState} from './src/atoms/languageState';
+import {mapRendererState} from './src/atoms/mapRendererState';
+import {LANGUAGE_KEY, MAP_RENDERER_KEY} from './src/config/consts/storage';
+import {get, store} from './src/config/helpers/storage';
+import {
+  type AppLanguage,
+  getDeviceLanguage,
+  isAppLanguage,
+  setRequestLanguage,
+} from './src/config/language';
+import {
+  defaultRendererForLanguage,
+  isMapRendererId,
+  type MapRendererId,
+} from './src/config/mapRenderer';
+
+function LanguageInitializer({children}: PropsWithChildren) {
+  const [, setLanguage] = useRecoilState(languageState);
+  const [, setMapRenderer] = useRecoilState(mapRendererState);
+  const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const hydrateLanguage = async () => {
+      const storedLanguage = await get<AppLanguage>(LANGUAGE_KEY);
+      const hasStoredLanguage = isAppLanguage(storedLanguage);
+      const language = hasStoredLanguage ? storedLanguage : getDeviceLanguage();
+      if (!hasStoredLanguage) await store(LANGUAGE_KEY, language);
+
+      const storedRenderer = await get<MapRendererId>(MAP_RENDERER_KEY);
+      const hasStoredRenderer = isMapRendererId(storedRenderer);
+      const renderer = hasStoredRenderer
+        ? storedRenderer
+        : defaultRendererForLanguage(language);
+      if (!hasStoredRenderer) await store(MAP_RENDERER_KEY, renderer);
+
+      if (isMounted) {
+        setRequestLanguage(language);
+        setLanguage(language);
+        setMapRenderer(renderer);
+        setIsReady(true);
+        BootSplash.hide({fade: true}).catch(() => undefined);
+      }
+    };
+
+    hydrateLanguage().catch(() => undefined);
+    return () => {
+      isMounted = false;
+    };
+  }, [setLanguage, setMapRenderer]);
+
+  return isReady ? <>{children}</> : null;
+}
+
+function MapSessionBoundary() {
+  const language = useRecoilValue(languageState);
+  const mapRenderer = useRecoilValue(mapRendererState);
+  return <RootStackNavigation key={`${language}-${mapRenderer}`} />;
+}
 
 function App(): React.JSX.Element {
   useEffect(() => {
-    setTimeout(() => {
-      SplashScreen.hide();
-    }, 2000);
     if (
       Platform.OS === 'android' &&
       UIManager.setLayoutAnimationEnabledExperimental
     ) {
       UIManager.setLayoutAnimationEnabledExperimental(true);
     }
-
-    //FIXME: react-native-device-info 사용은 1.0.5부터 적용필요 => pod install (ios), re build (android) required
-    // console.log('App Version:', DeviceInfo.getVersion());
-    // console.log('Latest Version:', '1.0.4');
-    // if (DeviceInfo.getVersion() < '1.0.4') {
-    //   //FIXME: see if it works practically
-    //   Alert.alert(
-    //     '새 버전이 출시되었습니다.',
-    //     '새로운 기능 적용을 위해\n앱을 업데이트 해주세요.',
-    //     [
-    //       {
-    //         text: '지금 업데이트',
-    //         onPress: () => {
-    //           if (Platform.OS === 'ios') Linking.openURL(OMW_APPSTORE_URL);
-    //           else Linking.openURL(OMW_PLAYSTORE_URL);
-    //         },
-    //       },
-    //       {
-    //         text: '취소',
-    //       },
-    //     ],
-    //   );
-    // }
   }, []);
 
   return (
     <React.StrictMode>
       <RecoilRoot>
-        <GestureHandlerRootView className="flex-1">
-          <RootStackNavigation />
-          <Toast />
-        </GestureHandlerRootView>
+        <LanguageInitializer>
+          <GestureHandlerRootView className="flex-1">
+            <MapSessionBoundary />
+            <Toast />
+          </GestureHandlerRootView>
+        </LanguageInitializer>
       </RecoilRoot>
     </React.StrictMode>
   );
 }
 
-// deactivate codepush for V2 (temporary)
-// export default CodePush(App);
 export default App;

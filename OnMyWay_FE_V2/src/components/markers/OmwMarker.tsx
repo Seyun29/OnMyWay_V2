@@ -1,13 +1,14 @@
 import React, {useEffect} from 'react';
-import {Marker} from 'react-native-nmap';
+import {MapMarker, MapMarkerProps} from '../maps/mapPrimitives';
 import {Center, PlaceDetail} from '../../config/types/coordinate';
-import {useRecoilState} from 'recoil';
+import {useRecoilState} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import {mapCenterState} from '../../atoms/mapCenterState';
 import {markerList} from '../../config/consts/image';
 import {
   DEFAULT_MARKER_HEIGHT,
   DEFAULT_MARKER_WIDTH,
+  DEFAULT_ZOOM,
   ELLIPSE_MARKER_HEIGHT,
   ELLIPSE_MARKER_WIDTH,
   LARGE_MARKER_HEIGHT,
@@ -18,9 +19,11 @@ import {lastCenterState} from '../../atoms/lastCenterState';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {listModalState} from '../../atoms/listModalState';
 
-const SelectedMarker = (props: any) => {
+const SelectedMarker = (
+  props: Omit<MapMarkerProps, 'image' | 'width' | 'height'>,
+) => {
   return (
-    <Marker
+    <MapMarker
       {...props}
       image={markerList.selected}
       width={LARGE_MARKER_WIDTH}
@@ -41,8 +44,10 @@ export default function OmwMarker({
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
   const [, setCurPlace] = useRecoilState<PlaceDetail | null>(curPlaceState);
 
-  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
-  const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
+  const [center, setCenter] =
+    useRecoilState<Center | null>(mapCenterState);
+  const [lastCenter, setLastCenter] =
+    useRecoilState<Center | null>(lastCenterState);
 
   const [selected, setSelected] = useRecoilState<number>(
     selectedPlaceIndexState,
@@ -65,16 +70,16 @@ export default function OmwMarker({
       setCenter({
         latitude: resultList[selected].coordinate.latitude,
         longitude: resultList[selected].coordinate.longitude,
-        zoom: lastCenter.zoom,
+        zoom: lastCenter?.zoom ?? center?.zoom ?? DEFAULT_ZOOM,
       });
       setCurPlace({...resultList[selected], max_length: resultList.length});
     }
   }, [selected]);
 
   useEffect(() => {
-    if (resultList && resultList.length > 0) {
+    if (resultList.length > 0 && center) {
       setSelected(-1);
-      setLastCenter(center); //FIXME: might cause dependency issue..
+      setLastCenter(center);
       setTimeout(() => {
         setSelected(0);
       }, 1000);
@@ -113,22 +118,15 @@ export default function OmwMarker({
             !item.commentCnt ||
             item.commentCnt === 0
           ) {
-            if (item.open === 'Y') {
+            if (item.open) {
               zIndex = 5;
               markerImage = markerList.basic.on;
               width = DEFAULT_MARKER_WIDTH;
               height = DEFAULT_MARKER_HEIGHT;
-            } else {
-              zIndex = 1;
-              if (item.open === 'N') markerImage = markerList.small.off;
-              else markerImage = markerList.small.default;
-              width = ELLIPSE_MARKER_WIDTH;
-              height = ELLIPSE_MARKER_HEIGHT;
             }
-          } else if (item.open === 'Y') markerImage = markerList.basic.on;
-          else if (item.open === 'N') markerImage = markerList.basic.off;
+          } else if (item.open) markerImage = markerList.basic.on;
           return (
-            <Marker
+            <MapMarker
               key={index}
               coordinate={{
                 latitude: item.coordinate.latitude,
@@ -142,7 +140,6 @@ export default function OmwMarker({
               anchor={{x: 0.5, y: 1}}
               image={markerImage}
               zIndex={zIndex}
-              //TODO: use different images for different categories
             />
           );
         }
