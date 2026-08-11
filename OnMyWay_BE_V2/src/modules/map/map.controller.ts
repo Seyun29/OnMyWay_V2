@@ -2,8 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  Headers,
   HttpCode,
-  Logger,
   Post,
   Query,
 } from '@nestjs/common';
@@ -13,6 +13,7 @@ import {
   GetAddressRequestDto,
   GetDrivingRouteRequestDto,
   GetKeywordSearchRequestDto,
+  GetPlaceDetailRequestDto,
   GetStopByDurationRequestDto,
   searchOnPathRequestDto,
 } from './dto/map.request.dto';
@@ -23,12 +24,15 @@ import {
   GetStopByDurationResponseDto,
   SearchOnPathResponseDto,
 } from './dto/map.response.dto';
+import { ProviderContext } from './providers/map-request-context';
 
 @Controller('map')
 @ApiTags('Main')
 export class MapController {
-  constructor(private readonly mapService: MapService) {}
-  // private readonly logger = new Logger(MapController.name);
+  constructor(
+    private readonly mapService: MapService,
+    private readonly providerContext: ProviderContext,
+  ) {}
 
   @Get('get-address')
   @ApiResponse({
@@ -37,8 +41,14 @@ export class MapController {
     type: GetAddressResponseDto,
   })
   @ApiOperation({ summary: 'Convert coordinate to address(es)' })
-  async getAddress(@Query() params: GetAddressRequestDto) {
-    return await this.mapService.getAddress(params);
+  async getAddress(
+    @Headers('accept-language') acceptLanguage: string,
+    @Query() params: GetAddressRequestDto,
+  ) {
+    return await this.mapService.getAddress(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 
   @Get('keyword-search')
@@ -51,8 +61,14 @@ export class MapController {
     description: 'Success',
     type: GetKeywordSearchResponseDto,
   })
-  async getKeywordSearch(@Query() params: GetKeywordSearchRequestDto) {
-    return await this.mapService.getKeywordSearch(params);
+  async getKeywordSearch(
+    @Headers('accept-language') acceptLanguage: string,
+    @Query() params: GetKeywordSearchRequestDto,
+  ) {
+    return await this.mapService.getKeywordSearch(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 
   @Get('driving-route')
@@ -66,10 +82,13 @@ export class MapController {
       'Returns driving route information list according to input parameters.',
   })
   async getDrivingRoute(
-    @Query()
-    params: GetDrivingRouteRequestDto,
+    @Headers('accept-language') acceptLanguage: string,
+    @Query() params: GetDrivingRouteRequestDto,
   ) {
-    return await this.mapService.getDrivingRoute(params);
+    return await this.mapService.getDrivingRoute(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 
   @Post('search-on-path')
@@ -82,8 +101,14 @@ export class MapController {
     description: 'Success',
     type: SearchOnPathResponseDto,
   })
-  async getSearchOnPath(@Body() params: searchOnPathRequestDto) {
-    return await this.mapService.searchOnPath(params);
+  async getSearchOnPath(
+    @Headers('accept-language') acceptLanguage: string,
+    @Body() params: searchOnPathRequestDto,
+  ) {
+    return await this.mapService.searchOnPath(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 
   @Get('stopby-duration')
@@ -96,20 +121,32 @@ export class MapController {
     description: 'Success',
     type: GetStopByDurationResponseDto,
   })
-  async getStopbyDuration(@Query() params: GetStopByDurationRequestDto) {
-    return await this.mapService.getStopByDuration(params);
+  async getStopbyDuration(
+    @Headers('accept-language') acceptLanguage: string,
+    @Query() params: GetStopByDurationRequestDto,
+  ) {
+    return await this.mapService.getStopByDuration(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 
-  //FIXME: create Dtos, add Swagger
-  @Post('get-review-summary')
+  @Get('place-detail')
+  @ApiOperation({
+    summary:
+      'Returns provider-neutral place details (opening hours, parking, rating). Google place ids only for now.',
+  })
   @ApiResponse({
     status: 200,
     description: 'Success',
-    // type: GetAddressResponseDto, //FIXME: Change to GetReviewSummaryResponseDto
   })
-  @ApiOperation({ summary: 'Generate Review Summary via ChatGPT' })
-  async getReviewSummary(@Body() params: any) {
-    //FIXME: Change to GetReviewSummaryRequestDto
-    return await this.mapService.getReviewSummary(params);
+  async getPlaceDetail(
+    @Headers('accept-language') acceptLanguage: string,
+    @Query() params: GetPlaceDetailRequestDto,
+  ) {
+    return await this.mapService.getPlaceDetail(
+      params,
+      this.providerContext.create(acceptLanguage),
+    );
   }
 }

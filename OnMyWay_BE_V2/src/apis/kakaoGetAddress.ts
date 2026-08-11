@@ -9,7 +9,6 @@ const kakaoGetAddress = async (params: KakaoGetAddressQuery) => {
     });
     return res.data;
   } catch (err) {
-    console.log('Error occured in kakaoGetAddress :', err);
     errorHandler(err);
   }
 };

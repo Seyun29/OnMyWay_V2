@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
+import {
+  IsIn,
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { CATEGORY_LIST, KakaoCategoryCode } from '../../../config/consts';
 
 export class GetAddressRequestDto {
   @IsString()
@@ -22,7 +29,6 @@ export class GetAddressRequestDto {
 }
 
 export class GetKeywordSearchRequestDto {
-  //FIXME: to improve over all
   @IsNotEmpty()
   @ApiProperty({
     example: '안암역, 안암동5가 21, etc...',
@@ -31,12 +37,15 @@ export class GetKeywordSearchRequestDto {
   })
   query: string;
 
+  @IsOptional()
+  @IsIn(CATEGORY_LIST)
   @ApiProperty({
     example: 'MT1',
-    description: 'category',
+    description: 'Kakao category group code',
+    enum: CATEGORY_LIST,
     required: false,
   })
-  category_group_code?: string; //FIXME: enum , literal type : https://developers.kakao.com/docs/latest/ko/local/dev-guide#search-by-keyword
+  category_group_code?: KakaoCategoryCode;
 
   @ApiProperty({
     example: '127.021344106907',
@@ -98,7 +107,27 @@ export class GetDrivingRouteRequestDto {
     required: false,
   })
   avoid?: 'toll' | 'motorway'; //toll: 유료 도로, motorway: 자동차 전용 도로
-  // priority?: 'RECOMMEND' | 'TIME' | 'DISTANCE'; //추천경로, 최단시간, 최단거리 -> FIXME: Api 상에서 세 개 다 보내기 and 결과 리스트로 반환해주기
+
+  @IsOptional()
+  @IsIn(['RECOMMEND', 'TIME', 'DISTANCE'])
+  @ApiProperty({
+    example: 'RECOMMEND',
+    description: '선택된 경로 기준. 경유 시간 계산에 사용',
+    required: false,
+  })
+  priority?: 'RECOMMEND' | 'TIME' | 'DISTANCE';
+}
+
+export class GetPlaceDetailRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @ApiProperty({
+    example: 'ChIJN1t_tDeuEmsRUsoyG83frY4',
+    description:
+      'provider place resource id. 현재는 Google 검색 결과의 place_id만 지원',
+    required: true,
+  })
+  id: string;
 }
 
 export class GetStopByDurationRequestDto extends GetDrivingRouteRequestDto {
@@ -129,9 +158,13 @@ export class searchOnPathRequestDto {
       [127.021344106907, 37.5858189680129],
     ],
     required: true,
-    type: [[String]],
+    type: 'array',
+    items: {
+      type: 'array',
+      items: { type: 'number' },
+    },
   })
-  path: string[][]; //[ [x1, y1], [x2, y2], ... ]
+  path: number[][];
 
   @IsNotEmpty()
   @IsNumber()
@@ -154,10 +187,13 @@ export class searchOnPathRequestDto {
   })
   radius: number; //radius has to be given as int, in 'meter' unit
 
+  @IsOptional()
+  @IsIn(CATEGORY_LIST)
   @ApiProperty({
-    description: 'category',
-    example: '현재는 사용X',
+    description: 'Kakao category group code',
+    example: 'MT1',
+    enum: CATEGORY_LIST,
     required: false,
   })
-  category_group_code?: string; //to be implemented later
+  category_group_code?: KakaoCategoryCode;
 }

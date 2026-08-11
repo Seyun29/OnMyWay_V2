@@ -1,7 +1,6 @@
 import { HttpException } from '@nestjs/common';
 import SelectVerticesParams from './types';
 
-//TODO: to improve performance, have to handle different cases according to whether the road is EXPRESSWAY or not. (unit distance becomes  different)
 const selectVertices = ({
   path,
   totalDistance,
@@ -13,7 +12,7 @@ const selectVertices = ({
   // unitDistance * skipCount <= radius
   const totalCount: number = path.length;
   const unitDistance: number = totalDistance / (totalCount - 1); //average distance between two vertices
-  const selectedVertices: string[][] = [];
+  const selectedVertices: number[][] = [];
 
   const skipCount: number = Math.floor(radius / unitDistance);
   if (skipCount === 0)

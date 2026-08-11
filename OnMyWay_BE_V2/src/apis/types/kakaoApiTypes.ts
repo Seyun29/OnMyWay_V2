@@ -1,6 +1,8 @@
+import { KakaoCategoryCode } from '../../config/consts';
+
 export interface KakaoKeywordSearchQuery {
   query: string;
-  category_group_code?: string; //FIXME: enum , literal type : https://developers.kakao.com/docs/latest/ko/local/dev-guide#search-by-keyword
+  category_group_code?: KakaoCategoryCode;
   x?: string;
   y?: string;
   radius?: string;
@@ -8,7 +10,7 @@ export interface KakaoKeywordSearchQuery {
 }
 
 export interface KakaoCategorySearchQuery {
-  category_group_code: string;
+  category_group_code: KakaoCategoryCode;
   x?: string;
   y?: string;
   radius?: string;
@@ -16,8 +18,6 @@ export interface KakaoCategorySearchQuery {
 }
 
 export interface KakaoDrivingPathQuery {
-  //FIXME: to include other options (using hipass, local roads only,, etc.)
-  //FIXME: merge startX,startY and endX,endY
   origin: string; //e.g) "127.111202,37.394912"
   destination: string; //e.g) "127.111202,37.394912"
   waypoints?: string; //waypoints: 경유지 수만큼 "{X좌표},{Y좌표},,name={경유지명}" 또는 "{X좌표},{Y좌표},"를 | 또는 %7C로 연결하여 입력(예:127.111202,37.394912,name=판교역 | 127.112275,37.392815)

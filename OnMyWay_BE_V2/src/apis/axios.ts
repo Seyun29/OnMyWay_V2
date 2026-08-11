@@ -1,11 +1,9 @@
-import { HttpException } from '@nestjs/common';
+import { HttpException, HttpStatus } from '@nestjs/common';
 import axios, { AxiosError } from 'axios';
 import {
   KAKAO_MAP_BASE_URL,
   KAKAO_NAV_BASE_URL,
   KAKAO_API_KEY,
-  OPENAI_HEADER_AUTH,
-  OPENAI_BASE_URL,
 } from 'src/config/consts';
 
 const axiosKakaoMap = axios.create({
@@ -23,33 +21,33 @@ const axiosKakaoNav = axios.create({
   },
 });
 
-const axiosOpenAi = axios.create({
-  baseURL: OPENAI_BASE_URL,
-  timeout: 8000,
-  headers: {
-    'Content-Type': 'application/json',
-    Authorization: OPENAI_HEADER_AUTH,
-  },
-});
-
-const errorHandler = (error: AxiosError) => {
-  //TODO: add & improve logging details
-  //TODO: move error handling functions to exception filters
-  if (error.response) {
-    // Server response status code was out of 2xx range
-    console.log(error.response.data);
-    console.log(error.response.status);
-    console.log(error.response.headers);
-    throw new HttpException(error.response.data, error.response.status);
-  } else if (error.request) {
-    // Request successfully made but no response received
-    console.log(error.request);
-    throw new HttpException(error.request, 500);
-  } else {
-    // Request was not successfully made
-    console.log('Error', error.message);
-    throw new HttpException(error.message, 500);
+const errorHandler = (error: unknown): never => {
+  if (!axios.isAxiosError(error)) {
+    throw new HttpException(
+      'Map provider request failed',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
   }
+
+  const axiosError: AxiosError = error;
+  if (axiosError.response) {
+    throw new HttpException(
+      'Map provider request failed',
+      axiosError.response.status,
+    );
+  }
+
+  if (axiosError.request) {
+    throw new HttpException(
+      'Map provider did not respond',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+    );
+  }
+
+  throw new HttpException(
+    'Map provider request could not be sent',
+    HttpStatus.INTERNAL_SERVER_ERROR,
+  );
 };
 
-export { axiosKakaoMap, axiosKakaoNav, axiosOpenAi, errorHandler };
+export { axiosKakaoMap, axiosKakaoNav, errorHandler };
