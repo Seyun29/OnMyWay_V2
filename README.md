@@ -11,9 +11,16 @@ This is a Mono Repo containing 2 active sub-repositories.
 - OnMyWay_BE : Nest.js, Typescript, KakaoMap API, OpenAI API, Axios
 - OnMyWay_FE : ReactNative, Typescript, NaverMap SDK, Axios
 
-> CI/CD 파이프라인(Jenkins, ECR/ECS 배포)은 V3 개편으로 제거됨. 재구축 계획은 MIGRATION_PLAN.md 참고.
+> CI/CD 파이프라인(Jenkins, ECR/ECS 배포)은 V3 개편으로 제거됨. 재구축 계획은 [Migration Plan](docs/MIGRATION_PLAN.md) 참고.
 
-Please refer to README.md of each sub-repositories for more details.
+### Project Documents
+- [Migration Plan](docs/MIGRATION_PLAN.md) — 작업 순서, 환경변수, 완료 조건
+- [Feature Insights](docs/FEATURE_INSIGHTS.md) — 제품·기술 결정 근거와 비용·정책
+- [Project Configuration](docs/PROJECT_CONFIGURATION.md) — Store identity, signing, toolchain, 복원 기준
+- [Architecture](docs/ARCHITECTURE.md) — 현재 코드 기준 구조와 provider 구성
+- [Progress Log](docs/PROGRESS_LOG.md) — 날짜별 진행 기록
+
+Please refer to README.md of each sub-repository for more details.
 
 ![image](https://github.com/user-attachments/assets/06806b05-ce76-46f7-915b-67d33f3513fc)
 <img width="420" alt="image" src="https://github.com/user-attachments/assets/2b7c498a-cfee-48f0-8220-6850a2a2c022">
