@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import {
   MapRequestContext,
   PlaceDetailInput,
+  PlacePhotoInput,
 } from '../providers/map-provider.port';
 import { LanguageMapProviderResolver } from '../providers/language-map-provider.resolver';
 
@@ -13,5 +14,9 @@ export class GetPlaceDetailsUseCase {
     return this.providerResolver
       .resolvePlaceDetail()
       .getPlaceDetail(input, context);
+  }
+
+  getPhotoUri(input: PlacePhotoInput) {
+    return this.providerResolver.resolvePlaceDetail().getPlacePhotoUri(input);
   }
 }

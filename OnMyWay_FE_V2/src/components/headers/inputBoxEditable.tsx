@@ -42,15 +42,22 @@ export default function InputBoxEditable({
   const [query, setQuery] = useState<string>(initialQuery(whichNav, nav) ?? '');
 
   return (
-    <View className="flex w-full pr-[20px]">
+    <View style={{flex: 1, minWidth: 0, paddingRight: 20}}>
       <TextInput
         value={query}
         onChangeText={setQuery}
         onSubmitEditing={() => handleSubmit(query)}
         placeholder={t(placeholderKey[whichNav])}
-        className={
-          'w-full h-[40px] bg-[#F2F2F2] mb-[2px] px-[12px] flex-row items-center rounded-sm text-black'
-        }
+        style={{
+          width: '100%',
+          height: 40,
+          marginBottom: 2,
+          paddingHorizontal: 12,
+          paddingRight: 36,
+          borderRadius: 2,
+          backgroundColor: '#F2F2F2',
+          color: '#000000',
+        }}
         autoFocus
       />
       <TouchableOpacity

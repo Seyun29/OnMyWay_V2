@@ -1,3 +1,9 @@
+# RN 0.86.2's prebuilt AppDelegate headers can leave CocoaPods with an
+# incompatible umbrella header. Use React Native's supported source fallback.
+ENV['RCT_USE_PREBUILT_RNCORE'] = '0'
+
+require File.join(File.dirname(`node --print "require.resolve('expo/package.json')"`), 'scripts/autolinking')
+
 def node_require(script)
   require Pod::Executable.execute_command('node', ['-p',
     "require.resolve(
@@ -9,7 +15,10 @@ end
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')
 
-platform :ios, min_ios_version_supported
+require 'json'
+podfile_properties = JSON.parse(File.read(File.join(__dir__, 'Podfile.properties.json'))) rescue {}
+
+platform :ios, podfile_properties['ios.deploymentTarget'] || '16.4'
 prepare_react_native_project!
 
 setup_permissions([
@@ -25,10 +34,29 @@ if linkage != nil
 end
 
 target 'omw_front' do
-  config = use_native_modules!
+  use_expo_modules!
+
+  if ENV['EXPO_USE_COMMUNITY_AUTOLINKING'] == '1'
+    config_command = ['node', '-e', "process.argv=['', '', 'config'];require('@react-native-community/cli').run()"]
+  else
+    config_command = [
+      'node',
+      '--no-warnings',
+      '--eval',
+      'require(\'expo/bin/autolinking\')',
+      'expo-modules-autolinking',
+      'react-native-config',
+      '--json',
+      '--platform',
+      'ios'
+    ]
+  end
+
+  config = use_native_modules!(config_command)
 
   use_react_native!(
     :path => config[:reactNativePath],
+    :hermes_enabled => podfile_properties['expo.jsEngine'] == nil || podfile_properties['expo.jsEngine'] == 'hermes',
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 

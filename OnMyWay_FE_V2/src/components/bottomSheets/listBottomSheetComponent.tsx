@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, Image, TouchableOpacity} from 'react-native';
+import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import StarFilledSVG from '../../assets/images/starFilled.svg';
 import StarUnFilledSVG from '../../assets/images/starUnfilled.svg';
 import {useRecoilState} from '../../state/atom';
@@ -42,18 +42,20 @@ export default function ListBottomSheetComponent({
   const score = Number(scoreAvg ?? 0);
 
   return (
-    <TouchableOpacity className="py-2 flex-row w-full pt-3" onPress={onSelect}>
+    <TouchableOpacity style={styles.card} onPress={onSelect}>
       <Image
         source={
           photoUrl
             ? {uri: photoUrl}
             : require('../../assets/images/defaultThumbnail.png')
         }
-        style={{width: 70, height: 70, marginRight: 20, borderRadius: 12}}
+        style={styles.thumbnail}
       />
-      <View>
-        <View className="flex-row items-center gap-x-1.5">
+      <View style={styles.details}>
+        <View style={styles.titleRow}>
           <Text
+            numberOfLines={1}
+            style={styles.placeName}
             className={
               'font-semibold ' +
               (placeName.length > 14
@@ -145,6 +147,7 @@ export default function ListBottomSheetComponent({
         </View>
         <Text
           className="text-xs"
+          numberOfLines={2}
           style={{
             color: '#7C7C7C',
           }}>
@@ -154,3 +157,35 @@ export default function ListBottomSheetComponent({
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    width: '100%',
+    minWidth: 0,
+    flexDirection: 'row',
+    paddingTop: 12,
+    paddingVertical: 8,
+  },
+  thumbnail: {
+    width: 70,
+    height: 70,
+    flexShrink: 0,
+    marginRight: 16,
+    borderRadius: 12,
+  },
+  details: {
+    flex: 1,
+    minWidth: 0,
+  },
+  titleRow: {
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 6,
+  },
+  placeName: {
+    flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
+  },
+});

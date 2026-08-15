@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useRef, useState} from 'react';
-import {View} from 'react-native';
+import {Linking, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {
   BottomSheetModal,
   BottomSheetModalProvider,
@@ -12,6 +12,8 @@ import Spinner from '../spinner';
 import {curPlaceState} from '../../atoms/curPlaceState';
 import {getKakaoPlace} from '../../api/getKakaoPlace';
 import {getPlaceDetail} from '../../api/getPlaceDetail';
+import {getPlacePhotoUrl} from '../../api/getPlacePhotoUrl';
+import {parseKakaoPlaceExtraData} from '../../api/parseKakaoPlaceExtraData';
 import {
   Coordinate,
   ExtraDetail,
@@ -22,6 +24,7 @@ import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function MainBottomSheet({
   selectedRoute,
@@ -42,106 +45,122 @@ export default function MainBottomSheet({
     } | null,
   ) => void;
 }) {
+  const {t} = useTranslation();
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+  const requestGenerationRef = useRef(0);
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
   const nav = useRecoilValue(navigationState);
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
 
   const [curIdx, setCurIdx] = useState<number>(0);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isWebViewLoading, setIsWebViewLoading] = useState<boolean>(false);
+  const [webViewError, setWebViewError] = useState<boolean>(false);
+  const [webViewReloadKey, setWebViewReloadKey] = useState(0);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
 
-  const getStopBy = async () => {
-    if (!curPlace) return;
-    setStopByData(null);
-    setStopByLoading(true);
-    const res = await getStopByDuration(
-      nav,
-      curPlace.coordinate,
-      selectedRoute?.priority,
-      selectedRoute?.avoidTolls,
-    );
-    if (res) {
-      setStopByData({
-        duration: res.duration,
-        strategy: res.strategy,
-        path: res.path,
-      });
-    }
-    setStopByLoading(false);
-  };
-
   const snapPoints = useMemo(() => ['23%', '83%', '93%'], []);
-
-  // Kakao place_url에서만 숫자 ID를 추출한다. Google 등 다른 provider URL이면 빈 값.
-  const placeId = curPlace?.place_url?.match(/\/(\d+)$/)?.[1] ?? '';
-
-  const setExtraData = async () => {
-    if (
-      curPlace?.open ||
-      curPlace?.tags ||
-      curPlace?.photoUrl ||
-      curPlace?.commentCnt ||
-      curPlace?.reviewCnt
-    )
-      return;
-
-    if (placeId) {
-      const res = await getKakaoPlace(placeId);
-      setExtra({
-        open:
-          res.business_hours?.real_time_info?.business_hours_status?.code ===
-          'OPEN',
-        tags: res.place_add_info?.tags,
-        photoUrl: res.photos?.photos[0]?.url
-          ? res.photos.photos[0].url.replace(/^http:\/\//i, 'https://')
-          : null,
-        commentCnt: res.kakaomap_review?.score_set?.review_count,
-        reviewCnt: res.blog_review?.review_count,
-        parking: res.place_add_info?.facilities?.is_parking,
-        scoreAvg: res.kakaomap_review?.score_set?.average_score,
-      });
-      return;
-    }
-
-    // Google 결과: BE /map/place-detail로 보강. null(UNKNOWN)은 badge를 만들지 않도록
-    // undefined로 두고 false로 바꾸지 않는다.
-    if (curPlace?.place_id) {
-      const detail = await getPlaceDetail(curPlace.place_id);
-      if (!detail) return;
-      setExtra({
-        open: detail.open ?? undefined,
-        parking: detail.parking ?? undefined,
-        scoreAvg: detail.rating !== null ? detail.rating.toString() : undefined,
-        commentCnt: detail.rating_count ?? undefined,
-      });
-    }
-  };
+  const placeKey =
+    curPlace?.provider_place_id ??
+    curPlace?.place_id ??
+    curPlace?.place_url ??
+    '';
+  const detailUrl = curPlace?.place_url
+    ? curPlace.place_url.replace(/^http:\/\//i, 'https://')
+    : null;
 
   useEffect(() => {
     if (modalVisible) {
       setListModalVisible(false);
+      setCurIdx(0);
+      setWebViewError(false);
+      setIsWebViewLoading(false);
       bottomSheetModalRef.current?.present();
+      bottomSheetModalRef.current?.snapToIndex(0);
     } else {
       bottomSheetModalRef.current?.close();
     }
   }, [modalVisible]);
 
   useEffect(() => {
-    if (curPlace) {
-      //webview bug fix (network error alert)
-      setIsLoading(true);
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 500); //bug fix ends
+    const generation = requestGenerationRef.current + 1;
+    requestGenerationRef.current = generation;
+    if (!curPlace) return;
 
-      getStopBy();
-      setExtra({});
-      setExtraData();
-    }
+    setCurIdx(0);
+    setExtra({});
+    setStopByData(null);
+    setStopByLoading(true);
+    setWebViewError(false);
+    setIsWebViewLoading(false);
+    bottomSheetModalRef.current?.snapToIndex(0);
+
+    const loadStopBy = async () => {
+      const res = await getStopByDuration(
+        nav,
+        curPlace.coordinate,
+        selectedRoute?.priority,
+        selectedRoute?.avoidTolls,
+      );
+      if (requestGenerationRef.current !== generation) return;
+      if (res) {
+        setStopByData({
+          duration: res.duration,
+          strategy: res.strategy,
+          path: res.path,
+        });
+      }
+      setStopByLoading(false);
+    };
+
+    const loadExtra = async () => {
+      const kakaoPlaceId =
+        curPlace.provider === 'KAKAO' || /place\.map\.kakao\.com/.test(curPlace.place_url)
+          ? curPlace.provider_place_id ??
+            curPlace.place_url.match(/\/(\d+)$/)?.[1]
+          : undefined;
+
+      let nextExtra: ExtraDetail = {};
+      if (kakaoPlaceId) {
+        nextExtra = parseKakaoPlaceExtraData(
+          await getKakaoPlace(kakaoPlaceId),
+        );
+      } else if (curPlace.place_id) {
+        const detail = await getPlaceDetail(curPlace.place_id);
+        if (detail) {
+          const photoUrl = getPlacePhotoUrl(detail.photo_reference);
+          nextExtra = {
+            ...(detail.open !== null ? {open: detail.open} : {}),
+            ...(detail.parking !== null ? {parking: detail.parking} : {}),
+            ...(detail.rating !== null
+              ? {scoreAvg: detail.rating.toString()}
+              : {}),
+            ...(detail.rating_count !== null
+              ? {commentCnt: detail.rating_count}
+              : {}),
+            ...(photoUrl ? {photoUrl} : {}),
+          };
+        }
+      }
+
+      if (requestGenerationRef.current === generation) {
+        setExtra(nextExtra);
+      }
+    };
+
+    loadStopBy().catch(() => {
+      if (requestGenerationRef.current === generation) {
+        setStopByLoading(false);
+      }
+    });
+    loadExtra().catch(() => undefined);
+
+    return () => {
+      if (requestGenerationRef.current === generation) {
+        requestGenerationRef.current += 1;
+      }
+    };
   }, [curPlace]);
 
   return (
@@ -150,8 +169,16 @@ export default function MainBottomSheet({
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
+        // v5부터 기본값이 true라 flex:1 컨텐츠가 0 높이로 측정되어 시트가 비어 보인다.
+        enableDynamicSizing={false}
         onDismiss={() => setModalVisible(false)}
-        onChange={index => setCurIdx(index)}
+        onChange={index => {
+          setCurIdx(index);
+          if (index > 0) {
+            setWebViewError(false);
+            setIsWebViewLoading(true);
+          }
+        }}
         enableDismissOnClose
         style={{
           shadowColor: '#000',
@@ -163,34 +190,71 @@ export default function MainBottomSheet({
           shadowRadius: 5.46,
           elevation: 9,
         }}>
-        <BottomSheetView
-          style={{
-            flex: 1,
-            zIndex: 100,
-          }}>
-          {curPlace &&
-            (isLoading ? (
-              <View className="absolute w-full h-full">
-                <Spinner />
-                <View className="w-full h-1/4 bg-white" />
-              </View>
-            ) : (
-              <View className="flex-1">
-                <WebView
-                  source={{
-                    uri: curPlace.place_url.replace(/^http:\/\//i, 'https://'),
-                  }}
-                  style={{flex: 1}}
-                  nestedScrollEnabled
-                  // onLoadStart={() => setIsLoading(true)}
-                  // onLoadEnd={() => {
-                  //   setIsLoading(false);
-                  // }}
-                />
-              </View>
-            ))}
+        <BottomSheetView style={styles.sheetContent}>
+          {curIdx > 0 && curPlace && (
+            <View style={styles.webViewContainer}>
+              {webViewError || !detailUrl ? (
+                <View style={styles.errorContainer}>
+                  <Text style={styles.errorText}>
+                    {t('bottom.detailLoadFailed')}
+                  </Text>
+                  {detailUrl && (
+                    <View style={styles.errorActions}>
+                      <TouchableOpacity
+                        style={styles.retryButton}
+                        onPress={() => {
+                          setWebViewError(false);
+                          setIsWebViewLoading(true);
+                          setWebViewReloadKey(current => current + 1);
+                        }}>
+                        <Text style={styles.retryButtonText}>
+                          {t('bottom.retry')}
+                        </Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.externalButton}
+                        onPress={() => Linking.openURL(detailUrl)}>
+                        <Text style={styles.externalButtonText}>
+                          {t('bottom.openMapPage')}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                </View>
+              ) : (
+                <>
+                  <WebView
+                    key={`${placeKey}-${webViewReloadKey}`}
+                    source={{uri: detailUrl}}
+                    style={styles.webView}
+                    nestedScrollEnabled
+                    originWhitelist={['http://*', 'https://*']}
+                    mixedContentMode="compatibility"
+                    onShouldStartLoadWithRequest={({url}) =>
+                      /^https?:\/\//i.test(url)
+                    }
+                    onLoadStart={() => setIsWebViewLoading(true)}
+                    onLoadEnd={() => setIsWebViewLoading(false)}
+                    onError={() => {
+                      setIsWebViewLoading(false);
+                      setWebViewError(true);
+                    }}
+                    onHttpError={() => {
+                      setIsWebViewLoading(false);
+                      setWebViewError(true);
+                    }}
+                  />
+                  {isWebViewLoading && (
+                    <View style={styles.loadingOverlay}>
+                      <Spinner />
+                    </View>
+                  )}
+                </>
+              )}
+            </View>
+          )}
           {curIdx === 0 && curPlace && (
-            <View className="absolute w-full h-full bg-white">
+            <View style={styles.compactCard}>
               <BottomSheetComponent
                 placeInfo={{
                   ...curPlace,
@@ -200,6 +264,8 @@ export default function MainBottomSheet({
                 }}
                 stopByLoading={stopByLoading}
                 onPress={() => {
+                  setWebViewError(false);
+                  setIsWebViewLoading(true);
                   bottomSheetModalRef.current?.snapToIndex(1);
                 }}
               />
@@ -210,3 +276,67 @@ export default function MainBottomSheet({
     </BottomSheetModalProvider>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetContent: {
+    bottom: 0,
+    minHeight: 0,
+  },
+  webViewContainer: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#FFFFFF',
+  },
+  webView: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: '#FFFFFF',
+  },
+  compactCard: {
+    ...StyleSheet.absoluteFill,
+    justifyContent: 'flex-start',
+    backgroundColor: '#FFFFFF',
+  },
+  errorContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    backgroundColor: '#FFFFFF',
+  },
+  errorText: {
+    color: '#616161',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  errorActions: {
+    flexDirection: 'row',
+    columnGap: 10,
+    marginTop: 16,
+  },
+  retryButton: {
+    borderRadius: 8,
+    backgroundColor: '#2D7FF9',
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  retryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  externalButton: {
+    borderWidth: 1,
+    borderColor: '#2D7FF9',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  externalButtonText: {
+    color: '#2D7FF9',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+});

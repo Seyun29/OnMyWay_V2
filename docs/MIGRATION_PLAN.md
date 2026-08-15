@@ -1,8 +1,19 @@
 # OnMyWay V3 마이그레이션 & 개발환경 셋업 가이드
 
 > 작성일: 2026-08-01
-> 최종 갱신: 2026-08-10
+> 최종 갱신: 2026-08-15
 > 대상: AUTH 기능 legacy 이관, 의존성 제거, 버전 업그레이드, CI/CD 제거, .env 재구성, macOS RN 개발환경 셋업
+
+## 지금부터 실행 순서
+
+1. **Expo account/organization과 EAS project를 Free plan으로 준비한다.** 아직 결제하지 않고 project owner와 실제 project ID만 확정한다.
+2. **Expo SDK 57 modules와 `expo-updates`를 bare RN native 프로젝트에 통합한다.** RN `0.86.2`와 SDK 57 호환성을 기준으로 exact dependency, Metro, Android, iOS 설정을 반영하되 Store identity와 signing은 변경하지 않는다.
+3. **`development`/`preview`/`production` channel과 runtime 정책을 구성한다.** 먼저 `fingerprint`를 검증하고 local Gradle/Xcode build와 OTA publication의 runtime이 일치하지 않으면 명시적 runtime을 사용한다.
+4. **Free plan에서 preview OTA를 실제 iOS/Android release build로 검증한다.** embedded bundle, 재시작 적용, offline/update-server 장애, 이전 update와 embedded update rollback까지 확인한다.
+5. **현재 V3 candidate 17에는 end-to-end update code signing을 적용하지 않고 Free plan으로 시작한다.** 현재는 회원·결제·B2B 계약이 없고 소규모 consumer beta 단계이므로 `$199/월` 보안 기능을 release blocker로 두지 않는다. 대신 Expo 2FA, 최소 publish 권한, preview 선검증, runtime 격리, rollback을 필수로 적용한다. 향후 결제·계정·B2B/enterprise 계약·대규모 사용자 또는 별도 공급망 보안 요구가 생기면 signing certificate를 포함한 새 Store binary와 Production plan을 도입한다.
+6. **OTA gate 통과 후 Android API 35+·iOS 실제 기기 smoke와 Store 테스트 트랙을 진행한다.** Railway production 배포는 개발 완료 후 별도 release gate로 수행한다.
+
+2026-08-13 [Expo 공식 가격](https://expo.dev/pricing) 기준 최소 검증 비용은 Free `$0/월`이다. Starter는 `$19/월`, 자체 end-to-end update code signing을 제공하는 최소 공개 plan은 Production `$199/월`이다. 상세 포함량과 초과 비용은 `FEATURE_INSIGHTS.md`의 OTA 가격 섹션을 기준으로 한다.
 
 ---
 
@@ -345,7 +356,7 @@ npm run android        # Android 에뮬레이터
 
 ## 6. TODO (진행 상황 & 로드맵)
 
-> 최종 갱신: 2026-08-10
+> 최종 갱신: 2026-08-15
 
 ### ✅ 완료 (Phase 0: 구조 정리 & 로컬 환경)
 
@@ -458,22 +469,31 @@ npm run android        # Android 에뮬레이터
 - [ ] FE: RN 0.73.6 → 0.86.x — native compile/runtime/OTA gate 진행 중
   - [x] RN `0.86.2`, React `19.2.3`, New Architecture/Hermes와 Android/iOS 최신 native template 이식
   - [x] 기존 CodePush/App Center package·wrapper·native 설정·키 제거
-  - [ ] `expo-updates` 설치와 EAS project/update URL 연결
-  - [ ] `development`/`preview`/`production` channel 및 branch 매핑
-  - [ ] EAS fingerprint 기반 `runtimeVersion` 또는 동등한 명시적 호환성 정책 설정
-  - [ ] update signing key를 저장소 밖 비밀 저장소에 보관하고 게시 권한 최소화
-  - [ ] release build의 embedded bundle·업데이트 서버 장애·startup error recovery 검증
+  - [x] Expo SDK 57/`expo-updates` exact dependency, EAS project/update URL, Android/iOS native client 연결
+  - [ ] `development`/`preview`/`production` channel 및 branch 매핑을 local Store build에 embed
+  - [x] EAS fingerprint 기반 `runtimeVersion` 설정 및 Android release fingerprint asset 생성 확인
+  - [x] candidate 17에는 end-to-end update signing을 구성하지 않기로 결정
+  - [ ] OTA 게시 권한을 최소화하고 production publish에 2인 검토 적용
+  - [ ] Preview/Production 크래시 리포팅 구축
+    - [ ] Sentry React Native SDK 또는 동등한 서비스의 RN 0.86/Expo 57 호환 exact version을 선정하고 AppCenter를 복원하지 않은 채 Android/iOS에 연결
+    - [ ] `preview`/`production` environment와 app version/build, platform, EAS channel/runtime/update ID를 tag하되 실제 project identifier와 update URL은 전송하지 않음
+    - [ ] 처리되지 않은 JS/native crash, React error boundary, 필요한 handled exception을 수집하고 alert 기준과 담당자 대응 runbook 정의
+    - [ ] 정밀 위치·전체 경로·검색어 원문·API key·Authorization header·외부 API 전체 payload를 `beforeSend`/breadcrumb에서 제거하고 Session Replay·screenshot은 초기 비활성
+    - [ ] Store build마다 iOS dSYM과 Android R8 mapping/native symbols를 보존·업로드하고, 모든 OTA update의 source map을 동일 release/update에 연결
+    - [ ] Preview 실제 기기에서 식별 가능한 비치명 test error와 통제된 crash를 각각 1회 발생시켜 원본 파일/줄 symbolication, environment 분리, alert 수신 확인
+    - [ ] TestFlight crash feedback, Play Console Android vitals와 Sentry event를 release checklist에서 교차 확인하고 production 모니터링 gate로 사용
+  - [x] Android release embedded bundle 확인
+  - [ ] iOS Release embedded bundle과 양 플랫폼 업데이트 서버 장애·startup error recovery 검증
   - [ ] preview → production OTA smoke test와 rollback 리허설 통과
   - [x] provider-neutral `MapRenderer` abstraction에 Naver/Google renderer 연결
   - [x] renderer 선택과 Kakao/Google 데이터 API provider 정책 분리
   - [ ] 검색 submit 계약을 입력 방식과 분리해 첫 vertical slice의 text 입력과 후속 `VOICE` transcript가 동일한 자유 텍스트 검색 파이프라인을 사용
   - [x] 설정 화면은 데이터 provider 직접 선택 대신 앱 언어와 독립적인 지도 renderer 선택만 제공
   - [x] NativeWind 4, React Navigation 7, Reanimated 4/Worklets, Recoil package 제거 후 Zustand facade로 이식
-  - [x] iOS Pod 설치 및 workspace/scheme/plist 검증
-  - [x] iOS minimum deployment target `15.1` 정렬 및 unsigned generic simulator `xcodebuild` compile
+  - [x] iOS minimum deployment target `16.4` 정렬, Expo Pod/workspace/scheme/plist 검증 및 unsigned generic simulator `xcodebuild` compile
   - [ ] iOS simulator/device runtime smoke
   - [x] Android debug APK/release AAB local build
-  - [x] fresh release manifest/AAB metadata 확인: `com.omw.omw_front`, `2.1.2 (17)`, min SDK 24, target SDK 36, cleartext 비활성, 제거된 AppCenter/CodePush/TMap native SDK linkage 없음
+  - [x] fresh release manifest/AAB metadata 확인: 기존 Store identity, `2.1.2 (17)`, min SDK 24, target SDK 36, Expo update metadata·embedded bundle·fingerprint asset 포함
   - [ ] Android/iOS device 핵심 flow runtime smoke
 - [ ] **출시 gate: 위 OTA 항목이 완료되지 않으면 첫 프로덕션 바이너리 제출 금지**
 - [ ] iOS/Android 핵심 플로우 테스트: 검색, 경로, 경로상 장소, 주차, 현재 영업 여부, 영업시간, 우회시간
@@ -747,28 +767,26 @@ React Native 0.86 bare app
 - 로컬 Xcode/Gradle로 만든 store binary도 `expo-updates` native 설정이 포함되어 있으면 EAS Update를 받을 수 있다.
 - CNG/prebuild로 전환할 필요는 없다. 초기에는 bare native files를 계속 관리한다.
 
-### 7-5. 설치·구성 초안
+### 7-5. 설치·구성 상태와 다음 gate
 
-RN 0.86 이식이 끝난 뒤 공식 도구가 호환 버전을 선택하도록 한다. 실제 실행 전 SDK 57 최신 patch와 upgrade helper를 다시 확인한다.
+2026-08-14 실제 확인 결과:
 
-```bash
-cd OnMyWay_FE_V2
+- 사용자가 EAS CLI 로그인을 완료했고, 기존 Expo cloud project를 FE local project에 연결했다. 실제 identifier, credential, token, update URL은 문서·채팅에 기록하지 않는다.
+- `install-expo-modules@0.16.0` 자동 installer가 RN `0.86.2`를 인식하지 못해 Expo SDK 57 manual bare integration을 적용했다.
+- exact dependency `expo 57.0.12`, `expo-updates 57.0.13`, `babel-preset-expo 57.0.0`, Reanimated/Worklets 호환 버전을 설치하고 Metro·Babel·Android·iOS native 설정을 연결했다.
+- 사용자가 iOS minimum `16.4`를 승인했고 app/test/Pods target을 정렬했다. RN prebuilt AppDelegate header 불일치는 `RCT_USE_PREBUILT_RNCORE=0` source fallback으로 해결했다.
+- Android release AAB와 iOS unsigned generic simulator Debug compile이 성공했다. Android embedded bundle/fingerprint asset과 iOS `Expo.plist` 포함을 확인했다.
 
-# 기존 RN 프로젝트에 Expo Modules 설치
-npx install-expo-modules@latest
+다음 실행 순서:
 
-# 현재 SDK와 호환되는 expo-updates 설치
-npx expo install expo-updates
+1. local Gradle/Xcode Store build에 `development`/`preview`/`production` channel을 공식 request header 방식으로 embed한다.
+2. iOS Release 산출물의 embedded `main.jsbundle`과 update metadata를 확인한다.
+3. preview release 설치에서 update download/restart, offline startup, update-server 장애, incompatible runtime rejection, rollback과 embedded recovery를 검증한다.
+4. 실제 iOS/Android runtime에서 지도·검색·경로 flow와 Android API 35+ edge-to-edge를 확인한다.
 
-# Expo/EAS project 연결과 Update 설정
-npx eas-cli@latest init
-npx eas-cli@latest update:configure
+EAS login·interactive credential 작업과 실제 OTA publish는 사용자가 로컬 terminal에서 직접 수행한다. production publish와 Store upload는 위 gate 전 수행하지 않는다.
 
-# iOS native dependencies
-npx pod-install
-```
-
-React Native CLI 프로젝트는 Expo가 권장하는 root registration을 적용한다.
+React Native CLI 프로젝트는 Expo가 권장하는 root registration과 module name `main`을 Android/iOS에 함께 적용한다.
 
 ```ts
 import { registerRootComponent } from "expo";

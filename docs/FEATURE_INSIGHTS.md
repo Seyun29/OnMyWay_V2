@@ -3143,28 +3143,55 @@ Rollback은 데이터 schema·server contract까지 자동으로 되돌리는 �
 - signing certificate 교체 시 기존 설치 앱이 새 update를 검증할 수 있는 rotation 절차를 먼저 검증한다.
 - 사용자 기기의 앱에 포함되는 공개 certificate는 비밀이 아니지만 private key는 절대 포함하지 않는다.
 
-EAS의 end-to-end code signing을 사용할 경우 현재 공개 가격표상 Production 또는 Enterprise 요금제가 필요하다. 실제 계약 전 지원 범위와 key management 절차를 다시 확인한다.
+EAS의 end-to-end code signing을 사용할 경우 현재 공개 가격표상 Production 또는 Enterprise 요금제가 필요하다. 이는 Store binary signing이나 TLS를 대체하는 기능이 아니라, 게시자가 별도 private key로 OTA update에 서명하고 설치 앱이 내장 certificate로 update를 검증하는 추가 공급망 보안이다.
 
-### EAS Update 가격 스냅샷
+#### OnMyWay 적용 결정 (2026-08-13)
 
-2026-08-02 공식 공개 가격표 기준이며 이후 변경될 수 있다.
+- **V3 candidate 17과 초기 consumer beta에는 end-to-end update signing을 적용하지 않는다.** Free plan의 일반 EAS Update로 시작하며 `$199/월` Production plan을 release blocker로 두지 않는다.
+- 회원·로그인·결제 기능이 생긴다는 사실만으로 유료 EAS plan이나 end-to-end update signing이 필수가 되지는 않는다. 인증·권한·구매 영수증 검증·entitlement는 client bundle을 신뢰하지 않고 서버와 Store webhook을 기준으로 처리해야 하며, 이는 OTA signing과 별개의 보안 경계다.
+- 정밀 위치정보 보호도 update signing이 아니라 TLS, 저장 최소화, 로그 redaction, 접근 통제와 보관기간 정책으로 관리한다.
+- 미적용 기간에는 Expo account 2FA, 최소 publish 권한, production channel 접근 제한, preview 선검증, runtime 격리, release 기록, staged rollout과 rollback을 필수로 적용한다.
+- 다음 조건 중 하나가 생기면 재검토한다: B2B/enterprise 고객의 signed artifact 요구, 규제·감사·보안 계약, EAS 계정이 침해돼도 별도 signing key 없이는 update를 게시하지 못하게 해야 하는 threat model, 대규모 사용자·사업 영향. 회원·결제 기능 존재만으로 자동 승격하지 않는다.
+- 나중에 signing을 켜려면 certificate를 native binary에 포함하고 새 runtime을 발급해야 하므로 새 App Store/Play binary가 필요하다. 기존 candidate 17에 넣지 않는 결정은 되돌릴 수 있지만 OTA만으로 signing을 추가할 수는 없다.
 
-| 요금제 | 월 기본료 | 포함 OTA MAU | 포함 bandwidth | 주요 판단 |
-|---|---:|---:|---:|---|
-| Free | $0 | 1,000 | 100 GiB | 개발·초기 preview에 적합 |
-| Starter | $19 | 3,000 | 100 GiB, 초과 $0.10/GiB | 소규모 beta 후보 |
-| Production | $199 | 50,000 | 1 TiB, 초과 $0.10/GiB | production 운영·end-to-end signing 필요 시 기본 후보 |
-| Enterprise | 별도 계약 | 1M+ | 계약 기준 | 대규모·조직 요구 |
+유료 signing을 사용하지 않는 대안은 Free/Starter의 일반 EAS Update, 보안 관련 client 변경을 Store binary로만 배포, 또는 Expo Updates Protocol 자체 hosting이다. 자체 hosting은 SaaS 비용 대신 update server·CDN·서명·권한·가용성·rollback 운영을 직접 책임지므로 초기 OnMyWay 기본안으로 삼지 않는다.
 
-MAU와 bandwidth를 따로 봐야 한다. 앱 bundle·asset 크기, 월 update 횟수, 재다운로드율이 bandwidth 원가를 결정한다. 예를 들어 큰 이미지나 폰트를 자주 OTA에 포함하면 사용자 수가 작아도 전송량이 커질 수 있다.
+### EAS Update 가격과 현재 권장안
+
+> 2026-08-13 [Expo 공식 가격표](https://expo.dev/pricing)와 [billing FAQ](https://docs.expo.dev/billing/faq/) 재확인 기준. 요금과 포함량은 변경될 수 있으므로 결제·출시 직전에 다시 확인한다. 아래 최신 표가 이 장 상단의 2026-08-02 가격 조사보다 우선한다.
+
+| 요금제 | 월 기본료 | 포함 OTA MAU | bandwidth | storage | end-to-end signing | OnMyWay 판단 |
+|---|---:|---:|---:|---:|---:|---|
+| Free | $0 | 1,000 hard quota | 100 GiB | 20 GiB | 없음 | native 통합, preview·rollback 검증과 초기 beta |
+| Starter | $19 + usage | 3,000 포함; 3,001~200,000은 $0.005/MAU | 100 GiB 후 $0.10/GiB | 20 GiB 후 $0.05/GiB | 없음 | Free 한도를 넘는 consumer 운영 |
+| Production | $199 + usage | 50,000 포함; 50,001~200,000은 $0.005/MAU | 1 TiB 후 $0.10/GiB | 1 TiB 후 $0.05/GiB | 지원 | 자체 update 서명과 production 운영을 함께 요구할 때 |
+| Enterprise | 별도 계약 | 1,000,000 후 종량 | 40 TiB 후 $0.10/GiB | 10 TiB 후 $0.05/GiB | 지원 | 대규모·SLA·조직 compliance 요구가 생길 때 |
+
+Expo의 OTA MAU는 해당 결제 기간에 update를 한 번 이상 다운로드한 고유 설치다. 같은 사용자가 같은 달에 여러 update를 받아도 MAU는 한 번만 계산되지만 bandwidth는 누적된다. update를 받지 않은 Store 설치자는 MAU에 포함되지 않는다.
+
+Free에는 초과 과금이 없고 월 1,000 MAU에서 제한된다. 공식 FAQ는 quota를 소진하면 Starter로 upgrade하도록 안내하며 한도는 다음 달 초에 초기화된다. 1,000명을 넘는 순간 설치 앱 전체가 중단되는 것은 아니다. 이미 설치된 embedded bundle 또는 이전에 받은 정상 update로 앱은 계속 실행되도록 구성한다. 다만 quota 이후 어떤 설치가 update를 받는지에 대한 deterministic 순서는 공식 계약에 없으므로, 1,000명을 초과할 가능성이 있으면 일부 사용자의 update 전달을 기대하지 말고 게시 전 Starter로 올린다.
+
+비용 예시(대역폭·세금 제외): Starter에서 10,000 OTA MAU는 `$19 + 7,000 × $0.005 = $54/월`, 50,000 OTA MAU는 `$19 + 47,000 × $0.005 = $254/월`이다. 같은 50,000 MAU는 Production의 포함량 안이라 `$199/월`이므로 약 39,000 OTA MAU부터는 bandwidth 차이를 제외해도 Production이 더 저렴해질 수 있다.
+
+#### 현재 비용 결정
+
+1. **지금은 Free `$0/월`로 시작한다.** Expo project는 생성됐지만 로컬 EAS CLI가 로그인되지 않아 아직 연결되지 않았다.
+2. **EAS Build는 당장 구매하지 않는다.** 기존 Gradle/Xcode build와 Store signing을 유지하고 EAS Update만 standalone으로 사용한다.
+3. **OTA 대상이 1,000 MAU를 넘기 전에 Starter `$19/월`으로 올린다.** Free는 hard quota이고 Starter부터 초과 MAU 종량 과금이 가능하다.
+4. **자체 end-to-end update signing이 별도 보안 요구로 확정될 때만 Production을 선택한다.** 회원·결제 기능 존재만으로 `$199/월`을 지불하지 않는다.
+5. **사용량이 약 39,000 OTA MAU에 접근하면 Starter 종량 총액과 Production 포함량을 다시 비교한다.**
+
+최소 월 비용 시나리오는 `Free $0`, 소규모 beta는 `Starter $19 + 초과 사용량`, 자체 end-to-end signing을 적용한 production 기준선은 `Production $199 + 초과 사용량`이다. 환율·세금, Apple/Google 개발자 계정, Google Maps API, Railway, 오류 모니터링, KMS/CI 비용은 별도다.
+
+MAU와 bandwidth를 따로 봐야 한다. 앱 bundle·asset 크기, 월 update 횟수, 재다운로드율이 bandwidth 원가를 결정한다. 큰 이미지나 폰트를 자주 OTA에 포함하면 사용자 수가 작아도 전송량이 커질 수 있다.
 
 출시 예산은 다음을 분리한다.
 
 ```text
-OTA 플랫폼 기본료
-+ 초과 MAU/대역폭
-+ EAS Build 또는 자체 build 비용
+OTA plan 기본료와 초과 MAU/대역폭/저장공간
++ 선택적 EAS Build 또는 기존 local build 운영 비용
 + App Store/Google Play 계정 비용
++ Google Maps API와 production backend 비용
 + 오류 모니터링·로그 비용
 + signing key/KMS·CI 운영 비용
 ```

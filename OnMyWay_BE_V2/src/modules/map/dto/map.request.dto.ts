@@ -5,6 +5,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
 } from 'class-validator';
 import { CATEGORY_LIST, KakaoCategoryCode } from '../../../config/consts';
 
@@ -128,6 +129,18 @@ export class GetPlaceDetailRequestDto {
     required: true,
   })
   id: string;
+}
+
+export class GetPlacePhotoRequestDto {
+  @IsString()
+  @IsNotEmpty()
+  @Matches(/^places\/[^/]+\/photos\/[^/]+$/)
+  @ApiProperty({
+    example: 'places/PLACE_ID/photos/PHOTO_ID',
+    description: 'Google Places photo resource name',
+    required: true,
+  })
+  name: string;
 }
 
 export class GetStopByDurationRequestDto extends GetDrivingRouteRequestDto {

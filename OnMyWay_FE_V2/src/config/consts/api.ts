@@ -25,3 +25,4 @@ export const GET_ROUTES = '/map/driving-route';
 export const SEARCH_ON_PATH = '/map/search-on-path';
 export const GET_STOPBY_DURATION = '/map/stopby-duration';
 export const GET_PLACE_DETAIL = '/map/place-detail';
+export const GET_PLACE_PHOTO = '/map/place-photo';

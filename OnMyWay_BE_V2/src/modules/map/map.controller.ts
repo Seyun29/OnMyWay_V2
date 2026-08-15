@@ -6,7 +6,9 @@ import {
   HttpCode,
   Post,
   Query,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import { MapService } from './map.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import {
@@ -14,6 +16,7 @@ import {
   GetDrivingRouteRequestDto,
   GetKeywordSearchRequestDto,
   GetPlaceDetailRequestDto,
+  GetPlacePhotoRequestDto,
   GetStopByDurationRequestDto,
   searchOnPathRequestDto,
 } from './dto/map.request.dto';
@@ -148,5 +151,16 @@ export class MapController {
       params,
       this.providerContext.create(acceptLanguage),
     );
+  }
+
+  @Get('place-photo')
+  @ApiOperation({ summary: 'Redirects to a Google Places photo.' })
+  async getPlacePhoto(
+    @Query() params: GetPlacePhotoRequestDto,
+    @Res() response: Response,
+  ) {
+    const photoUri = await this.mapService.getPlacePhotoUri(params);
+    response.setHeader('Cache-Control', 'private, max-age=3600');
+    return response.redirect(302, photoUri);
   }
 }

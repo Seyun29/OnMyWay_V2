@@ -1,7 +1,6 @@
 import React from 'react';
 import {Text, TouchableOpacity, View} from 'react-native';
 import {APP_NAME} from '@env';
-import ProfileSVG from '../../assets/images/profile.svg';
 import {useRecoilState} from '../../state/atom';
 import Toast from 'react-native-toast-message';
 import {languageState} from '../../atoms/languageState';
@@ -77,15 +76,6 @@ const DrawerView = () => {
       <Text className="text-2xl font-bold text-[#616060] mb-7">
         {APP_NAME || 'OnMyWay'}
       </Text>
-      <View className="w-4/5 flex-row items-center pl-2">
-        <ProfileSVG width={70} height={70} color={'black'} />
-        <View className="flex-1 justify-center px-5 pb-2">
-          <Text className="text-base text-[#616060]">
-            {t('drawer.tagline')}
-          </Text>
-        </View>
-      </View>
-
       <View className="w-4/5 mt-8">
         <Text className="text-sm font-bold text-[#616060] mb-3">
           {t('drawer.language')}

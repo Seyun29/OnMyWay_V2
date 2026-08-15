@@ -31,8 +31,15 @@ export default function Spinner() {
   const SpinnerComponent = spinners[currentSpinner];
 
   return (
-    <View className="flex-1 w-full h-full justify-center items-center bg-white">
-      <SpinnerComponent className="w-16 h-16" />
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#FFFFFF',
+      }}>
+      {/* SVG transformer components do not consume NativeWind className reliably. */}
+      <SpinnerComponent width={152} height={117} />
     </View>
   );
 }

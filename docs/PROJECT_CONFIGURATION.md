@@ -1,8 +1,26 @@
 # OnMyWay 프로젝트 설정·빌드·릴리스 기준
 
-> 최종 확인: 2026-08-10. 이 문서는 재설정에 필요한 **이름·경로·버전·절차만** 기록한다. API key, 비밀번호, 인증서 fingerprint, `.env` 실제 값은 절대 기록하지 않는다.
+> 최종 확인: 2026-08-15. 이 문서는 재설정에 필요한 **이름·경로·버전·절차만** 기록한다. API key, 비밀번호, 인증서 fingerprint, `.env` 실제 값은 절대 기록하지 않는다.
 >
 > 아래 경로는 별도 설명이 없으면 저장소 루트 기준이다.
+
+## 0. 즉시 다음 작업과 비용 기준
+
+현재 최우선은 새 제품 기능이 아니라 첫 production binary에 OTA 수신 클라이언트를 포함하는 작업이다.
+
+1. [x] Expo cloud project 생성 및 local project 연결. 실제 identifier나 credential은 문서화하지 않는다.
+2. [x] 사용자가 이 Mac의 interactive terminal에서 EAS CLI 로그인 완료.
+3. [x] iOS minimum `16.4` 상향 승인 및 app/test/Pods target 정렬.
+4. [x] RN `0.86.2`에 Expo SDK 57 modules와 `expo-updates` exact version을 manual bare integration.
+5. [x] update URL, fingerprint runtime policy, Android/iOS embedded bundle 구성을 native project에 반영.
+6. [ ] development/preview/production channel을 local Store build에 명시적으로 embed하고 preview OTA를 게시하지 않은 상태에서 검증.
+7. [ ] Free plan에서 preview OTA, offline startup, update-server 장애, incompatible runtime rejection, rollback과 embedded recovery를 실제 iOS/Android release 설치로 검증한다.
+
+현재 V3 candidate 17은 end-to-end update signing 없이 Free plan으로 시작한다. 회원·결제 기능이 생겨도 Free/Starter 사용은 가능하며 인증·권한·영수증 검증·entitlement는 서버 기준으로 처리한다. B2B/enterprise signed artifact나 별도 공급망 threat model이 생길 때만 signing certificate를 포함한 새 Store binary와 Production plan을 검토한다.
+
+2026-08-13 공식 공개 가격 기준 Free는 `$0/월`·OTA 1,000 MAU hard quota다. 한도를 소진하면 초과 과금 없이 update delivery가 제한되므로 게시 전에 Starter로 올려야 한다. Starter는 `$19/월`에 3,000 MAU를 포함하고 3,001~200,000은 `$0.005/MAU`, Production은 `$199/월`에 50,000 MAU를 포함한다. 자체 end-to-end update signing은 Production/Enterprise에서만 제공된다. 상세 초과 비용은 [Expo pricing](https://expo.dev/pricing), [billing FAQ](https://docs.expo.dev/billing/faq/)와 `FEATURE_INSIGHTS.md`를 기준으로 한다.
+
+Local EAS login, project 연결, Expo SDK 57/`expo-updates` native 구성과 local native compile은 완료했다. development/preview/production channel embedding과 실제 OTA/runtime recovery 검증은 아직 완료하지 않았다. Store identity와 다음 candidate `2.1.2 (17+)`는 변경하지 않는다.
 
 ## 1. 설정 원본 위치
 
@@ -77,21 +95,21 @@ MYAPP_UPLOAD_KEY_PASSWORD=<다른 Mac에서 안전하게 복원한 로컬 값>
 | Node              | 루트/FE/BE `.nvmrc`: `22.13.0`                                                                                              |
 | pnpm              | 루트/FE/BE `10.15.1`                                                                                                        |
 | FE                | React Native `0.86.2`, React `19.2.3`, New Architecture/Hermes                                                              |
-| FE 핵심           | React Navigation `7.3.16`, NativeWind `4.2.6`, Reanimated `4.5.3`, Worklets `0.11.3`, Zustand `5.0.14` facade, Axios `1.19.0` |
-| native/OTA        | Naver renderer `2.9.0`, react-native-maps `1.29.0`; TMap native SDK·AppCenter/CodePush 제거; EAS Update는 아직 미구성       |
+| FE 핵심           | React Navigation `7.3.16`, NativeWind `4.2.6`, Reanimated `4.5.1`, Worklets `0.10.1`, Zustand `5.0.14` facade, Axios `1.19.0` |
+| native/OTA        | Expo `57.0.12`, expo-updates `57.0.13`, Naver renderer `2.9.0`, react-native-maps `1.29.0`; EAS Update native client 구성 완료 |
 | BE                | NestJS `11.1.28`, Express `5.2.1`, TypeScript `5.9.3`, Axios `1.19.0`                                                       |
 | Android           | JDK 17, compile/target SDK 36, min SDK 24, build tools 36, NDK `27.1.12297006`, Kotlin `2.1.20`                               |
-| iOS               | Swift factory AppDelegate, minimum deployment target `15.1`, CocoaPods workspace, GoogleMaps `9.4.0`, NMapsMap `3.23.2`; unsigned generic simulator compile 성공, runtime smoke 대기 |
+| iOS               | Expo factory AppDelegate, minimum deployment target `16.4`, CocoaPods workspace, GoogleMaps `9.4.0`, NMapsMap `3.23.2`; unsigned generic simulator compile 성공, runtime smoke 대기 |
 
-주의: 다음 Store candidate는 Android/iOS 모두 build/code `17`이며, production 제출 전 EAS Update 또는 명시적으로 승인된 OTA 대안의 runtime/rollback gate와 실제 device smoke가 남아 있다.
+주의: 다음 Store candidate는 Android/iOS 모두 build/code `17`이며, production 제출 전 channel embedding, OTA runtime/rollback/offline gate와 실제 device smoke가 남아 있다.
 
-### Local release 검증 상태 (2026-08-10)
+### Local release 검증 상태 (2026-08-14)
 
-- Android `:app:processReleaseMainManifest`와 `:app:bundleRelease` 성공. fresh artifact에서 package `com.omw.omw_front`, `2.1.2 (17)`, min SDK 24, target SDK 36, release cleartext 비활성, AppCenter/CodePush/TMap native SDK linkage 부재를 확인했다.
-- iOS app/project/test deployment target은 `15.1`이며 app/test target 모두 직접 `-lc++` 없이 Pods linker flag를 상속한다. unsigned generic simulator compile이 성공했다.
-- 위 검증은 local compile/artifact 검사다. 실제 simulator/device runtime, Store 업로드, Play App Signing 연결, production API 동작을 완료한 것으로 간주하지 않는다.
+- Android `:app:processReleaseMainManifest`와 `:app:bundleRelease` 성공. fresh artifact에서 기존 application ID, `2.1.2 (17)`, min SDK 24, target SDK 36, Expo update metadata, embedded bundle, non-empty fingerprint asset을 확인했다.
+- iOS app/project/test deployment target은 `16.4`다. Expo/RN source Pod graph에서 unsigned generic simulator compile이 성공했고 built app에 `Expo.plist`가 포함됐다.
+- 위 검증은 local compile/artifact 검사다. 실제 simulator/device runtime, Store 업로드, Play App Signing 연결, production API 및 OTA 동작을 완료한 것으로 간주하지 않는다.
 - BE는 NestJS `11.1.28`/Express `5.2.1`/TypeScript `5.9.3`로 전환되었고 Express 5 wildcard middleware, Swagger 11 nested array schema, Jest `src/*` alias를 반영했다. 기존 unit 5 suites/5 tests와 `/health` e2e 1 test가 통과했다.
-- Android SDK XML tool-version 및 Gradle 10 예정 deprecation, iOS react-native-maps placeholder/script phase warning은 현재 non-blocking이며 후속 toolchain 정리 대상으로 추적한다.
+- Android Naver SDK R8 stack-map warning, Android SDK XML tool-version 및 Gradle 10 예정 deprecation, iOS upstream deprecation warning은 현재 non-blocking이며 후속 toolchain 정리 대상으로 추적한다.
 
 ## 6. 루트 명령
 
@@ -119,3 +137,87 @@ pnpm prod          # BE production build/run
 7. Store 제출 직전 앱 ID, version/build, signing, Google key restriction을 다시 확인.
 
 과거 Git history에 있었던 signing 비밀번호는 노출된 것으로 취급한다. keystore의 암호화 백업을 확보한 뒤 비밀번호 교체 여부를 결정하고, 실제 credential은 계속 Git 밖에서 관리한다.
+## 8. App Store·Google Play 업데이트 runbook
+
+> 이 앱은 기존 Store 앱의 업데이트다. 새 app record를 만들지 않고 기존 application/bundle identity, Apple Team, Android upload key와 Play App Signing 연결을 유지한다. credential 입력과 Store 제출은 사용자가 interactive terminal 또는 Store Console에서 직접 수행한다.
+
+### 8-1. 버전과 배포 경계
+
+- 현재 공개 버전은 `2.1.2 (16)`이고 local/Preview candidate는 `2.1.2 (17)`이다.
+- Android는 모든 업로드에서 `versionCode`를 증가시킨다. 사용자에게 표시할 `versionName`은 최종 제품 버전과 맞춘다.
+- iOS TestFlight에는 `2.1.2 (17)` candidate를 사용할 수 있지만, 이미 공개된 `2.1.2`의 후속 App Store 버전은 App Store Connect에서 더 높은 incremental marketing version을 생성해야 한다. 최종 값은 출시 범위를 확정한 뒤 `<NEXT_VERSION>`으로 결정하고 iOS/Android/app config를 함께 맞춘다.
+- 같은 marketing version의 재업로드라도 Android `versionCode`와 iOS build number는 이전 업로드보다 항상 커야 한다. 실패한 업로드의 번호도 재사용하지 않는다.
+- JS/asset만 바뀌고 native runtime이 동일하면 OTA 후보가 될 수 있다. native dependency, Swift/Kotlin, 권한, plist/manifest, SDK 변경은 반드시 새 Store binary로 배포한다.
+
+Apple은 기존 app record에서 incremental version을 생성하도록 안내한다: [Create a new version](https://developer.apple.com/help/app-store-connect/update-your-app/create-a-new-version/). Google release 생성·검토·rollout 절차는 [Prepare and roll out a release](https://support.google.com/googleplay/android-developer/answer/9859348?hl=en)를 기준으로 한다.
+
+### 8-2. 공통 사전 gate
+
+- [ ] 출시 commit과 변경 범위를 고정하고 release note 초안을 작성
+- [ ] `<NEXT_VERSION>`, Android `versionCode`, iOS build를 결정하고 `app.json`, Gradle, Xcode project를 동기화
+- [ ] production backend origin, 지도 key restriction, OTA production channel/runtime가 production artifact에 반영됐는지 확인
+- [ ] lint, typecheck, 기존 unit/e2e, Android release AAB, iOS Release archive를 통과
+- [ ] 실제 Android/iOS 기기에서 공개 build `16` → 새 build 업그레이드와 fresh install을 모두 검증
+- [ ] 위치 허용/거부/재시도, Naver/Google renderer, 주소·장소·경로·경로상 검색, 장소 상세, 외부 길안내를 smoke test
+- [ ] Preview OTA download/restart, offline startup, update-server 장애, incompatible runtime 거부, rollback과 embedded recovery를 통과
+- [ ] 크래시 리포팅 Preview test event가 symbolicated 원본 파일/줄과 올바른 environment/build/runtime를 표시
+- [ ] 개인정보처리방침, Apple privacy details, Google Data safety가 실제 수집 데이터와 일치
+- [ ] API key, signing password, token, private key, `.env` 값이 source·artifact log·release note에 노출되지 않았는지 확인
+
+위 gate 전에는 production OTA publish, App Store 심사 제출, Play production rollout을 진행하지 않는다.
+
+### 8-3. Android: Internal → Closed → Production
+
+1. Git에서 제외된 production `.env`와 Git 밖의 `MYAPP_UPLOAD_*` Gradle properties를 준비하고 값은 터미널 출력이나 문서에 남기지 않는다.
+2. signing 연결을 확인한다.
+
+```bash
+cd OnMyWay_FE_V2/android
+./gradlew signingReport
+```
+
+3. `NODE_ENV=production`으로 signed release AAB를 생성한다. `clean`은 사용하지 않는다.
+
+```bash
+NODE_ENV=production ./gradlew :app:processReleaseMainManifest :app:bundleRelease --console=plain
+```
+
+4. 산출물에서 application ID, version name/code, min/target SDK, production cleartext 차단, OTA channel/runtime/update metadata와 embedded bundle을 검사한다.
+5. release AAB를 기존 Play Console 앱의 **Internal testing** release에 업로드한다. 새 앱을 만들지 않는다.
+6. generated R8 `mapping.txt`와 native debug symbols를 해당 release에 연결·보존한다. 이를 제공해야 Android vitals의 obfuscated/native crash를 해석할 수 있다: [Android vitals](https://play.google.com/console/about/vitals/).
+7. 내부 테스터가 Play Store를 통해 공개 build에서 업데이트하고 fresh install도 수행한다. 자동 pre-launch report, 권한, startup, 지도/검색 핵심 flow와 Sentry Preview event를 확인한다.
+8. 통과한 동일 artifact를 Closed testing으로 승격해 기기/OS 범위를 넓힌다. 테스트 트랙 구성은 [Play Console testing guide](https://support.google.com/googleplay/android-developer/answer/9845334?hl=en)를 따른다.
+9. 심사/정책 경고가 없고 release gate가 모두 통과하면 Production에 staged rollout한다. 초기 기준은 `5% → 25% → 100%`이며 각 단계에서 최소 관찰 시간을 두고 crash/ANR/startup/API 실패율을 확인한다. 공식 staged rollout 동작은 [Play staged rollouts](https://support.google.com/googleplay/android-developer/answer/6346149?hl=en)를 우선한다.
+10. 심각한 문제가 발생하면 rollout을 즉시 중단한다. 이미 배포된 Android artifact는 낮은 `versionCode`로 되돌릴 수 없으므로 수정본은 더 높은 `versionCode`로 빌드한다. native runtime이 같은 JS 문제만 OTA rollback 대상으로 처리한다.
+
+### 8-4. iOS: TestFlight → App Review → Phased Release
+
+1. production `.env`, production OTA channel/runtime, 기존 bundle identity와 Apple Team을 확인한다.
+2. 최종 App Store 제출 전 `<NEXT_VERSION>`을 공개 `2.1.2`보다 높은 marketing version으로 정하고 iOS build number도 마지막 업로드보다 증가시킨다.
+3. CocoaPods가 동기화된 workspace를 Xcode에서 연다.
+
+```bash
+open OnMyWay_FE_V2/ios/omw_front.xcworkspace
+```
+
+4. scheme `omw_front`, Release, generic iOS device로 `Product > Archive`를 실행한다. Organizer에서 Validate 후 기존 App Store Connect app record로 Upload한다.
+5. 해당 archive의 dSYM과 OTA/embedded JS source map을 release 기록과 함께 보존하고 crash service에 업로드한다.
+6. 처리된 build를 먼저 TestFlight Internal Testing에 배포한다. 공개 App Store build에서 TestFlight build로의 업데이트와 fresh install을 실제 기기에서 검증한다.
+7. TestFlight crash/session/feedback, Sentry Preview event, 핵심 flow와 OTA recovery gate를 확인한다. TestFlight는 crash feedback과 build metrics를 제공한다: [TestFlight overview](https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview/).
+8. 필요하면 External Testing과 Beta App Review를 거쳐 테스트 범위를 확장한다.
+9. App Store Connect의 기존 app record에서 `<NEXT_VERSION>`을 만들고 build를 연결한다. What’s New, support/privacy URL, export compliance, privacy details, 심사 메모와 필요한 demo 정보를 갱신한 뒤 Submit for Review한다.
+10. 승인 후 자동 전체 공개 대신 phased release를 우선 사용한다. startup crash, 지도/API 실패와 사용자 피드백을 관찰하면서 진행하며 필요하면 pause한다: [Apple phased release](https://developer.apple.com/help/app-store-connect/update-your-app/release-a-version-update-in-phases/).
+11. 심각한 native 문제가 있으면 phased release를 중단하고 더 높은 build/version의 수정본을 제출한다. 호환되는 JS 문제만 OTA rollback으로 복구한다.
+
+### 8-5. Production 배포 후 확인
+
+- [ ] Sentry Production, App Store Connect crash feedback, Android vitals에서 새 version/build만 필터링
+- [ ] startup crash, ANR, error-free session, backend 5xx/timeout, 지도 provider 오류와 핵심 검색 성공률 관찰
+- [ ] rollout 단계마다 진행/중단 판단, 시각, 지표와 담당자를 `PROGRESS_LOG.md`에 기록
+- [ ] release commit, Store version/build, runtime/channel, AAB/archive, dSYM, mapping/native symbols, JS source map을 같은 release manifest로 보존
+- [ ] 이전 정상 Store artifact와 runtime별 정상 OTA update를 최소 1개 유지
+- [ ] 100% 배포와 안정화 관찰이 끝난 뒤에만 release TODO 완료 처리
+
+Store가 제공하는 보고만으로는 실시간 JS 오류가 충분하지 않으므로 [Expo의 Sentry 연동 가이드](https://docs.expo.dev/guides/using-sentry/)를 기준으로 Sentry 계열 도구와 Store 보고를 함께 사용한다. 정밀 위치·경로·검색어·인증 정보는 수집하지 않으며 초기 Session Replay와 screenshot은 비활성화한다.
+
+Content was rephrased for compliance with licensing restrictions.

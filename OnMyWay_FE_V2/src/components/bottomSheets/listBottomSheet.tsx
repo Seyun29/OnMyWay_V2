@@ -207,6 +207,8 @@ export default function ListBottomSheet({
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
+        // v5부터 기본값이 true라 flex:1 컨텐츠가 0 높이로 측정되어 리스트가 보이지 않는다.
+        enableDynamicSizing={false}
         onDismiss={() => setListModalVisible(false)}
         enableDismissOnClose
         style={{
@@ -233,7 +235,7 @@ export default function ListBottomSheet({
                 backgroundColor: selectedNum() ? '#EBF2FF' : 'transparent',
               }}>
               <FilterSVG />
-              {selectedNum() && (
+              {selectedNum() > 0 && (
                 <Text style={{color: '#A8A8A8'}}>{selectedNum()}</Text>
               )}
             </View>
@@ -296,7 +298,8 @@ export default function ListBottomSheet({
             ) : (
               <FlatList
                 ref={flatListRef}
-                className="flex-1 w-full pt-2 flex-col"
+                // gesture-handler의 FlatList는 NativeWind interop 대상이 아니라 style로 지정한다.
+                style={{flex: 1, width: '100%', paddingTop: 8}}
                 data={result}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (

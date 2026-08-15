@@ -3,6 +3,77 @@
 > 최신 항목이 위. 작업이 끝날 때마다 같은 변경에서 이 로그를 갱신한다.
 > 비밀값(키·비밀번호·fingerprint)은 기록하지 않는다.
 
+## 2026-08-15 (4) — 검색 반경 기능 과거 대비 감사
+
+- 공개 출시 기준 `release/v2.1.2`와 현재 FE를 비교해 경로상 검색의 반경 선택 UI가 삭제되지 않았음을 확인했다. 선택 경로가 있을 때 반경 버튼으로 slider를 열며, 동적 min/max와 0.5km step, km→m 변환 후 `/map/search-on-path` 전달이 유지된다.
+- 반경 panel은 기본적으로 닫혀 있고 검색 결과 대안 UI에서는 교체되므로 런타임에서 기능이 사라진 것처럼 보일 수 있다. panel 표시 여부와 무관하게 현재 선택 반경은 요청에 항상 포함된다.
+- provider-neutral 전환 이후 기존 HEAD의 Google Search Along Route 구현은 FE/DTO/port가 보존한 `radius`를 실제 Google 요청에서 사용하지 않았다. 현재 Google adapter 변경은 반경 기반 vertex sampling, 100~50,000m circle bias, 거리 후필터링으로 이를 복구한다. Kakao는 기존처럼 sampling과 장소검색 양쪽에 반경을 적용한다.
+- 후속 정리 대상으로 UI가 20.5~25km를 표시할 수 있지만 payload는 20km로 clamp되는 불일치, FE 하드코딩/`any` payload, DTO의 설명과 실제 validation 불일치를 확인했다. 이번 감사에서는 추가 수정하지 않았다.
+
+## 2026-08-15 (3) — Google marker press와 경로선 시각 parity
+
+- Google marker press가 지도 press의 `marker-press` action으로도 전달되어 장소 marker가 연 bottom modal을 지도 배경 handler가 즉시 닫는 renderer 간 이벤트 차이를 확인했다.
+- Google marker 이벤트의 propagation을 중단하고 Google MapView가 실제 지도 배경 press만 공통 `onMapClick`으로 전달하도록 방어해 Naver의 marker/map tap 분리 동작과 맞췄다.
+- Google Polyline이 Naver PathOverlay의 outline을 직접 지원하지 않는 차이를 두 겹의 Polyline(외곽선 + 본선)으로 보완했다. 기존 route 색상·두께·z-index 계약은 유지한다.
+- 사용자 제공 영어 navigation marker assets를 `markerList.navigation.en`으로 연결하고 앱 언어가 `en`일 때 출발·경유·도착 marker가 영어 PNG를 사용하도록 적용했다. 한국어 assets는 그대로 유지했으며 `marketEnd.png` 오타는 `markerEnd.png`로 정리했다.
+- 기존 marker locale TODO는 구현 완료로 `ARCHITECTURE.md` backlog에서 제거했다. Naver/Google·iOS/Android의 실제 marker 크기·anchor·가독성 확인은 runtime gate에 포함한다.
+- `pnpm typecheck`, 대상 ESLint, diagnostics, `git diff --check`가 통과했다. 현재 Debug 앱은 Metro 미실행으로 `No script URL provided` 상태여서, Metro 연결 후 Google 장소 marker tap→bottom modal 유지, 빈 지도 tap→modal 닫힘, 선택 경로의 흰 외곽선 시각 확인이 남아 있다.
+- commit/push, production publish, Store upload는 수행하지 않았다.
+
+## 2026-08-15 (2) — iOS Google custom PNG marker Fabric 복구 패치
+
+- 보라색 기본 Google pin은 정상 표시되지만 출발·도착·경유·장소용 custom PNG child만 보이지 않는 재현으로 좌표·조건부 렌더링·marker 등록 문제를 제외했다.
+- Google marker wrapper와 child image에 명시적 width/height를 적용하고 `tracksViewChanges`를 유지하며 image fade를 비활성화했다.
+- `AIRGoogleMapMarker`의 실제 경로를 대조했다. custom child는 내부 `iconView`에 삽입되고 Google SDK가 그 view를 rasterize하며, `redraw`는 `GMSMarker.iconView`를 다시 연결한다.
+- Fabric은 marker wrapper의 layout/finalize 후 PNG child를 mount한다. 따라서 wrapper layout 시점만 처리하면 아직 `iconView`가 없어 크기 전달이 누락될 수 있음을 확인했다.
+- `react-native-maps@1.29.0` iOS Fabric wrapper가 wrapper layout과 child mount 직후 모두 내부 legacy marker/`iconView` 크기를 동기화하고 redraw하도록 pnpm 영구 patch를 보강했다. 원본 패키지 기준 patch dry-run과 `pnpm install --offline --frozen-lockfile` 재설치가 통과해 재현성도 확인했다.
+- 프로젝트 내부 DerivedData 때문에 Expo fingerprint가 생성물을 재귀 스캔하던 원인을 확인했다. untracked `ios/build-marker-patch*` 4GB 이상을 제거하고 `.gitignore`에 재발 방지 규칙을 추가했으며 기존 source/migration 변경은 되돌리지 않았다.
+- DerivedData를 `/tmp`로 분리한 iOS 26.5 arm64 simulator Debug build가 보강 전후 모두 성공했다. 최종 build에서 재설치로 생성된 `RNMapsGoogleMarkerView.mm`의 arm64 실제 compile, app bundle validate, simulator install 및 cold launch(PID 70896)까지 확인했다.
+- 최종 `pnpm typecheck`, 대상 ESLint, diagnostics, patch reverse dry-run, `git diff --check`가 통과했다. 실행 중인 simulator에서 custom marker 표시·크기·anchor·z-index 및 선택 이미지 갱신은 사람이 확인해야 하는 최종 시각 gate로 남아 있다.
+- Git 변경은 현재 tracked 53개 파일(`+3193/-848`)과 기존 migration 관련 untracked source/config로 구성된다. 빌드 생성물은 다시 나타나지 않았고 실행 중인 `xcodebuild` 프로세스도 없다.
+- commit/push, production publish, Store upload는 수행하지 않았다.
+
+## 2026-08-15 — 크래시 리포팅 TODO와 Store 업데이트 runbook 추가
+
+- Preview/Production에서 JS/native/handled error를 수집할 크래시 리포팅 작업을 release TODO에 추가했다. Sentry 계열 도구를 기본 후보로 두되 dependency 설치와 계정/project 연결은 아직 수행하지 않았다.
+- environment/version/build/channel/runtime/update tag, 개인정보·정밀 위치 redaction, iOS dSYM, Android R8 mapping/native symbols, Store/OTA source map 업로드와 실제 기기 symbolication 검증을 완료 조건으로 정의했다.
+- 기존 Store app record와 identity/signing을 유지하는 Android Internal→Closed→Production, iOS TestFlight→App Review→phased release 절차를 `PROJECT_CONFIGURATION.md`에 추가했다.
+- 현재 `2.1.2 (17)`은 Preview candidate이며, iOS production update 전에는 공개 `2.1.2`보다 높은 marketing version을 별도로 확정하도록 gate를 명시했다.
+- 코드·dependency·credential은 변경하지 않았고 production publish, Store upload, commit/push는 수행하지 않았다.
+
+## 2026-08-14 — Expo SDK 57 native integration compile 복구
+
+- Expo SDK 57와 `expo-updates`를 RN `0.86.2` bare app의 Android/iOS native project에 연결했다.
+- iOS minimum을 승인된 `16.4`로 정렬하고, RN prebuilt AppDelegate header 불일치를 공식 source fallback으로 우회했다.
+- Android release AAB와 iOS unsigned generic simulator build가 통과했다. Android artifact에서 Store identity/version/SDK, update metadata, embedded bundle, non-empty fingerprint asset을 확인했다.
+- `Expo.plist`가 iOS app resource에 포함됨을 확인했다. 실제 project identifier와 update URL은 기록하지 않는다.
+- actual-device runtime, local Store build channel embedding, preview OTA, offline/server 장애, incompatible runtime, rollback/embedded recovery는 아직 release gate로 남아 있다.
+- production publish, Store upload, 유료 plan 변경은 수행하지 않았다.
+
+## 2026-08-13 — OTA 실행 순서·비용 기준 확정
+
+### 결정
+
+- Expo cloud project 생성 완료. 실제 project ID나 credential은 문서에 기록하지 않는다.
+- 이 Mac의 EAS CLI는 `Not logged in` 상태라 local project 연결과 `update:configure`는 아직 수행하지 못했다. 사용자가 interactive terminal에서 로그인한 뒤 재개한다.
+- `install-expo-modules@0.16.0` 자동 installer는 RN `0.86.2`를 인식하지 못해 변경 없이 중단됐다. Expo 공식 SDK 57 RN 0.86 manual integration으로 전환한다.
+- 공식 manual guide는 iOS minimum `16.4`를 요구하지만 현재 Store 앱은 `15.1`이다. 기존 사용자 지원 범위를 검토하기 전 deployment target과 native dependency를 변경하지 않는다.
+- Free는 월 1,000 OTA MAU hard quota이며 초과 과금이 없다. quota를 소진하면 Starter로 올려야 하고 한도는 다음 달 초기화된다. 앱은 update 실패 시 embedded/기존 정상 bundle로 계속 시작하도록 검증한다.
+- Starter는 `$19/월`에 3,000 MAU, 이후 200,000까지 `$0.005/MAU`다. 회원·결제 기능 자체는 Free/Starter 사용을 막지 않으며 인증·영수증·entitlement는 서버 authoritative로 처리한다.
+- 현재 권장은 candidate 17에 end-to-end signing을 적용하지 않는 것이다. Expo 2FA·최소 publish 권한·runtime 격리·rollback을 적용하고, B2B/enterprise signed artifact나 별도 공급망 요구가 생길 때 새 Store binary로 도입한다.
+
+### 문서 갱신
+
+- `MIGRATION_PLAN.md`: 지금부터 실행할 6단계와 비용 의사결정 추가
+- `FEATURE_INSIGHTS.md`: 최신 plan별 MAU·bandwidth·storage·signing 및 비용 시나리오 갱신
+- `PROJECT_CONFIGURATION.md`: 즉시 다음 작업, non-CNG 원칙, Store identity 보존 기준 추가
+
+### 미실행
+
+- `expo`/`expo-updates` dependency 설치와 native 설정은 아직 수행하지 않음
+- Expo account/project 생성, 유료 plan 결제, signing key 생성, OTA publish는 수행하지 않음
+- iOS/Android actual device smoke와 Store 업로드는 여전히 남아 있음
+
 ## 2026-08-10 — release metadata + logging + NestJS 11 + provider hardening
 
 ### 완료

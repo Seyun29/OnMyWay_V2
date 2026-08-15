@@ -4,6 +4,7 @@ import {
   GetDrivingRouteRequestDto,
   GetKeywordSearchRequestDto,
   GetPlaceDetailRequestDto,
+  GetPlacePhotoRequestDto,
   GetStopByDurationRequestDto,
   searchOnPathRequestDto,
 } from './dto/map.request.dto';
@@ -57,5 +58,9 @@ export class MapService {
 
   getPlaceDetail(params: GetPlaceDetailRequestDto, context: MapRequestContext) {
     return this.getPlaceDetailsUseCase.execute(params, context);
+  }
+
+  getPlacePhotoUri(params: GetPlacePhotoRequestDto) {
+    return this.getPlaceDetailsUseCase.getPhotoUri(params);
   }
 }

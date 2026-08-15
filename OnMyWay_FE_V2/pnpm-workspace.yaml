@@ -1,0 +1,2 @@
+patchedDependencies:
+  react-native-maps@1.29.0: patches/react-native-maps@1.29.0.patch

@@ -10,13 +10,13 @@ import {
 } from 'src/config/consts';
 import {
   AddressResult,
-  Coordinate,
   GeocodingInput,
   GeocodingProvider,
   MapRequestContext,
   PlaceDetailInput,
   PlaceDetailProvider,
   PlaceDetailResult,
+  PlacePhotoInput,
   PlaceResult,
   ProviderFieldStatus,
   PlaceSearchInput,
@@ -30,17 +30,18 @@ import {
   StopByRouteInput,
   StopByRouteResult,
 } from './map-provider.port';
-import { decodePolyline, encodePolyline } from './polyline';
+import { decodePolyline } from './polyline';
+import selectVertices from 'src/helpers/selectVertices';
 import { RouteNotFoundError } from './route-not-found.error';
 import { isSouthKoreanPoint } from './route-region';
 import { buildStopByCandidates } from './stop-by-candidates';
 import { MapProviderException } from './map-provider.error';
 
 const PLACE_FIELD_MASK =
-  'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.location,places.googleMapsUri,nextPageToken';
+  'places.id,places.displayName,places.formattedAddress,places.shortFormattedAddress,places.location,places.googleMapsUri,places.rating,places.userRatingCount,places.currentOpeningHours,places.photos,nextPageToken';
 // parkingOptions는 Enterprise + Atmosphere SKU를 유발한다. FieldMask 변경 시 비용 문서를 함께 갱신한다.
 const PLACE_DETAIL_FIELD_MASK =
-  'id,displayName,formattedAddress,googleMapsUri,rating,userRatingCount,currentOpeningHours,regularOpeningHours,parkingOptions';
+  'id,displayName,formattedAddress,googleMapsUri,rating,userRatingCount,currentOpeningHours,regularOpeningHours,parkingOptions,photos';
 const ROUTE_FIELD_MASK =
   'routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.routeLabels';
 const ENGLISH_CATEGORY_LABELS: Record<string, string> = {
@@ -52,6 +53,16 @@ const ENGLISH_CATEGORY_LABELS: Record<string, string> = {
   카페: 'cafe',
   병원: 'hospital',
 };
+const GOOGLE_INCLUDED_TYPE_BY_CATEGORY: Record<string, string> = {
+  MT1: 'supermarket',
+  CS2: 'convenience_store',
+  PK6: 'parking',
+  FD6: 'restaurant',
+  AD5: 'lodging',
+  CE7: 'cafe',
+  HP8: 'hospital',
+};
+const GOOGLE_PLACES_API_ROOT = GOOGLE_PLACES_BASE_URL.replace(/\/places$/, '');
 
 @Injectable()
 export class GoogleMapAdapter
@@ -186,27 +197,119 @@ export class GoogleMapAdapter
     input: RoutePlaceSearchInput,
     context: MapRequestContext,
   ): Promise<PlaceResult[]> {
-    const routePath: Coordinate[] = input.path.map(([x, y]) => ({
-      latitude: Number.parseFloat(String(y)),
-      longitude: Number.parseFloat(String(x)),
-    }));
-    // 경로 첫/중간/끝 vertex를 샘플링해 region을 유도한다.
-    const sampledVertices = [
-      input.path[0],
-      input.path[Math.floor(input.path.length / 2)],
-      input.path[input.path.length - 1],
-    ].filter((vertex): vertex is number[] => Boolean(vertex));
-    const regionCode = this.toRegionCode(context, sampledVertices);
-    const data = await this.searchText({
-      textQuery: this.toTextQuery(input.query, context),
+    const vertices = this.selectSearchVertices(input);
+    if (vertices.length === 0) return [];
+
+    const maximum = this.getMaximumPlaceCount(input.totalDistance);
+    const pageSize = Math.min(
+      20,
+      Math.max(1, Math.ceil((maximum + 5) / vertices.length)),
+    );
+    const regionCode = this.toRegionCode(context, vertices);
+    const includedType = input.category_group_code
+      ? GOOGLE_INCLUDED_TYPE_BY_CATEGORY[input.category_group_code]
+      : undefined;
+    const textQuery = this.toTextQuery(input.query, context);
+    const radius = Math.min(Math.max(input.radius || 20000, 100), 50000);
+    const requestForVertex = (vertex: number[]) => ({
+      textQuery,
       languageCode: context.language,
       ...(regionCode ? { regionCode } : {}),
-      pageSize: 20,
-      searchAlongRouteParameters: {
-        polyline: { encodedPolyline: encodePolyline(routePath) },
+      pageSize,
+      ...(includedType ? { includedType, strictTypeFiltering: true } : {}),
+      locationBias: {
+        circle: {
+          center: {
+            latitude: Number.parseFloat(String(vertex[1])),
+            longitude: Number.parseFloat(String(vertex[0])),
+          },
+          radius,
+        },
       },
     });
-    return this.toPlaceResults(data);
+
+    type SearchPage = {
+      data: Record<string, unknown>;
+      body: Record<string, unknown>;
+      vertex: number[];
+    };
+    const initial = await Promise.allSettled(
+      vertices.map(async (vertex): Promise<SearchPage> => {
+        const body = requestForVertex(vertex);
+        return { data: await this.searchText(body), body, vertex };
+      }),
+    );
+    const successful = initial.filter(
+      (result): result is PromiseFulfilledResult<SearchPage> =>
+        result.status === 'fulfilled',
+    );
+    const minimumSuccessful = Math.max(1, vertices.length - 2);
+    if (successful.length < minimumSuccessful) {
+      const failure = initial.find(
+        (result): result is PromiseRejectedResult =>
+          result.status === 'rejected',
+      );
+      if (failure) throw failure.reason;
+      throw new MapProviderException('MAP_PROVIDER_UNAVAILABLE');
+    }
+
+    const places = new Map<string, PlaceResult>();
+    const addPage = (page: SearchPage) => {
+      this.toPlaceResults(page.data)
+        .filter((place) =>
+          this.isWithinRadius(place, page.vertex, radius * 1.25),
+        )
+        .forEach((place) => {
+          const key =
+            place.provider_place_id ??
+            `${place.place_name ?? ''}|${place.address_name}`;
+          const existing = places.get(key);
+          if (existing) {
+            existing.priority = (existing.priority ?? 1) + 1;
+          } else {
+            places.set(key, { ...place, priority: 1 });
+          }
+        });
+    };
+
+    successful.forEach((result) => addPage(result.value));
+    let pending = successful
+      .filter((result) => typeof result.value.data.nextPageToken === 'string')
+      .map((result) => ({
+        ...result.value,
+        token: result.value.data.nextPageToken as string,
+      }));
+
+    // Google Text Search exposes up to three pages. Fetch more only when the
+    // sampled first pages did not already satisfy the route-distance cap.
+    for (let page = 1; page < 3 && places.size < maximum; page += 1) {
+      if (pending.length === 0) break;
+      const settled = await Promise.allSettled(
+        pending.map(async (request) => {
+          const data = await this.searchText({
+            ...request.body,
+            pageToken: request.token,
+          });
+          return { data, body: request.body, vertex: request.vertex };
+        }),
+      );
+      const nextPending: Array<SearchPage & { token: string }> = [];
+      settled.forEach((result) => {
+        if (result.status !== 'fulfilled') return;
+        addPage(result.value);
+        if (typeof result.value.data.nextPageToken === 'string') {
+          nextPending.push({
+            ...result.value,
+            token: result.value.data.nextPageToken as string,
+          });
+        }
+      });
+      pending = nextPending;
+    }
+
+    return Array.from(places.values())
+      .sort((left, right) => (right.priority ?? 0) - (left.priority ?? 0))
+      .slice(0, maximum);
   }
 
   private async computeRoute(
@@ -347,6 +450,7 @@ export class GoogleMapAdapter
         parking: this.toFieldStatus(parking),
         rating: this.toFieldStatus(rating),
         rating_count: this.toFieldStatus(ratingCount),
+        photo: this.toFieldStatus(data.photos?.[0]?.name),
       },
       id: data.id ?? input.id,
       place_name: data.displayName?.text,
@@ -357,7 +461,85 @@ export class GoogleMapAdapter
       parking,
       rating,
       rating_count: ratingCount,
+      photo_reference: data.photos?.[0]?.name,
     };
+  }
+
+  async getPlacePhotoUri(input: PlacePhotoInput): Promise<string> {
+    if (!/^places\/[^/]+\/photos\/[^/]+$/.test(input.name)) {
+      throw new MapProviderException('MAP_PROVIDER_INVALID_RESPONSE');
+    }
+    const data = await this.request(() =>
+      axios.get(`${GOOGLE_PLACES_API_ROOT}/${input.name}/media`, {
+        timeout: 8000,
+        params: {
+          maxWidthPx: 800,
+          skipHttpRedirect: true,
+          key: GOOGLE_MAPS_SERVER_API_KEY,
+        },
+      }),
+    );
+    if (typeof data.photoUri !== 'string' || data.photoUri.length === 0) {
+      throw new MapProviderException('MAP_PROVIDER_INVALID_RESPONSE');
+    }
+    return data.photoUri;
+  }
+
+  private selectSearchVertices(input: RoutePlaceSearchInput): number[][] {
+    const validPath = input.path.filter(
+      (point) =>
+        point.length >= 2 &&
+        Number.isFinite(Number(point[0])) &&
+        Number.isFinite(Number(point[1])),
+    );
+    if (validPath.length <= 1) return validPath;
+
+    const selected = selectVertices({
+      path: validPath,
+      totalDistance: input.totalDistance,
+      radius: input.radius || 20000,
+    });
+    const unique = Array.from(
+      new Map(
+        selected.map((point) => [`${point[0]},${point[1]}`, point]),
+      ).values(),
+    );
+    if (unique.length <= 10) return unique;
+    return Array.from(
+      { length: 10 },
+      (_, index) => unique[Math.round((index * (unique.length - 1)) / 9)],
+    );
+  }
+
+  private getMaximumPlaceCount(totalDistance: number): number {
+    if (totalDistance <= 70000) {
+      return Math.min(70, Math.max(Math.ceil(totalDistance / 1000), 30));
+    }
+    if (totalDistance <= 150000) return 100;
+    if (totalDistance <= 200000) return 120;
+    return 150;
+  }
+
+  private isWithinRadius(
+    place: PlaceResult,
+    vertex: number[],
+    radius: number,
+  ): boolean {
+    const toRadians = (degrees: number) => (degrees * Math.PI) / 180;
+    const latitude = Number(vertex[1]);
+    const longitude = Number(vertex[0]);
+    const latitudeDelta = toRadians(place.y - latitude);
+    const longitudeDelta = toRadians(place.x - longitude);
+    const a =
+      Math.sin(latitudeDelta / 2) ** 2 +
+      Math.cos(toRadians(latitude)) *
+        Math.cos(toRadians(place.y)) *
+        Math.sin(longitudeDelta / 2) ** 2;
+    const clamped = Math.min(1, Math.max(0, a));
+    return (
+      6371000 * 2 * Math.atan2(Math.sqrt(clamped), Math.sqrt(1 - clamped)) <=
+      radius
+    );
   }
 
   // region은 필터가 아닌 bias/표기 힌트다. 좌표가 있으면 한국 geofence로 KR을 유도하고,
@@ -410,6 +592,16 @@ export class GoogleMapAdapter
           road_address_name: place.formattedAddress,
           place_url: place.googleMapsUri,
           place_id: place.id,
+          photo_reference: place.photos?.[0]?.name,
+          open:
+            typeof place.currentOpeningHours?.openNow === 'boolean'
+              ? place.currentOpeningHours.openNow
+              : undefined,
+          commentCnt:
+            typeof place.userRatingCount === 'number'
+              ? place.userRatingCount
+              : undefined,
+          scoreAvg: typeof place.rating === 'number' ? place.rating : undefined,
           x: longitude,
           y: latitude,
           is_end: !data.nextPageToken,

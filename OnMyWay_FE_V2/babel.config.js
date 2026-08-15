@@ -14,9 +14,9 @@ module.exports = api => {
 
   return {
     presets: isTest
-      ? ['module:@react-native/babel-preset']
+      ? ['babel-preset-expo']
       : [
-          ['module:@react-native/babel-preset', {jsxImportSource: 'nativewind'}],
+          ['babel-preset-expo', {jsxImportSource: 'nativewind'}],
           'nativewind/babel',
         ],
     plugins: isTest

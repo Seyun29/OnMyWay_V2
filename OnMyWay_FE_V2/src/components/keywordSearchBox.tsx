@@ -18,7 +18,6 @@ import {RouteDetail} from '../config/types/routes';
 import {useRecoilState, useRecoilValue} from '../state/atom';
 import {loadingState} from '../atoms/loadingState';
 import Toast from 'react-native-toast-message';
-import {WINDOW_WIDTH} from '../config/consts/style';
 import {modalState} from '../atoms/modalState';
 import {setMinMaxValue} from '../config/helpers/route';
 import {listModalState} from '../atoms/listModalState';
@@ -33,6 +32,8 @@ import {
 } from '../config/consts/query';
 import CategorySVG from './categorySVG';
 import {useTranslation} from '../hooks/useTranslation';
+import {MAP_SEARCH_TOP_GAP} from '../config/consts/style';
+import {getPlacePhotoUrl} from '../api/getPlacePhotoUrl';
 
 export default function KeywordSearchBox({
   selectedRoute,
@@ -124,6 +125,9 @@ export default function KeywordSearchBox({
       path,
       totalDistance,
       radius,
+      ...(searchQuery.kind === 'category'
+        ? {category_group_code: CATEGORY_BY_ID[searchQuery.categoryId].code}
+        : {}),
     });
     if (data === null) {
       clearDelayedToastTimeout();
@@ -133,6 +137,7 @@ export default function KeywordSearchBox({
     if (data.length > 0) {
       let resultList = data.map((res: PlaceDetail) => ({
         ...res,
+        photoUrl: res.photoUrl ?? getPlacePhotoUrl(res.photo_reference),
         coordinate: {latitude: res.y, longitude: res.x},
       }));
       const promises = resultList.map(async (curPlace: PlaceDetail) => {
@@ -206,8 +211,9 @@ export default function KeywordSearchBox({
           style={{
             position: 'absolute',
             backgroundColor: 'transparent',
-            top: headerHeight,
-            width: WINDOW_WIDTH,
+            top: headerHeight + MAP_SEARCH_TOP_GAP,
+            left: 0,
+            right: 0,
             justifyContent: 'center',
             alignItems: 'center',
             flexDirection: 'row',
@@ -246,8 +252,9 @@ export default function KeywordSearchBox({
             style={{
               position: 'absolute',
               backgroundColor: 'transparent',
-              top: headerHeight,
-              width: WINDOW_WIDTH,
+              top: headerHeight + MAP_SEARCH_TOP_GAP,
+              left: 0,
+              right: 0,
               justifyContent: 'center',
               alignItems: 'center',
               flexDirection: 'row',
@@ -291,8 +298,14 @@ export default function KeywordSearchBox({
           </View>
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            keyboardVerticalOffset={70} // 여기서 조정
-            className="flex-1 absolute bottom-10 px-[16px] w-full">
+            keyboardVerticalOffset={70}
+            style={{
+              position: 'absolute',
+              left: 0,
+              right: 0,
+              bottom: 40,
+              paddingHorizontal: 16,
+            }}>
             {isRangeOn && (
               <View className="px-[16px] bg-white mb-[12px] h-[88px] flex-row items-center justify-between rounded-[20px] shadow-md">
                 <View className="flex flex-col w-full">

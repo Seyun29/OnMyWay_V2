@@ -20,6 +20,7 @@ export interface PlaceDetailData {
   parking: boolean | null;
   rating: number | null;
   rating_count: number | null;
+  photo_reference?: string;
 }
 
 export const getPlaceDetail = async (

@@ -3,7 +3,7 @@
  */
 
 import React, {type PropsWithChildren, useEffect, useState} from 'react';
-import {Platform, UIManager} from 'react-native';
+import {Image, Platform, StyleSheet, UIManager} from 'react-native';
 import 'react-native-gesture-handler';
 import './global.css';
 import BootSplash from 'react-native-bootsplash';
@@ -15,6 +15,10 @@ import {
 } from './src/state/atom';
 import Toast from 'react-native-toast-message';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import {languageState} from './src/atoms/languageState';
 import {mapRendererState} from './src/atoms/mapRendererState';
 import {LANGUAGE_KEY, MAP_RENDERER_KEY} from './src/config/consts/storage';
@@ -37,6 +41,10 @@ function LanguageInitializer({children}: PropsWithChildren) {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
+    BootSplash.hide({fade: true}).catch(() => undefined);
+  }, []);
+
+  useEffect(() => {
     let isMounted = true;
 
     const hydrateLanguage = async () => {
@@ -57,7 +65,6 @@ function LanguageInitializer({children}: PropsWithChildren) {
         setLanguage(language);
         setMapRenderer(renderer);
         setIsReady(true);
-        BootSplash.hide({fade: true}).catch(() => undefined);
       }
     };
 
@@ -67,13 +74,26 @@ function LanguageInitializer({children}: PropsWithChildren) {
     };
   }, [setLanguage, setMapRenderer]);
 
-  return isReady ? <>{children}</> : null;
+  return isReady ? (
+    <>{children}</>
+  ) : (
+    <Image
+      source={require('./src/assets/images/splash.png')}
+      style={styles.splash}
+      resizeMode="cover"
+    />
+  );
 }
 
 function MapSessionBoundary() {
   const language = useRecoilValue(languageState);
   const mapRenderer = useRecoilValue(mapRendererState);
   return <RootStackNavigation key={`${language}-${mapRenderer}`} />;
+}
+
+function AppToast() {
+  const insets = useSafeAreaInsets();
+  return <Toast topOffset={insets.top + 10} />;
 }
 
 function App(): React.JSX.Element {
@@ -86,18 +106,29 @@ function App(): React.JSX.Element {
     }
   }, []);
 
+  // RNGH 3.1.0의 GestureDetector는 내부 Wrap 인스턴스에 findNodeHandle을
+  // 호출한다. React 19 StrictMode에서는 이 dependency 내부 호출이 매 렌더마다
+  // console error가 되므로, upstream이 host ref 방식으로 전환될 때까지 앱 root에
+  // StrictMode를 적용하지 않는다. 프로덕션 동작에는 StrictMode가 적용되지 않는다.
   return (
-    <React.StrictMode>
-      <RecoilRoot>
-        <LanguageInitializer>
-          <GestureHandlerRootView className="flex-1">
+    <GestureHandlerRootView style={{flex: 1}}>
+      <SafeAreaProvider>
+        <RecoilRoot>
+          <LanguageInitializer>
             <MapSessionBoundary />
-            <Toast />
-          </GestureHandlerRootView>
-        </LanguageInitializer>
-      </RecoilRoot>
-    </React.StrictMode>
+            <AppToast />
+          </LanguageInitializer>
+        </RecoilRoot>
+      </SafeAreaProvider>
+    </GestureHandlerRootView>
   );
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    width: '100%',
+    height: '100%',
+  },
+});
 
 export default App;

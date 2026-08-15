@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Pressable, View, Text, TextInput, Button} from 'react-native';
+import {Pressable, View} from 'react-native';
 import NaverMap from '../../components/maps/naverMap';
 import MainBottomSheet from '../../components/bottomSheets/mainBottomSheet';
 // Displays the selected place and route detour details.
@@ -26,7 +26,9 @@ export const HomeScreen = () => {
   } | null>(null);
 
   return (
-    <SafeAreaView className="flex-1 bg-white w-full h-full">
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <Drawer
         open={isDrawerOpen}
         onOpen={() => setIsDrawerOpen(true)}

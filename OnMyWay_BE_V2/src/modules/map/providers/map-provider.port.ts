@@ -33,6 +33,10 @@ export interface PlaceResult {
   place_url?: string;
   // provider place resource id. 현재 Google 결과에만 존재하며 place-detail 조회에 사용한다.
   place_id?: string;
+  photo_reference?: string;
+  open?: boolean;
+  commentCnt?: number;
+  scoreAvg?: number;
   x: number;
   y: number;
   is_end?: boolean;
@@ -84,6 +88,10 @@ export interface PlaceDetailInput {
   // provider place resource id. 현재는 Google place id만 발급된다.
   id: string;
 }
+export interface PlacePhotoInput {
+  // Google photo resource name: places/{placeId}/photos/{photoId}
+  name: string;
+}
 // null은 UNKNOWN을 뜻한다. 확인되지 않은 값을 false로 바꾸지 않는다.
 export interface PlaceDetailFieldStatus {
   open: ProviderFieldStatus;
@@ -91,6 +99,7 @@ export interface PlaceDetailFieldStatus {
   parking: ProviderFieldStatus;
   rating: ProviderFieldStatus;
   rating_count: ProviderFieldStatus;
+  photo: ProviderFieldStatus;
 }
 export interface PlaceDetailResult {
   provider: ProviderId;
@@ -105,6 +114,7 @@ export interface PlaceDetailResult {
   parking: boolean | null;
   rating: number | null;
   rating_count: number | null;
+  photo_reference?: string;
 }
 
 export interface GeocodingProvider {
@@ -140,6 +150,7 @@ export interface PlaceDetailProvider {
     input: PlaceDetailInput,
     context: MapRequestContext,
   ): Promise<PlaceDetailResult>;
+  getPlacePhotoUri(input: PlacePhotoInput): Promise<string>;
 }
 export type MapProvider = GeocodingProvider &
   PlaceSearchProvider &

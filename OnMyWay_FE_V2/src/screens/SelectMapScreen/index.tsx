@@ -133,7 +133,9 @@ export const SelectMapScreen = () => {
   }, [coord]);
 
   return (
-    <SafeAreaView className="flex-1 bg-white w-full h-full">
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <View className="flex-1">
         <SelectOnMapHeader />
         <View className="flex-1">

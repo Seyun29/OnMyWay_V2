@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Text, TouchableOpacity, View} from 'react-native';
+import {Keyboard, Text, TouchableOpacity, View} from 'react-native';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {RootStackParam} from '../../navigations';
@@ -20,11 +20,13 @@ export default function PlaceInputHeader({
   setIsResult,
   onCurPosPress,
   setLoading,
+  onHeightChange,
 }: {
   setResultList: any;
   setIsResult: any;
   onCurPosPress: () => void;
   setLoading: (loading: boolean) => void;
+  onHeightChange: (height: number) => void;
 }) {
   const {t} = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
@@ -66,14 +68,24 @@ export default function PlaceInputHeader({
   };
 
   const handleSubmit = async (query: string) => {
-    if (query.length === 0) return;
+    if (query.trim().length === 0) return;
+    Keyboard.dismiss();
     setLoading(true);
-    const response = await placeQuery(query);
+    const response = await placeQuery(query.trim());
     if (response === null) {
+      setResultList([]);
+      setIsResult(false);
+      Toast.show({
+        type: 'error',
+        text1: t('search.loadFailed'),
+        position: 'top',
+        topOffset: toastTopOffset,
+        visibilityTime: 2500,
+      });
       setLoading(false);
       return;
     }
-    if (!response || response.length === 0) {
+    if (response.length === 0) {
       setResultList([]);
       setIsResult(false);
       Toast.show({
@@ -115,13 +127,17 @@ export default function PlaceInputHeader({
         shadowOpacity: 0.15,
         shadowRadius: 2,
       }}
-      onLayout={e =>
-        setToastTopOffset(e.nativeEvent.layout.height + insets.top + 10)
-      }
-      className="bg-white w-full justify-start items-start px-[16px] pt-[16px] ">
-      <View className="relative w-full flex-row items-center justify-around">
+      onLayout={e => {
+        const height = e.nativeEvent.layout.height;
+        setToastTopOffset(height + insets.top + 10);
+        onHeightChange(height);
+      }}
+      className="bg-white w-full justify-start items-start px-[16px] pt-[16px]">
+      <View className="relative w-full flex-row items-center justify-between">
         <InputBoxEditable handleSubmit={handleSubmit} />
         <TouchableOpacity
+          style={{marginLeft: 12, flexShrink: 0}}
+          hitSlop={10}
           onPress={() => {
             navigation.goBack();
           }}>

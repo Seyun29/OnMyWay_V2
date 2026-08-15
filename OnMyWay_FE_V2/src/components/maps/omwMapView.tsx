@@ -2,6 +2,7 @@ import React, {type PropsWithChildren, useEffect, useRef} from 'react';
 import {type StyleProp, type ViewStyle} from 'react-native';
 import {
   NaverMapView,
+  type NaverMapViewRef,
   type Region as NaverRegion,
 } from '@mj-studio/react-native-naver-map';
 import MapView, {PROVIDER_GOOGLE, type Region} from 'react-native-maps';
@@ -68,6 +69,9 @@ const coveringRegionFromNaverRegion = (
   },
 ];
 
+// 카메라 이동은 `center` 객체의 identity 변경(setCenter 호출)마다 명령으로 실행한다.
+// 사용자가 지도를 pan한 뒤 같은 좌표로 setCenter해도(예: 현위치 버튼) 값 비교에
+// 걸리지 않고 항상 해당 위치로 되돌아가게 하기 위함이다.
 function GoogleMapContainer({
   style,
   center,
@@ -78,8 +82,14 @@ function GoogleMapContainer({
   children,
 }: PropsWithChildren<OmwMapViewProps>) {
   const mapRef = useRef<MapView>(null);
+  const isFirstCenterRef = useRef(true);
 
   useEffect(() => {
+    if (isFirstCenterRef.current) {
+      // 최초 위치는 initialCamera가 처리한다.
+      isFirstCenterRef.current = false;
+      return;
+    }
     mapRef.current?.animateCamera(
       {
         center: {latitude: center.latitude, longitude: center.longitude},
@@ -87,7 +97,7 @@ function GoogleMapContainer({
       },
       {duration: 300},
     );
-  }, [center.latitude, center.longitude, center.zoom]);
+  }, [center]);
 
   return (
     <MapView
@@ -102,15 +112,36 @@ function GoogleMapContainer({
       }}
       showsCompass={compass ?? false}
       toolbarEnabled={false}
-      onPress={onMapClick}
+      onPress={event => {
+        if (event.nativeEvent.action !== 'marker-press') {
+          onMapClick?.();
+        }
+      }}
       onPanDrag={onTouch}
       onRegionChangeComplete={region => {
-        onCameraChange?.({
-          latitude: region.latitude,
-          longitude: region.longitude,
-          zoom: zoomFromRegion(region),
-          coveringRegion: coveringRegionFromRegion(region),
-        });
+        const coveringRegion = coveringRegionFromRegion(region);
+
+        // longitudeDelta만으로 계산한 zoom은 viewport 너비를 반영하지 않아 실제
+        // Google camera zoom보다 작다. 그 값을 현위치 이동에 재사용하면 누를 때마다
+        // 줌 아웃되므로 native camera의 정확한 zoom을 사용한다.
+        mapRef.current
+          ?.getCamera()
+          .then(camera => {
+            onCameraChange?.({
+              latitude: camera.center.latitude,
+              longitude: camera.center.longitude,
+              zoom: camera.zoom ?? zoomFromRegion(region),
+              coveringRegion,
+            });
+          })
+          .catch(() => {
+            onCameraChange?.({
+              latitude: region.latitude,
+              longitude: region.longitude,
+              zoom: zoomFromRegion(region),
+              coveringRegion,
+            });
+          });
       }}>
       {children}
     </MapView>
@@ -126,20 +157,42 @@ export default function OmwMapView({
   if (renderer === 'GOOGLE') {
     return <GoogleMapContainer {...props}>{children}</GoogleMapContainer>;
   }
-  const {
-    style,
-    center,
-    zoomControl,
-    scaleBar,
-    compass,
-    onMapClick,
-    onCameraChange,
-    onTouch,
-  } = props;
+  return <NaverMapContainer {...props}>{children}</NaverMapContainer>;
+}
+
+function NaverMapContainer({
+  style,
+  center,
+  zoomControl,
+  scaleBar,
+  compass,
+  onMapClick,
+  onCameraChange,
+  onTouch,
+  children,
+}: PropsWithChildren<OmwMapViewProps>) {
+  const mapRef = useRef<NaverMapViewRef>(null);
+  const isFirstCenterRef = useRef(true);
+
+  useEffect(() => {
+    if (isFirstCenterRef.current) {
+      // 최초 위치는 initialCamera가 처리한다.
+      isFirstCenterRef.current = false;
+      return;
+    }
+    mapRef.current?.animateCameraTo({
+      latitude: center.latitude,
+      longitude: center.longitude,
+      zoom: center.zoom,
+      duration: 300,
+    });
+  }, [center]);
+
   return (
     <NaverMapView
+      ref={mapRef}
       style={style}
-      camera={center}
+      initialCamera={center}
       animationDuration={300}
       isShowZoomControls={zoomControl}
       isShowScaleBar={scaleBar}

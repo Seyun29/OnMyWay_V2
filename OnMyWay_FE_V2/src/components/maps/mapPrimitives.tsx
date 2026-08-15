@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {Image, type ImageRequireSource} from 'react-native';
 import {
   NaverMapMarkerOverlay,
@@ -31,21 +31,22 @@ function GoogleImageMarker({
   zIndex,
   onClick,
 }: MapMarkerProps) {
-  // Keep view tracking enabled until the image is loaded so the marker is not blank.
-  const [trackChanges, setTrackChanges] = useState(true);
-
   return (
     <GoogleMarker
       coordinate={coordinate}
       anchor={anchor}
       zIndex={zIndex}
-      tracksViewChanges={trackChanges}
-      onPress={onClick}>
+      style={{width, height}}
+      tracksViewChanges
+      onPress={event => {
+        event.stopPropagation();
+        onClick?.();
+      }}>
       <Image
         source={image}
         style={{width, height}}
         resizeMode="contain"
-        onLoad={() => setTrackChanges(false)}
+        fadeDuration={0}
       />
     </GoogleMarker>
   );
@@ -91,14 +92,26 @@ export function MapPath({
   const renderer = useRecoilValue(mapRendererState);
 
   if (renderer === 'GOOGLE') {
-    // Google Polyline has no outline, so approximate it with a solid line.
+    const hasOutline = Boolean(outlineColor && outlineWidth && outlineWidth > 0);
+    const baseZIndex = zIndex ?? 0;
+
     return (
-      <Polyline
-        coordinates={coordinates}
-        strokeColor={color}
-        strokeWidth={width}
-        zIndex={zIndex}
-      />
+      <>
+        {hasOutline && (
+          <Polyline
+            coordinates={coordinates}
+            strokeColor={outlineColor}
+            strokeWidth={width + outlineWidth! * 2}
+            zIndex={baseZIndex}
+          />
+        )}
+        <Polyline
+          coordinates={coordinates}
+          strokeColor={color}
+          strokeWidth={width}
+          zIndex={hasOutline ? baseZIndex + 1 : baseZIndex}
+        />
+      </>
     );
   }
   return (

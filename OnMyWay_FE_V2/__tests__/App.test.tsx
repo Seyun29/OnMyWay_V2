@@ -11,6 +11,9 @@ it('hydrates preferences and renders the app root', async () => {
   await act(async () => {
     tree = renderer.create(<App />);
   });
+  await act(async () => {
+    await new Promise<void>(resolve => setImmediate(() => resolve()));
+  });
 
   expect(tree!.toJSON()).not.toBeNull();
   expect(BootSplash.hide).toHaveBeenCalledWith({fade: true});
