@@ -14,6 +14,8 @@ This is a Mono Repo containing 2 active sub-repositories.
 > CI/CD 파이프라인(Jenkins, ECR/ECS 배포)은 V3 개편으로 제거됨. 재구축 계획은 [Migration Plan](docs/MIGRATION_PLAN.md) 참고.
 
 ### Project Documents
+- [How It Works](docs/HOW_IT_WORKS.md) — 조건·옵션별 API/SDK 선택과 검색·경로 알고리즘
+- [Search Radius Indicator Style Guide](docs/SEARCH_RADIUS_INDICATOR_STYLE_GUIDE.md) — Naver/Google 검색 반경 overlay 구조, 스타일 preset, buffer polygon 권장안
 - [Migration Plan](docs/MIGRATION_PLAN.md) — 작업 순서, 환경변수, 완료 조건
 - [Feature Insights](docs/FEATURE_INSIGHTS.md) — 제품·기술 결정 근거와 비용·정책
 - [Project Configuration](docs/PROJECT_CONFIGURATION.md) — Store identity, signing, toolchain, 복원 기준
