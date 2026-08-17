@@ -1,40 +1,59 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
   Alert,
-  LayoutAnimation,
   Linking,
   Platform,
+  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
 import NaverLogo from '../assets/images/naverLogo.svg';
-import {STORE_URL, TMAP_STORE_URL} from '../config/consts/link';
+import {STORE_URL} from '../config/consts/link';
 import {useRecoilValue} from '../state/atom';
 import {Navigation} from '../config/types/navigation';
 import {navigationState} from '../atoms/navigationState';
 import {PlaceDetail} from '../config/types/coordinate';
 import {curPlaceState} from '../atoms/curPlaceState';
-import {createURLScheme} from '../config/helpers/nmapLink';
-import TMapLogo from '../assets/images/tMapLogo.svg';
-import {createTmapRouteUrl} from '../config/helpers/tmapLink';
+import {createURLScheme, StopByStrategy} from '../config/helpers/nmapLink';
+import {createGoogleMapsDirectionsUrl} from '../config/helpers/googleMapLink';
+import {routeTouchesSouthKorea} from '../config/helpers/routeRegion';
 import {useTranslation} from '../hooks/useTranslation';
 
-const NaverMapLink = ({
-  stopByStrategy,
-}: {
-  stopByStrategy: 'FRONT' | 'MIDDLE' | 'REAR' | undefined;
-}) => {
+type Props = {
+  stopByStrategy: StopByStrategy;
+  avoidTolls?: boolean;
+};
+
+const buttonShadow = {
+  shadowColor: '#000',
+  shadowOffset: {width: 0, height: 2},
+  shadowOpacity: 0.25,
+  shadowRadius: 3.84,
+  elevation: 5,
+};
+
+const NaverMapLink = ({stopByStrategy, avoidTolls = false}: Props) => {
   const {t} = useTranslation();
   const nav = useRecoilValue<Navigation>(navigationState);
   const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
-  const [initialPressed, setInitialPressed] = React.useState<boolean>(false);
+  const isDomesticRoute = routeTouchesSouthKorea(
+    [
+      nav.start?.coordinate,
+      ...nav.wayPoints.map(wayPoint => wayPoint.coordinate),
+      curPlace?.coordinate,
+      nav.end?.coordinate,
+    ].filter(coordinate => coordinate !== undefined),
+  );
 
-  const openNaverMap = () => {
-    if (!nav.start || !nav.end || !curPlace) {
-      Alert.alert(t('common.notice'), t('navigation.temporaryError'));
-      return;
-    }
+  const hasRouteContext = () => {
+    if (nav.start && nav.end && curPlace) return true;
+    Alert.alert(t('common.notice'), t('navigation.temporaryError'));
+    return false;
+  };
+
+  const openNaverMap = async () => {
+    if (!hasRouteContext() || !nav.start || !nav.end || !curPlace) return;
 
     const url = createURLScheme(
       nav.start,
@@ -43,156 +62,105 @@ const NaverMapLink = ({
       curPlace,
       stopByStrategy,
     );
-    Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) {
-          Linking.openURL(url);
-        } else {
-          if (Platform.OS === 'ios')
-            Alert.alert(t('common.error'), t('navigation.naverMissingIos'), [
-              {
-                text: t('common.confirm'),
-                onPress: () => Linking.openURL(STORE_URL),
-              },
-              {
-                text: t('common.cancel'),
-                style: 'cancel',
-              },
-            ]);
-          else
-            Alert.alert(
-              t('common.error'),
-              t('navigation.naverMissingAndroid'),
-              [
-                {
-                  text: t('common.confirm'),
-                  onPress: () => Linking.openURL(STORE_URL),
-                },
-                {
-                  text: t('common.cancel'),
-                  style: 'cancel',
-                },
-              ],
-            );
-        }
-      })
-      .catch(() => {
-        Alert.alert(t('common.error'), t('navigation.temporaryError'));
-      });
-  };
+    try {
+      if (await Linking.canOpenURL(url)) {
+        await Linking.openURL(url);
+        return;
+      }
 
-  const openTMap = () => {
-    if (!nav.end) {
-      Alert.alert(t('common.notice'), t('navigation.temporaryError'));
-      return;
-    }
-
-    const url = createTmapRouteUrl(nav.end);
-    Linking.canOpenURL(url)
-      .then(supported => {
-        if (supported) return Linking.openURL(url);
-
-        const storeName = t(
-          Platform.OS === 'android'
-            ? 'navigation.playStore'
-            : 'navigation.appStore',
-        );
-        Alert.alert(
-          t('common.error'),
-          t('navigation.tmapMissing', {store: storeName}),
-          [
-            {
-              text: t('common.confirm'),
-              onPress: () => Linking.openURL(TMAP_STORE_URL),
-            },
-            {text: t('common.cancel'), style: 'cancel'},
-          ],
-        );
-      })
-      .catch(() => {
-        Alert.alert(t('common.error'), t('navigation.temporaryError'));
-      });
-  };
-
-  useEffect(() => {
-    if (initialPressed && curPlace) setInitialPressed(false);
-  }, [curPlace]);
-
-  useEffect(() => {
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-  }, [initialPressed]);
-
-  if (Platform.OS === 'ios')
-    return (
-      <TouchableOpacity
-        className="flex-row justify-center items-center rounded-full px-3.5 py-2.5 mb-1"
-        onPress={openNaverMap}
-        style={{
-          backgroundColor: '#57B04B',
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
+      Alert.alert(
+        t('common.error'),
+        t(
+          Platform.OS === 'ios'
+            ? 'navigation.naverMissingIos'
+            : 'navigation.naverMissingAndroid',
+        ),
+        [
+          {
+            text: t('common.confirm'),
+            onPress: () => Linking.openURL(STORE_URL),
           },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 5,
-        }}>
-        <NaverLogo width={15} height={15} />
-        <Text className="ml-2 text-white text-xs">
-          {t('navigation.naverStart')}
-        </Text>
-      </TouchableOpacity>
-    );
+          {text: t('common.cancel'), style: 'cancel'},
+        ],
+      );
+    } catch {
+      Alert.alert(t('common.error'), t('navigation.temporaryError'));
+    }
+  };
+
+  const openGoogleMaps = async () => {
+    if (!hasRouteContext() || !nav.start || !nav.end || !curPlace) return;
+
+    try {
+      await Linking.openURL(
+        createGoogleMapsDirectionsUrl(
+          nav.start,
+          nav.end,
+          nav.wayPoints,
+          curPlace,
+          stopByStrategy,
+          avoidTolls,
+        ),
+      );
+    } catch {
+      Alert.alert(t('common.error'), t('navigation.temporaryError'));
+    }
+  };
 
   return (
-    <View className="pb-2">
-      {initialPressed && (
+    <View style={styles.container}>
+      {isDomesticRoute && (
         <TouchableOpacity
-          className="flex-row justify-center items-center rounded-full"
-          onPress={openNaverMap}
-          style={{
-            backgroundColor: '#57B04B',
-            paddingVertical: 8.5,
-            paddingHorizontal: 10,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 2,
-            },
-            shadowOpacity: 0.25,
-            shadowRadius: 3.84,
-            elevation: 5,
-          }}>
+          style={[styles.button, styles.naverButton, buttonShadow]}
+          onPress={openNaverMap}>
           <NaverLogo width={15} height={15} />
-          <Text className="ml-2 text-white text-xs">
-            {t('navigation.naverStart')}
-          </Text>
+          <Text style={styles.naverText}>{t('navigation.naverStart')}</Text>
         </TouchableOpacity>
       )}
-      <TouchableOpacity
-        className="flex-row justify-center items-center rounded-full bg-[#ffffff] px-3.5 pl-2.5 py-[5px] mt-2"
-        style={{
-          shadowColor: '#000',
-          shadowOffset: {
-            width: 0,
-            height: 2,
-          },
-          shadowOpacity: 0.25,
-          shadowRadius: 3.84,
-          elevation: 5,
-        }}
-        onPress={() => {
-          if (!initialPressed) setInitialPressed(true);
-          else openTMap();
-        }}>
-        <TMapLogo width={22} height={22} />
-        <Text className="ml-0.5 text-slate-700 text-xs">
-          {t('navigation.tmapStart')}
-        </Text>
-      </TouchableOpacity>
+      {!isDomesticRoute && (
+        <TouchableOpacity
+          style={[styles.button, styles.googleButton, buttonShadow]}
+          onPress={openGoogleMaps}>
+          <View style={styles.googleLogo}>
+            <Text style={styles.googleLogoText}>G</Text>
+          </View>
+          <Text style={styles.googleText}>{t('navigation.googleStart')}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: 'center',
+    paddingBottom: 8,
+    rowGap: 8,
+  },
+  button: {
+    minWidth: 210,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 9,
+  },
+  naverButton: {backgroundColor: '#57B04B'},
+  googleButton: {
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#DADCE0',
+    backgroundColor: '#FFFFFF',
+  },
+  googleLogo: {
+    width: 17,
+    height: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  googleLogoText: {color: '#4285F4', fontSize: 15, fontWeight: '700'},
+  naverText: {marginLeft: 8, color: '#FFFFFF', fontSize: 12},
+  googleText: {marginLeft: 8, color: '#3C4043', fontSize: 12},
+});
 
 export default NaverMapLink;

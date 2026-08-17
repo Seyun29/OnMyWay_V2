@@ -54,6 +54,7 @@ export const HomeScreen = () => {
           </View>
           <MainBottomSheet
             selectedRoute={selectedRoute}
+            setSelectedRoute={setSelectedRoute}
             stopByData={stopByData}
             setStopByData={setStopByData}
           />

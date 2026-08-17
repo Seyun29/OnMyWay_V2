@@ -3,8 +3,13 @@ import {Image, type ImageRequireSource} from 'react-native';
 import {
   NaverMapMarkerOverlay,
   NaverMapPathOverlay,
+  NaverMapPolygonOverlay,
 } from '@mj-studio/react-native-naver-map';
-import {Marker as GoogleMarker, Polyline} from 'react-native-maps';
+import {
+  Marker as GoogleMarker,
+  Polygon as GooglePolygon,
+  Polyline,
+} from 'react-native-maps';
 import {useRecoilValue} from '../../state/atom';
 import {mapRendererState} from '../../atoms/mapRendererState';
 import {Coordinate} from '../../config/types/coordinate';
@@ -31,13 +36,15 @@ function GoogleImageMarker({
   zIndex,
   onClick,
 }: MapMarkerProps) {
+  const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
+
   return (
     <GoogleMarker
       coordinate={coordinate}
       anchor={anchor}
       zIndex={zIndex}
       style={{width, height}}
-      tracksViewChanges
+      tracksViewChanges={tracksViewChanges}
       onPress={event => {
         event.stopPropagation();
         onClick?.();
@@ -47,6 +54,8 @@ function GoogleImageMarker({
         style={{width, height}}
         resizeMode="contain"
         fadeDuration={0}
+        onLoad={() => setTracksViewChanges(false)}
+        onError={() => setTracksViewChanges(false)}
       />
     </GoogleMarker>
   );
@@ -56,7 +65,8 @@ export function MapMarker(props: MapMarkerProps) {
   const renderer = useRecoilValue(mapRendererState);
 
   if (renderer === 'GOOGLE') {
-    return <GoogleImageMarker {...props} />;
+    // Remount when the asset changes so the new image is captured before tracking stops.
+    return <GoogleImageMarker key={props.image} {...props} />;
   }
   return (
     <NaverMapMarkerOverlay
@@ -121,6 +131,68 @@ export function MapPath({
       width={width}
       outlineWidth={outlineWidth}
       outlineColor={outlineColor}
+      zIndex={zIndex}
+    />
+  );
+}
+
+export interface MapPolygonProps {
+  coordinates: Coordinate[];
+  holes?: Coordinate[][];
+  fillColor: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  zIndex?: number;
+}
+
+const signedRingArea = (ring: Coordinate[]) =>
+  ring.reduce((area, coordinate, index) => {
+    const next = ring[(index + 1) % ring.length];
+    return (
+      area +
+      coordinate.longitude * next.latitude -
+      next.longitude * coordinate.latitude
+    );
+  }, 0) / 2;
+
+const normalizeRingWinding = (
+  ring: Coordinate[],
+  shouldBeClockwise: boolean,
+) => {
+  const isClockwise = signedRingArea(ring) < 0;
+  return isClockwise === shouldBeClockwise ? ring : [...ring].reverse();
+};
+
+export function MapPolygon({
+  coordinates,
+  holes = [],
+  fillColor,
+  strokeColor = 'transparent',
+  strokeWidth = 0,
+  zIndex,
+}: MapPolygonProps) {
+  const renderer = useRecoilValue(mapRendererState);
+
+  if (renderer === 'GOOGLE') {
+    return (
+      <GooglePolygon
+        coordinates={coordinates}
+        holes={holes}
+        fillColor={fillColor}
+        strokeColor={strokeColor}
+        strokeWidth={strokeWidth}
+        zIndex={zIndex}
+      />
+    );
+  }
+
+  return (
+    <NaverMapPolygonOverlay
+      coords={normalizeRingWinding(coordinates, true)}
+      holes={holes.map(hole => normalizeRingWinding(hole, false))}
+      color={fillColor}
+      outlineColor={strokeColor}
+      outlineWidth={strokeWidth}
       zIndex={zIndex}
     />
   );

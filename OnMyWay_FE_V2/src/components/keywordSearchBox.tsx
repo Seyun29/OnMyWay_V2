@@ -44,6 +44,8 @@ export default function KeywordSearchBox({
   setQuery,
   showAlternative,
   setShowAlternative,
+  radiusKm: value,
+  setRadiusKm: setValue,
 }: {
   selectedRoute: RouteDetail | null;
   result: PlaceDetail[] | null;
@@ -53,6 +55,8 @@ export default function KeywordSearchBox({
   setQuery: React.Dispatch<React.SetStateAction<PlaceSearchQuery>>;
   showAlternative: boolean;
   setShowAlternative: any;
+  radiusKm: number;
+  setRadiusKm: React.Dispatch<React.SetStateAction<number>>;
 }) {
   const {t} = useTranslation();
   const insets = useSafeAreaInsets();
@@ -62,8 +66,7 @@ export default function KeywordSearchBox({
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
   const headerHeight = useRecoilValue<number>(headerHeightState);
 
-  const [value, setValue] = useState<number>(1);
-  const [isRangeOn, setIsRangeOn] = useState<boolean>(false);
+  const [isRangeOn, setIsRangeOn] = useState<boolean>(true);
   const [minMax, setMinMax] = useState<number[]>([0, 20]);
 
   const inputRef = useRef<TextInput>(null);
@@ -219,31 +222,43 @@ export default function KeywordSearchBox({
             flexDirection: 'row',
           }}>
           <TouchableOpacity
-            className="rounded-full bg-white pl-5 pr-3 py-1.5 border-2 flex-row"
+            className="rounded-2xl bg-white px-4 py-2 border-2 flex-row items-center"
             style={{
               borderColor: '#9CC7FF',
+              maxWidth: '92%',
             }}
+            accessibilityRole="button"
+            accessibilityLabel={t('search.tapToSearchAgain')}
             onPress={() => {
+              setResult(null);
+              setOriginalResult(null);
               setShowAlternative(false);
               setModalVisible(false);
               setListModalVisible(false);
               setTimeout(() => inputRef.current?.focus(), 300);
             }}>
-            <View className="border-r pr-2 mr-2 border-slate-500">
-              <Text className="font-bold text-xs">
-                {t(
-                  query.kind === 'category'
-                    ? 'search.category'
-                    : 'search.keyword',
-                )}
+            <View className="mr-3 min-w-0">
+              <View className="flex-row items-center min-w-0">
+                <View className="border-r pr-2 mr-2 border-slate-400">
+                  <Text className="font-bold text-xs">
+                    {t(
+                      query.kind === 'category'
+                        ? 'search.category'
+                        : 'search.keyword',
+                    )}
+                  </Text>
+                </View>
+                <Text className="text-xs flex-shrink" numberOfLines={1}>
+                  {query.kind === 'category'
+                    ? t(CATEGORY_BY_ID[query.categoryId].labelKey)
+                    : query.value}
+                </Text>
+              </View>
+              <Text className="text-[10px] text-[#5B8FD9] mt-1">
+                {t('search.tapToSearchAgain')}
               </Text>
             </View>
-            <Text className="text-xs mr-3">
-              {query.kind === 'category'
-                ? t(CATEGORY_BY_ID[query.categoryId].labelKey)
-                : query.value}
-            </Text>
-            <KewordSearchButtonSVG height={'18px'} width={'18px'} />
+            <KewordSearchButtonSVG height={'20px'} width={'20px'} />
           </TouchableOpacity>
         </View>
       ) : (

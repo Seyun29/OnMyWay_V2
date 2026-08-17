@@ -34,6 +34,12 @@ importers:
       '@react-navigation/native-stack':
         specifier: 7.18.8
         version: 7.18.8(cc3fc72fd34fb13eb24da49956b41589)
+      '@turf/buffer':
+        specifier: 7.2.0
+        version: 7.2.0
+      '@turf/helpers':
+        specifier: 7.2.0
+        version: 7.2.0
       axios:
         specifier: 1.19.0
         version: 1.19.0
@@ -1640,6 +1646,33 @@ packages:
     peerDependencies:
       '@svgr/core': '*'
 
+  '@turf/bbox@7.4.0':
+    resolution: {integrity: sha512-yOX9lALc2GmjYUIE99+nRj7eZA7eDtx7Ixu/hrgIo+YqHvL1reaPVTC9rQWMHMm0pH0/WHjzk8uOpAHjptrudQ==}
+
+  '@turf/buffer@7.2.0':
+    resolution: {integrity: sha512-QH1FTr5Mk4z1kpQNztMD8XBOZfpOXPOtlsxaSAj2kDIf5+LquA6HtJjZrjUngnGtzG5+XwcfyRL4ImvLnFjm5Q==}
+
+  '@turf/center@7.4.0':
+    resolution: {integrity: sha512-JVuTaIdnQtmTV8eQfVxqza1okKiaFzgVeIA6Xoy/u6aBMxg2+oBpS6GcHZkEqR8OapPWValB1AYYqimUSiyOXw==}
+
+  '@turf/clone@7.4.0':
+    resolution: {integrity: sha512-IfYnuil7XYJauy3crzIYEr26QkmBiTgFdGfYwUUe3S6dawX+lyb3vhuaYyssEPcCJq83g0G7hwxZy7141Mmzjg==}
+
+  '@turf/helpers@7.2.0':
+    resolution: {integrity: sha512-cXo7bKNZoa7aC7ydLmUR02oB3IgDe7MxiPuRz3cCtYQHn+BJ6h1tihmamYDWWUlPHgSNF0i3ATc4WmDECZafKw==}
+
+  '@turf/helpers@7.4.0':
+    resolution: {integrity: sha512-7PAwLZqOdRzTI5g9bHvUwlloAXPDH/mlajtryk0tw4ZwGMtmXsAyF4QundsAMfy4u48Fyd3AUqMXY0SMxqJGWg==}
+
+  '@turf/jsts@2.7.2':
+    resolution: {integrity: sha512-zAezGlwWHPyU0zxwcX2wQY3RkRpwuoBmhhNE9HY9kWhFDkCxZ3aWK5URKwa/SWKJbj9aztO+8vtdiBA28KVJFg==}
+
+  '@turf/meta@7.4.0':
+    resolution: {integrity: sha512-3cLUvlEyDuSnMSzrjhaLAEiYR8xhbfWyTVQlrlEw40xL81d4KF4PqUWbjTXKpXZStdYbet2GCurl79KMypNw6g==}
+
+  '@turf/projection@7.4.0':
+    resolution: {integrity: sha512-ZS932qM+18V1UBvNlrNXUCD7mh9CzQqZzw/ElVtb0kAk6N00FYQ9bo26Cca08UZKXh3rZqG/e4eCK74JNGS4Zg==}
+
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
 
@@ -2311,6 +2344,12 @@ packages:
 
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
+
+  d3-array@1.2.4:
+    resolution: {integrity: sha512-KHW6M86R+FUPYGb3R5XiYjXPq7VzwxZ22buHhAEVG5ztoEcZZMLov530mmccaqA1GghZArjQV46fuc8kUqhhHw==}
+
+  d3-geo@1.7.1:
+    resolution: {integrity: sha512-O4AempWAr+P5qbk2bC2FuN/sDW4z+dN2wDf9QV3bxQt4M5HfOEeXLgJ/UKQW0+o1Dj8BE+L5kiDbdWUMjsmQpw==}
 
   data-view-buffer@1.0.2:
     resolution: {integrity: sha512-EmKO5V3OLXh1rtK2wgXRansaK1/mtVdTUEiEI0W8RkvgT05kfxaH29PliLnpLP73yYO6142Q72QNa8Wx/A5CqQ==}
@@ -3498,6 +3537,10 @@ packages:
 
   jsonfile@4.0.0:
     resolution: {integrity: sha512-m6F1R3z8jjlf2imQHS2Qez5sjKWQzbuuhuJ/FKYFRZvPE3PuHcSMVZzfsLhGVOkfd20obL5SWEBew5ShlquNxg==}
+
+  jsts@2.7.1:
+    resolution: {integrity: sha512-x2wSZHEBK20CY+Wy+BPE7MrFQHW6sIsdaGUMEqmGAio+3gFzQaBYPwLRonUfQf9Ak8pBieqj9tUofX1+WtAEIg==}
+    engines: {node: '>= 12'}
 
   jsx-ast-utils@3.3.5:
     resolution: {integrity: sha512-ZZow9HBI5O6EPgSJLUb8n2NKgmVWTwCvHGwFuJlMjvLFqlGG6pjirPhtdsseaLZjSibD8eegzmYpUZwoIlj2cQ==}
@@ -7310,6 +7353,65 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  '@turf/bbox@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@turf/meta': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/buffer@7.2.0':
+    dependencies:
+      '@turf/bbox': 7.4.0
+      '@turf/center': 7.4.0
+      '@turf/helpers': 7.2.0
+      '@turf/jsts': 2.7.2
+      '@turf/meta': 7.4.0
+      '@turf/projection': 7.4.0
+      '@types/geojson': 7946.0.16
+      d3-geo: 1.7.1
+
+  '@turf/center@7.4.0':
+    dependencies:
+      '@turf/bbox': 7.4.0
+      '@turf/helpers': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/clone@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/helpers@7.2.0':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/helpers@7.4.0':
+    dependencies:
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/jsts@2.7.2':
+    dependencies:
+      jsts: 2.7.1
+
+  '@turf/meta@7.4.0':
+    dependencies:
+      '@turf/helpers': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
+  '@turf/projection@7.4.0':
+    dependencies:
+      '@turf/clone': 7.4.0
+      '@turf/helpers': 7.4.0
+      '@turf/meta': 7.4.0
+      '@types/geojson': 7946.0.16
+      tslib: 2.8.1
+
   '@types/babel__core@7.20.5':
     dependencies:
       '@babel/parser': 7.29.8
@@ -8196,6 +8298,12 @@ snapshots:
       css-tree: 2.2.1
 
   csstype@3.2.3: {}
+
+  d3-array@1.2.4: {}
+
+  d3-geo@1.7.1:
+    dependencies:
+      d3-array: 1.2.4
 
   data-view-buffer@1.0.2:
     dependencies:
@@ -9671,6 +9779,8 @@ snapshots:
   jsonfile@4.0.0:
     optionalDependencies:
       graceful-fs: 4.2.11
+
+  jsts@2.7.1: {}
 
   jsx-ast-utils@3.3.5:
     dependencies:

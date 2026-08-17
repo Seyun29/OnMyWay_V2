@@ -22,6 +22,7 @@ export const ko = {
   'search.keyword': '검색어',
   'search.category': '카테고리',
   'search.placeholder': '검색어 입력',
+  'search.tapToSearchAgain': '눌러서 다시 검색',
   'search.radius': '검색 반경',
   'search.noResults': '검색 결과가 없습니다.',
   'search.noResultsCompact': '검색결과가 없습니다.',
@@ -91,8 +92,16 @@ export const ko = {
   'drawer.toastRendererDomestic': '지도 화면이 국내 지도로 변경되었습니다.',
   'drawer.toastRendererGoogle': '지도 화면이 구글맵으로 변경되었습니다.',
   'navigation.naverStart': '네이버맵 길안내 시작',
+  'navigation.googleStart': '구글맵 길안내 시작',
   'navigation.tmapStart': '티맵으로 길안내 시작',
   'navigation.naver': '네이버맵',
+  'navigation.google': '구글맵',
+  'waypoint.add': '경유지에 추가',
+  'waypoint.calculating': '경유 위치 계산 중…',
+  'waypoint.calculateFailed': '경유 위치를 계산하지 못했습니다. 다시 시도해주세요.',
+  'waypoint.added': '경유지에 추가했습니다. 경로를 다시 선택해주세요.',
+  'waypoint.duplicate': '이미 경로에 포함된 장소입니다.',
+  'waypoint.maxReached': '경유지는 최대 2개까지 추가할 수 있습니다.',
   'navigation.tmap': 'T맵',
   'navigation.apple': 'Apple맵',
   'navigation.chooseApp': '길안내를 받으실 앱을 선택해주세요',
@@ -134,6 +143,7 @@ export const en: TranslationDictionary = {
   'search.keyword': 'Keyword',
   'search.category': 'Category',
   'search.placeholder': 'Enter a keyword',
+  'search.tapToSearchAgain': 'Tap to search again',
   'search.radius': 'Search radius',
   'search.noResults': 'No search results found.',
   'search.noResultsCompact': 'No search results found.',
@@ -203,8 +213,16 @@ export const en: TranslationDictionary = {
   'drawer.toastRendererDomestic': 'The map now uses Naver Map.',
   'drawer.toastRendererGoogle': 'The map now uses Google Maps.',
   'navigation.naverStart': 'Start navigation with Naver Map',
+  'navigation.googleStart': 'Start navigation with Google Maps',
   'navigation.tmapStart': 'Start navigation with TMAP',
   'navigation.naver': 'Naver Map',
+  'navigation.google': 'Google Maps',
+  'waypoint.add': 'Add as stop',
+  'waypoint.calculating': 'Calculating stop position…',
+  'waypoint.calculateFailed': 'Unable to calculate this stop. Please try again.',
+  'waypoint.added': 'Stop added. Please select your route again.',
+  'waypoint.duplicate': 'This place is already on your route.',
+  'waypoint.maxReached': 'You can add up to 2 stops.',
   'navigation.tmap': 'TMAP',
   'navigation.apple': 'Apple Maps',
   'navigation.chooseApp': 'Choose a navigation app',
@@ -226,9 +244,11 @@ export const translate = (
   language: keyof typeof translations,
   key: TranslationKey,
   values: TranslationValues = {},
-): string =>
-  translations[language][key].replace(/\{(\w+)\}/g, (token, name) =>
+): string => {
+  const template = translations[language][key] ?? ko[key] ?? key;
+  return template.replace(/\{(\w+)\}/g, (token, name) =>
     Object.prototype.hasOwnProperty.call(values, name)
       ? String(values[name])
       : token,
   );
+};

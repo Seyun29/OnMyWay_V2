@@ -17,7 +17,12 @@ import {headerRoughState} from '../../atoms/headerRoughState';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import {getAddress} from '../../api/getAddress';
-import {DefaultPath, OMWPath, SelectedPath} from '../paths/candidatePaths';
+import {
+  DefaultPath,
+  OMWPath,
+  SearchRadiusIndicator,
+  SelectedPath,
+} from '../paths/candidatePaths';
 import {loadingState} from '../../atoms/loadingState';
 import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
@@ -72,6 +77,7 @@ export default function NaverMap({
     value: '',
   });
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
+  const [searchRadiusKm, setSearchRadiusKm] = useState<number>(1);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
@@ -239,6 +245,12 @@ export default function NaverMap({
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
               <>
+                {!showAlternative && (
+                  <SearchRadiusIndicator
+                    path={selectedRoute.path}
+                    radiusKm={Math.min(searchRadiusKm, 20)}
+                  />
+                )}
                 {originalResult && originalResult.length > 0 && result ? (
                   <>
                     <OmwMarker
@@ -272,12 +284,14 @@ export default function NaverMap({
                 setQuery={setQuery}
                 showAlternative={showAlternative}
                 setShowAlternative={setShowAlternative}
+                radiusKm={searchRadiusKm}
+                setRadiusKm={setSearchRadiusKm}
               />
               {showAlternative && (
                 <>
                   {modalVisible ? (
                     <View
-                      className={`absolute w-full bottom-1/4 items-center ${
+                      className={`absolute w-full bottom-1/3 items-center ${
                         Platform.OS === 'ios'
                           ? 'justify-center'
                           : 'justify-end pb-0'
@@ -289,7 +303,10 @@ export default function NaverMap({
                         />
                         <BackToListButton onPress={backToList} />
                       </View>
-                      <NaverMapLink stopByStrategy={stopByData?.strategy} />
+                      <NaverMapLink
+                        stopByStrategy={stopByData?.strategy}
+                        avoidTolls={selectedRoute.avoidTolls}
+                      />
                     </View>
                   ) : (
                     <>

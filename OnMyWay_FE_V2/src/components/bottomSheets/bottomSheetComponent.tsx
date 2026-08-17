@@ -5,6 +5,7 @@ import StarUnFilledSVG from '../../assets/images/starUnfilled.svg';
 import BlinkStarsSVG from '../../assets/images/blinkStars.svg';
 import LeftIconSVG from '../../assets/images/leftIcon.svg';
 import RightIconSVG from '../../assets/images/rightIcon.svg';
+import AddStopOverSVG from '../../assets/images/addStopOver.svg';
 import {useRecoilState} from '../../state/atom';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
 import {useTranslation} from '../../hooks/useTranslation';
@@ -32,10 +33,14 @@ export default function BottomSheetComponent({
   placeInfo,
   stopByLoading,
   onPress,
+  onAddWaypoint,
+  addWaypointDisabled,
 }: {
   placeInfo: BottomSheetPlaceInfo;
   stopByLoading: boolean;
   onPress: () => void;
+  onAddWaypoint: () => void;
+  addWaypointDisabled: boolean;
 }) {
   const {t} = useTranslation();
   const {
@@ -173,6 +178,19 @@ export default function BottomSheetComponent({
           )}
         </View>
       </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[
+          styles.addWaypointButton,
+          addWaypointDisabled && styles.addWaypointButtonDisabled,
+        ]}
+        onPress={onAddWaypoint}
+        disabled={addWaypointDisabled}>
+        <AddStopOverSVG width={18} height={18} />
+        <Text style={styles.addWaypointText}>
+          {t(stopByLoading ? 'waypoint.calculating' : 'waypoint.add')}
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -302,5 +320,26 @@ const styles = StyleSheet.create({
   tagText: {
     color: '#A8A8A8',
     fontSize: 11,
+  },
+  addWaypointButton: {
+    minHeight: 36,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: '#2D7FF9',
+    borderRadius: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  addWaypointButtonDisabled: {
+    borderColor: '#D9D9D9',
+    opacity: 0.5,
+  },
+  addWaypointText: {
+    marginLeft: 6,
+    color: '#2D7FF9',
+    fontSize: 13,
+    fontWeight: '600',
   },
 });

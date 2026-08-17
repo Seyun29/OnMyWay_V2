@@ -5,7 +5,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {useRecoilState, useRecoilValue} from '../../state/atom';
+import {useRecoilState} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import WebView from 'react-native-webview';
 import Spinner from '../spinner';
@@ -24,14 +24,19 @@ import {getStopByDuration} from '../../api/getStopByDuration';
 import {navigationState} from '../../atoms/navigationState';
 import {RouteDetail} from '../../config/types/routes';
 import {listModalState} from '../../atoms/listModalState';
+import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
+import {onSelectRouteState} from '../../atoms/onSelectRouteState';
+import Toast from 'react-native-toast-message';
 import {useTranslation} from '../../hooks/useTranslation';
 
 export default function MainBottomSheet({
   selectedRoute,
+  setSelectedRoute,
   stopByData,
   setStopByData,
 }: {
   selectedRoute: RouteDetail | null;
+  setSelectedRoute: React.Dispatch<React.SetStateAction<RouteDetail | null>>;
   stopByData: {
     strategy: 'FRONT' | 'REAR' | 'MIDDLE';
     duration: number;
@@ -49,9 +54,12 @@ export default function MainBottomSheet({
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
   const requestGenerationRef = useRef(0);
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
-  const curPlace = useRecoilValue<PlaceDetail | null>(curPlaceState);
-  const nav = useRecoilValue(navigationState);
+  const [curPlace, setCurPlace] =
+    useRecoilState<PlaceDetail | null>(curPlaceState);
+  const [nav, setNav] = useRecoilState(navigationState);
   const [, setListModalVisible] = useRecoilState<boolean>(listModalState);
+  const [, setSelected] = useRecoilState<number>(selectedPlaceIndexState);
+  const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
 
   const [curIdx, setCurIdx] = useState<number>(0);
   const [isWebViewLoading, setIsWebViewLoading] = useState<boolean>(false);
@@ -59,8 +67,9 @@ export default function MainBottomSheet({
   const [webViewReloadKey, setWebViewReloadKey] = useState(0);
   const [extra, setExtra] = useState<ExtraDetail>({});
   const [stopByLoading, setStopByLoading] = useState<boolean>(false);
+  const [stopByPlaceKey, setStopByPlaceKey] = useState<string | null>(null);
 
-  const snapPoints = useMemo(() => ['23%', '83%', '93%'], []);
+  const snapPoints = useMemo(() => ['31%', '83%', '93%'], []);
   const placeKey =
     curPlace?.provider_place_id ??
     curPlace?.place_id ??
@@ -86,7 +95,11 @@ export default function MainBottomSheet({
   useEffect(() => {
     const generation = requestGenerationRef.current + 1;
     requestGenerationRef.current = generation;
-    if (!curPlace) return;
+    setStopByPlaceKey(null);
+    if (!curPlace || !selectedRoute) {
+      setStopByLoading(false);
+      return;
+    }
 
     setCurIdx(0);
     setExtra({});
@@ -110,6 +123,7 @@ export default function MainBottomSheet({
           strategy: res.strategy,
           path: res.path,
         });
+        setStopByPlaceKey(placeKey);
       }
       setStopByLoading(false);
     };
@@ -161,7 +175,86 @@ export default function MainBottomSheet({
         requestGenerationRef.current += 1;
       }
     };
-  }, [curPlace]);
+  }, [
+    curPlace,
+    nav,
+    selectedRoute?.priority,
+    selectedRoute?.avoidTolls,
+  ]);
+
+  const handleAddWaypoint = async () => {
+    if (!curPlace || !selectedRoute) return;
+    if (stopByLoading) {
+      Toast.show({type: 'info', text1: t('waypoint.calculating')});
+      return;
+    }
+
+    const candidate = {
+      name: curPlace.place_name,
+      coordinate: curPlace.coordinate,
+    };
+    const isSameCoordinate = (coordinate: Coordinate) =>
+      Math.abs(coordinate.latitude - candidate.coordinate.latitude) < 0.000001 &&
+      Math.abs(coordinate.longitude - candidate.coordinate.longitude) <
+        0.000001;
+    const isDuplicate = [nav.start, ...nav.wayPoints, nav.end].some(
+      point => point && isSameCoordinate(point.coordinate),
+    );
+
+    if (isDuplicate) {
+      Toast.show({type: 'info', text1: t('waypoint.duplicate')});
+      return;
+    }
+    if (nav.wayPoints.length >= 2) {
+      Toast.show({type: 'info', text1: t('waypoint.maxReached')});
+      return;
+    }
+
+    let strategy =
+      stopByPlaceKey === placeKey ? stopByData?.strategy : undefined;
+    if (!strategy) {
+      const generation = requestGenerationRef.current + 1;
+      requestGenerationRef.current = generation;
+      setStopByLoading(true);
+      const res = await getStopByDuration(
+        nav,
+        curPlace.coordinate,
+        selectedRoute.priority,
+        selectedRoute.avoidTolls,
+      );
+      if (requestGenerationRef.current !== generation) return;
+      setStopByLoading(false);
+      if (!res?.strategy) {
+        Toast.show({type: 'error', text1: t('waypoint.calculateFailed')});
+        return;
+      }
+      strategy = res.strategy;
+      setStopByData({
+        duration: res.duration,
+        strategy: res.strategy,
+        path: res.path,
+      });
+      setStopByPlaceKey(placeKey);
+    }
+
+    const nextWayPoints =
+      nav.wayPoints.length === 0
+        ? [candidate]
+        : strategy === 'REAR'
+          ? [nav.wayPoints[0], candidate]
+          : [candidate, nav.wayPoints[0]];
+
+    setNav({...nav, wayPoints: nextWayPoints});
+    setSelectedRoute(null);
+    setStopByData(null);
+    setStopByPlaceKey(null);
+    setModalVisible(false);
+    setListModalVisible(false);
+    setCurPlace(null);
+    setSelected(-1);
+    setOnSelectRoute(true);
+    Toast.show({type: 'success', text1: t('waypoint.added')});
+  };
 
   return (
     <BottomSheetModalProvider>
@@ -263,6 +356,8 @@ export default function MainBottomSheet({
                   originalDuration: selectedRoute?.duration,
                 }}
                 stopByLoading={stopByLoading}
+                addWaypointDisabled={!selectedRoute}
+                onAddWaypoint={handleAddWaypoint}
                 onPress={() => {
                   setWebViewError(false);
                   setIsWebViewLoading(true);
