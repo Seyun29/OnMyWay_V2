@@ -50,7 +50,7 @@ export interface RouteResult {
   path: Coordinate[];
 }
 export interface StopByRouteResult {
-  strategy?: StopByStrategy;
+  strategy: StopByStrategy;
   duration: number;
   path: Coordinate[];
 }
