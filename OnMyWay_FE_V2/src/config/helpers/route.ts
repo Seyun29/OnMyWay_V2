@@ -1,3 +1,4 @@
+import {getRequestLanguage, translate} from '../language';
 import {Coordinate} from '../types/coordinate';
 import {Navigation} from '../types/navigation';
 
@@ -38,7 +39,6 @@ export const calculateIsInBoundary = (
 };
 
 export const getZoomLevel = (distance: number | undefined) => {
-  //FIXME: Seperate cases in more detail!!
   /*
   ZOOM
   15 - < 1km
@@ -83,4 +83,13 @@ export const setMinMaxValue = (totalDistance: number) => {
     if (minValue > 15) maxValue = minValue + 5; //trick
     return [minValue, maxValue];
   }
+};
+
+export const formatRouteDuration = (duration: number): string => {
+  const hours = Math.floor(duration / 3600);
+  const minutes = Math.floor((duration % 3600) / 60);
+  const language = getRequestLanguage();
+  return hours > 0
+    ? translate(language, 'route.hourMinute', {hours, minutes})
+    : translate(language, 'route.minute', {minutes});
 };

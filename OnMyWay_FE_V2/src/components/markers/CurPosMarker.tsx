@@ -1,16 +1,16 @@
 import React from 'react';
 import {markerCurPosUndirected} from '../../config/consts/image';
-import {Marker} from 'react-native-nmap';
+import {MapMarker} from '../maps/mapPrimitives';
 import {Coordinate} from '../../config/types/coordinate';
 
 const CurPosMarker = ({curPosition}: {curPosition: Coordinate}) => {
   return (
-    <Marker
+    <MapMarker
       coordinate={curPosition}
       width={25}
       height={25}
       image={markerCurPosUndirected}
-      zIndex={300} //FIXME: adjust zIndex
+      zIndex={300}
     />
   );
 };

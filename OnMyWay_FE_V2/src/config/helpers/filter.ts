@@ -1,52 +1,27 @@
-//@ts-nocheck
-export const filterByOpen = result => {
-  const filteredY = result.filter(item => item.open === 'Y');
-  return filteredY;
-  // const filteredElse = result.filter(item => item.open !== 'Y');
-  // const filtered = filteredY.concat(filteredElse);
-  // return filtered;
-};
+import {PlaceDetail} from '../types/coordinate';
 
-export const filterByParking = result => {
-  const filteredY = result.filter(item => item.parking === 'Y');
-  return filteredY;
-};
+const numericScore = (place: PlaceDetail): number =>
+  Number(place.scoreAvg ?? 0);
+const reviewCount = (place: PlaceDetail): number => place.commentCnt ?? 0;
 
-export const sortByScore = result => {
-  const sorted = [...result].sort((a, b) => {
-    let aScore = a.scoreAvg;
-    let bScore = b.scoreAvg;
-    let aCnt = a.commentCnt;
-    let bCnt = b.commentCnt;
+export const filterByOpen = (result: PlaceDetail[]): PlaceDetail[] =>
+  result.filter(item => item.open);
 
-    if (aScore === undefined) aScore = 0;
-    if (bScore === undefined) bScore = 0;
-    if (aCnt === undefined) aCnt = 0;
-    if (bCnt === undefined) bCnt = 0;
+export const filterByParking = (result: PlaceDetail[]): PlaceDetail[] =>
+  result.filter(item => item.parking);
 
-    if (a) {
-      if (aScore === bScore) return bCnt - aCnt;
-      else return bScore - aScore;
-    }
+export const sortByScore = (result: PlaceDetail[]): PlaceDetail[] =>
+  [...result].sort((a, b) => {
+    const scoreDifference = numericScore(b) - numericScore(a);
+    return scoreDifference !== 0
+      ? scoreDifference
+      : reviewCount(b) - reviewCount(a);
   });
 
-  return sorted;
-};
-
-export const sortByReview = result => {
-  const sorted = [...result].sort((a, b) => {
-    let aCnt = a.commentCnt;
-    let bCnt = b.commentCnt;
-    let aScore = a.scoreAvg;
-    let bScore = b.scoreAvg;
-
-    if (aCnt === undefined) aCnt = 0;
-    if (bCnt === undefined) bCnt = 0;
-    if (aScore === undefined) aScore = 0;
-    if (bScore === undefined) bScore = 0;
-
-    if (aCnt === bCnt) return bScore - aScore;
-    else return bCnt - aCnt;
+export const sortByReview = (result: PlaceDetail[]): PlaceDetail[] =>
+  [...result].sort((a, b) => {
+    const countDifference = reviewCount(b) - reviewCount(a);
+    return countDifference !== 0
+      ? countDifference
+      : numericScore(b) - numericScore(a);
   });
-  return sorted;
-};

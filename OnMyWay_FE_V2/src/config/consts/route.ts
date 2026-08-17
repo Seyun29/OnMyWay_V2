@@ -1,7 +1,8 @@
+import {TranslationKey} from '../language';
 import {Priority} from '../types/routes';
 
-export const ROUTE_PRIORITY_TEXT = {
-  RECOMMEND: '추천 경로',
-  TIME: '최단 시간',
-  DISTANCE: '최단 거리',
+export const ROUTE_PRIORITY_KEY: Record<Priority, TranslationKey> = {
+  RECOMMEND: 'route.recommend',
+  TIME: 'route.fastest',
+  DISTANCE: 'route.shortest',
 };

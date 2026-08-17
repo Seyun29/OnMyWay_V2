@@ -1,7 +1,7 @@
-import NaverMapView from 'react-native-nmap';
+import OmwMapView from './omwMapView';
 import React, {useRef, useEffect, useState} from 'react';
-import {Keyboard, Platform, View} from 'react-native';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {Keyboard, Platform, Text, TouchableOpacity, View} from 'react-native';
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import {Center, Coordinate, PlaceDetail} from '../../config/types/coordinate';
 import {mapCenterState} from '../../atoms/mapCenterState';
@@ -17,7 +17,12 @@ import {headerRoughState} from '../../atoms/headerRoughState';
 import Spinner from '../spinner';
 import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import {getAddress} from '../../api/getAddress';
-import {DefaultPath, OMWPath, SelectedPath} from '../paths/candidatePaths';
+import {
+  DefaultPath,
+  OMWPath,
+  SearchRadiusIndicator,
+  SelectedPath,
+} from '../paths/candidatePaths';
 import {loadingState} from '../../atoms/loadingState';
 import KeywordSearchBox from '../keywordSearchBox';
 import {RouteDetail} from '../../config/types/routes';
@@ -31,6 +36,8 @@ import {listModalState} from '../../atoms/listModalState';
 import {checkPermissions} from '../../hooks/usePermissions';
 import {headerHeightState} from '../../atoms/headerHeightState';
 import {useSafeAreaInsets} from 'react-native-safe-area-context';
+import {PlaceSearchQuery} from '../../config/consts/query';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function NaverMap({
   selectedRoute,
@@ -39,20 +46,25 @@ export default function NaverMap({
   selectedRoute: RouteDetail | null;
   stopByData: any;
 }) {
+  const {t} = useTranslation();
   const insets = useSafeAreaInsets();
   const [modalVisible, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
   const [, setIsRough] = useRecoilState<boolean>(headerRoughState);
-  const [lastCenter, setLastCenter] = useRecoilState<Center>(lastCenterState);
+  const [lastCenter, setLastCenter] =
+    useRecoilState<Center | null>(lastCenterState);
   const isLoading = useRecoilValue<boolean>(loadingState);
   const [nav, setNav] = useRecoilState<Navigation>(navigationState);
 
-  const [center, setCenter] = useRecoilState<Center>(mapCenterState);
+  const [center, setCenter] = useRecoilState<Center | null>(mapCenterState);
   const [, setOnSelectRoute] = useRecoilState<boolean>(onSelectRouteState);
   const headerHeight = useRecoilValue<number>(headerHeightState);
 
   const [curPosition, setCurPosition] = useState<Coordinate | null>(null);
+  const [isCenterInitializing, setIsCenterInitializing] = useState(
+    center === null,
+  );
 
   //for filtering the result
   const [originalResult, setOriginalResult] = useState<PlaceDetail[] | null>(
@@ -60,37 +72,51 @@ export default function NaverMap({
   );
   const [result, setResult] = useState<PlaceDetail[] | null>(null);
 
-  const [query, setQuery] = useState<string>('');
+  const [query, setQuery] = useState<PlaceSearchQuery>({
+    kind: 'keyword',
+    value: '',
+  });
   const [showAlternative, setShowAlternative] = useState<boolean>(false);
+  const [searchRadiusKm, setSearchRadiusKm] = useState<number>(1);
 
   const prevNavRef = useRef<Navigation | null>(nav);
   const isFirstMount = useRef<boolean>(true);
 
   const setCurPos = async (initial?: boolean) => {
+    if (!center) setIsCenterInitializing(true);
+
     try {
       const curPos = await getCurPosition(initial, headerHeight + insets.top);
+      const nextCenter = {
+        ...curPos,
+        zoom: lastCenter?.zoom ?? DEFAULT_ZOOM,
+      };
       setCurPosition(curPos);
-      setCenter({...curPos, zoom: 15}); //Cheat Shortcut for fixing centering bug
-      setCenter({...curPos, zoom: lastCenter.zoom || DEFAULT_ZOOM});
+      setCenter(nextCenter);
+      setLastCenter(nextCenter);
       if (!nav.start) {
         const res = await getAddress(curPos);
+        if (res === null) return;
+        const addressName = res?.road_address || res?.address;
         setNav({
           ...nav,
           start: {
-            name: '현위치 : ' + (res.road_address || res.address),
+            name: addressName
+              ? t('place.currentWithAddress', {address: addressName})
+              : t('place.current'),
             coordinate: curPos,
           },
         });
       }
-    } catch (error) {
+    } catch {
       setCurPosition(null);
       if (!initial) {
         const isPermissionDenied = await checkPermissions();
         if (!isPermissionDenied) {
           Toast.show({
             type: 'error',
-            text1: '현재 위치를 가져오는데 실패했습니다.',
-            text2: '잠시 후 다시 시도해주세요',
+            text1: t('location.failed'),
+            text2: t('location.tryAgain'),
             position: 'top',
             topOffset: headerHeight + insets.top,
             visibilityTime: 2500,
@@ -105,12 +131,12 @@ export default function NaverMap({
           });
         }
       }
-      console.error(error);
+    } finally {
+      setIsCenterInitializing(false);
     }
   };
 
   const backToList = () => {
-    //TODO: implement feature here
     setListModalVisible(true);
   };
 
@@ -166,11 +192,23 @@ export default function NaverMap({
     if (!selectedRoute) setResult(null);
   }, [selectedRoute]);
 
-  //TODO: Make SEARCH ON PATH API request, render the result on the map (OMWMARKER)
   return (
     <View className="relative w-full h-full">
-      {isLoading ? (
+      {isLoading || isCenterInitializing ? (
         <Spinner />
+      ) : !center ? (
+        <View className="flex-1 items-center justify-center px-6">
+          <Text className="mb-4 text-center text-base text-slate-600">
+            {t('location.failed')}
+          </Text>
+          <TouchableOpacity
+            className="rounded-lg bg-slate-800 px-5 py-3"
+            onPress={() => setCurPos(false)}>
+            <Text className="font-semibold text-white">
+              {t('location.tryAgain')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <>
           <View
@@ -178,7 +216,7 @@ export default function NaverMap({
               height: ROUGH_HEADER_HEIGHT,
             }}
           />
-          <NaverMapView
+          <OmwMapView
             style={{
               width: '100%',
               // height: '100%',
@@ -186,7 +224,7 @@ export default function NaverMap({
             }}
             zoomControl={false}
             center={center}
-            onMapClick={e => {
+            onMapClick={() => {
               setModalVisible(false);
               Keyboard.dismiss();
             }}
@@ -202,13 +240,17 @@ export default function NaverMap({
               Keyboard.dismiss();
             }}
             scaleBar
-            compass
-            mapType={0} //0 : Basic, 1 : Navi, 4 : Terrain, etc..
-          >
+            compass>
             {curPosition && <CurPosMarker curPosition={curPosition} />}
             <NavMarker />
             {selectedRoute && selectedRoute.path.length > 0 && (
               <>
+                {!showAlternative && (
+                  <SearchRadiusIndicator
+                    path={selectedRoute.path}
+                    radiusKm={Math.min(searchRadiusKm, 20)}
+                  />
+                )}
                 {originalResult && originalResult.length > 0 && result ? (
                   <>
                     <OmwMarker
@@ -230,7 +272,7 @@ export default function NaverMap({
                 )}
               </>
             )}
-          </NaverMapView>
+          </OmwMapView>
           {selectedRoute ? (
             <>
               <KeywordSearchBox
@@ -242,12 +284,14 @@ export default function NaverMap({
                 setQuery={setQuery}
                 showAlternative={showAlternative}
                 setShowAlternative={setShowAlternative}
+                radiusKm={searchRadiusKm}
+                setRadiusKm={setSearchRadiusKm}
               />
               {showAlternative && (
                 <>
                   {modalVisible ? (
                     <View
-                      className={`absolute w-full bottom-1/4 items-center ${
+                      className={`absolute w-full bottom-1/3 items-center ${
                         Platform.OS === 'ios'
                           ? 'justify-center'
                           : 'justify-end pb-0'
@@ -259,7 +303,10 @@ export default function NaverMap({
                         />
                         <BackToListButton onPress={backToList} />
                       </View>
-                      <NaverMapLink stopByStrategy={stopByData?.strategy} />
+                      <NaverMapLink
+                        stopByStrategy={stopByData?.strategy}
+                        avoidTolls={selectedRoute.avoidTolls}
+                      />
                     </View>
                   ) : (
                     <>

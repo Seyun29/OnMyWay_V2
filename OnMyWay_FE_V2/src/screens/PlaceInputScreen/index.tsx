@@ -1,18 +1,12 @@
 import React, {useEffect, useState} from 'react';
+import {Pressable, Keyboard, View, FlatList} from 'react-native';
 import {
   SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
-  Pressable,
-  Keyboard,
-  Text,
-  Alert,
-  View,
-  FlatList,
-} from 'react-native';
+  useSafeAreaInsets,
+} from 'react-native-safe-area-context';
 import PlaceInputHeader from '../../components/headers/placeInputHeader';
 import NoHistorySVG from '../../assets/images/noHistory.svg';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import {navigationState} from '../../atoms/navigationState';
 
 import {useNavigation} from '@react-navigation/native';
@@ -25,23 +19,20 @@ import Spinner from '../../components/spinner';
 import PlaceQueryResult from '../../components/placeQueryResult';
 import {recentPlaceDetail} from '../../config/types/place';
 import Toast from 'react-native-toast-message';
-import {headerHeightState} from '../../atoms/headerHeightState';
-import {useSafeAreaInsets} from 'react-native-safe-area-context';
-import {ROUGH_HEADER_HEIGHT} from '../../config/consts/style';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function PlaceInputScreen() {
-  //FIXME: choose what to edit
-  //FIXME: add 'keyboard.dismiss()' when user clicks outside of the input box
-  //FIXME: use keyboardavoidingview so that the SVG is located differently when the keyboard is open
-  //TODO: use asyncstorage => Use JSON.stringify() and JSON.parse() to store and retrieve objects and arrays.
+  const {t} = useTranslation();
   const insets = useSafeAreaInsets();
   const [resultList, setResultList] = useState<any[]>([]);
   const [isResult, setIsResult] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const [placeInputHeaderHeight, setPlaceInputHeaderHeight] =
+    useState<number>(112);
   const [, setNav] = useRecoilState(navigationState);
   const whichNav = useRecoilValue(whichNavState);
-  const headerHeight = useRecoilValue(headerHeightState);
   const navigation = useNavigation();
+  const toastTopOffset = insets.top + placeInputHeaderHeight + 10;
 
   const handlePress = async (result: any) => {
     switch (whichNav) {
@@ -114,7 +105,6 @@ export default function PlaceInputScreen() {
     //store to RECENT
     const prev = await get(RECENT_KEY);
     const newPlaces: recentPlaceDetail[] = [];
-    //FIXME: type issue here
     prev?.places.forEach(place => {
       //push if the address is not already in the list
       if (place.addressName !== result?.addressName) {
@@ -136,24 +126,22 @@ export default function PlaceInputScreen() {
 
   const onCurPosPress = async () => {
     try {
-      const curPos = await getCurPosition(
-        false,
-        ROUGH_HEADER_HEIGHT + insets.top + 30,
-      );
+      const curPos = await getCurPosition(false, toastTopOffset);
+      // 서버 응답 실패 시 res가 undefined일 수 있다.
       const res = await getAddress(curPos);
+      if (res === null) return;
       handlePress({
-        addressName: res.address,
-        roadAddressName: res.roadAddress,
+        addressName: res?.address ?? t('place.current'),
+        roadAddressName: res?.road_address,
         coordinate: curPos,
       });
-    } catch (error) {
-      console.error(error);
+    } catch {
       Toast.show({
         type: 'error',
-        text1: '현재 위치를 가져오는데 실패했습니다.',
-        text2: '설정에서 위치 권한을 확인해주세요.',
+        text1: t('location.failed'),
+        text2: t('location.checkPermission'),
         position: 'top',
-        topOffset: ROUGH_HEADER_HEIGHT + insets.top + 30,
+        topOffset: toastTopOffset,
         visibilityTime: 2500,
         text1Style: {
           fontSize: 13,
@@ -168,7 +156,7 @@ export default function PlaceInputScreen() {
   };
 
   const onMount = async () => {
-    const history = await get(RECENT_KEY); //FIXME: add sorting, deleting feature
+    const history = await get(RECENT_KEY);
     if (history) {
       setIsResult(true);
       setResultList(history.places);
@@ -180,48 +168,52 @@ export default function PlaceInputScreen() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white w-full h-full">
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <PlaceInputHeader
         setResultList={setResultList}
         setIsResult={setIsResult}
         onCurPosPress={onCurPosPress}
         setLoading={setLoading}
+        onHeightChange={setPlaceInputHeaderHeight}
       />
-      {/* FIXME: use keyboardavoidingview only when there's NO history!!!! */}
       <Pressable
-        className="flex-1"
+        style={{flex: 1}}
         onPress={() => {
           Keyboard.dismiss();
         }}>
         {loading ? (
           <Spinner />
-        ) : (
-          <KeyboardAvoidingView
-            className="flex-1 items-center justify-center"
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            enabled={!isResult || resultList.length === 0}>
-            {isResult && resultList.length > 0 ? (
-              <FlatList
-                style={{width: '100%'}}
-                data={resultList}
-                renderItem={({item: result, index: idx}) => (
-                  <PlaceQueryResult
-                    key={idx.toString()}
-                    placeName={result.placeName}
-                    roadAddressName={result.roadAddressName}
-                    addressName={result.addressName}
-                    coordinate={result.coordinate}
-                    onPress={() => {
-                      handlePress(result);
-                    }}
-                  />
-                )}
-                keyExtractor={(i, index) => index.toString()}
+        ) : isResult && resultList.length > 0 ? (
+          <FlatList
+            style={{flex: 1, width: '100%'}}
+            data={resultList}
+            keyboardShouldPersistTaps="handled"
+            renderItem={({item: result}) => (
+              <PlaceQueryResult
+                placeName={result.placeName}
+                roadAddressName={result.roadAddressName}
+                addressName={result.addressName}
+                coordinate={result.coordinate}
+                onPress={() => {
+                  handlePress(result);
+                }}
               />
-            ) : (
-              <NoHistorySVG height={130} width={130} />
             )}
-          </KeyboardAvoidingView>
+            keyExtractor={(item, index) =>
+              `${item.placeName ?? item.addressName ?? 'place'}-${index}`
+            }
+          />
+        ) : (
+          <View
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}>
+            <NoHistorySVG height={130} width={130} />
+          </View>
         )}
       </Pressable>
     </SafeAreaView>

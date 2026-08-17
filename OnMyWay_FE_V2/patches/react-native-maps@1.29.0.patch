@@ -1,0 +1,53 @@
+diff --git a/ios/AirGoogleMaps/RNMapsGoogleMarkerView.mm b/ios/AirGoogleMaps/RNMapsGoogleMarkerView.mm
+index 8c1b7b975829e5942d3b32edb04bd723528e9af1..8d4e2c0db4e2400cf5df379be8b185f2328f180c 100644
+--- a/ios/AirGoogleMaps/RNMapsGoogleMarkerView.mm
++++ b/ios/AirGoogleMaps/RNMapsGoogleMarkerView.mm
+@@ -241,6 +241,25 @@ - (void)prepareMarkerView
+     };
+ }
+ 
++- (void)syncMarkerLayout
++{
++    [self prepareMarkerView];
++
++    CGSize markerSize = self.bounds.size;
++    if (markerSize.width <= 0 || markerSize.height <= 0) return;
++
++    CGRect markerFrame = CGRectMake(0, 0, markerSize.width, markerSize.height);
++    _view.frame = markerFrame;
++
++    UIView *iconView = _view.iconView;
++    if (!iconView) return;
++
++    iconView.frame = markerFrame;
++    [_view setNeedsLayout];
++    [_view layoutIfNeeded];
++    [_view redraw];
++}
++
+ - (void)mountChildComponentView:(UIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index
+ {
+     if (!_view) {
+@@ -253,6 +272,7 @@ - (void)mountChildComponentView:(UIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index
+     } else {
+         [_view insertReactSubview:childComponentView atIndex:index];
+     }
++    [self syncMarkerLayout];
+ }
+ 
+ - (void)unmountChildComponentView:(UIView<RCTComponentViewProtocol> *)childComponentView index:(NSInteger)index
+@@ -267,7 +287,14 @@ - (instancetype)initWithFrame:(CGRect)frame
+     }
+     return self;
+ }
+ 
++- (void)updateLayoutMetrics:(const LayoutMetrics &)layoutMetrics
++           oldLayoutMetrics:(const LayoutMetrics &)oldLayoutMetrics
++{
++    [super updateLayoutMetrics:layoutMetrics oldLayoutMetrics:oldLayoutMetrics];
++    [self syncMarkerLayout];
++}
++
+ - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &)oldProps
+ {
+     [self prepareMarkerView];

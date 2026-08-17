@@ -14,21 +14,24 @@ export class GetAddressResponseDto {
   data: AddressType[];
 }
 
+class ProviderAttributionType {
+  @ApiProperty({ enum: ['GOOGLE', 'KAKAO', 'TMAP', 'NAVER'] })
+  provider: 'GOOGLE' | 'KAKAO' | 'TMAP' | 'NAVER';
+
+  @ApiProperty({ required: false })
+  url?: string;
+}
+
 class PlaceType {
-  // @ApiProperty()
-  // 'category_group_code': string | ''; //FIXME: list up all possible category codes and make it enum (literal)
-  // @ApiProperty()
-  // 'category_group_name': string | '';
-  // @ApiProperty({ example: '문화,예술 > 종교 > 기독교 > 교회' })
-  // 'category_name': string; // @ApiProperty({ example: '8162856' })
-  // 'id': string;
-  // @ApiProperty({ example: '051-209-0191' })
-  // 'phone': string;
-  // @ApiProperty({
-  //   example: '',
-  //   description: "'' if x,y coordinates are not given as query input",
-  // })
-  // 'distance': string | '';
+  @ApiProperty({ enum: ['GOOGLE', 'KAKAO', 'TMAP', 'NAVER'] })
+  provider: 'GOOGLE' | 'KAKAO' | 'TMAP' | 'NAVER';
+
+  @ApiProperty({ required: false })
+  provider_place_id?: string;
+
+  @ApiProperty({ type: ProviderAttributionType })
+  attribution: ProviderAttributionType;
+
   @ApiProperty({ example: '호산나교회', required: false })
   'place_name'?: string;
 

@@ -6,11 +6,6 @@ module.exports = {
     'react-native/no-inline-styles': 'off',
     curly: 'off',
     'react-hooks/exhaustive-deps': 'off',
-    'prettier/prettier': [
-      'error',
-      {
-        endOfLine: 'auto',
-      },
-    ],
+    'no-console': 'error',
   },
 };

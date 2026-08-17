@@ -5,7 +5,7 @@ import {
   BottomSheetModalProvider,
   BottomSheetView,
 } from '@gorhom/bottom-sheet';
-import {useRecoilState} from 'recoil';
+import {useRecoilState} from '../../state/atom';
 import {modalState} from '../../atoms/modalState';
 import {listModalState} from '../../atoms/listModalState';
 import {PlaceDetail} from '../../config/types/coordinate';
@@ -21,6 +21,7 @@ import {
 } from '../../config/helpers/filter';
 import FilterSVG from '../../assets/images/filter.svg';
 import Spinner from '../spinner';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export default function ListBottomSheet({
   result,
@@ -33,6 +34,7 @@ export default function ListBottomSheet({
   originalResult: PlaceDetail[] | null;
   showAlternative: boolean;
 }) {
+  const {t} = useTranslation();
   const [, setModalVisible] = useRecoilState<boolean>(modalState);
   const [listModalVisible, setListModalVisible] =
     useRecoilState<boolean>(listModalState);
@@ -57,15 +59,8 @@ export default function ListBottomSheet({
     selected ? '#9CC7FF' : '#A8A8A8';
   const selectBGColor = (selected: boolean): string =>
     selected ? '#EBF2FF' : 'transparent';
-  //@ts-ignore
-  const selectedNum = () => {
-    let count = 0;
-    for (const key in selectedObj) {
-      //@ts-ignore
-      if (selectedObj[key]) count++;
-    }
-    return count;
-  };
+  const selectedNum = () =>
+    Object.values(selectedObj).filter(Boolean).length;
 
   const handleClickIsOpen = () => {
     setLoading(true);
@@ -212,6 +207,8 @@ export default function ListBottomSheet({
         ref={bottomSheetModalRef}
         index={0}
         snapPoints={snapPoints}
+        // v5부터 기본값이 true라 flex:1 컨텐츠가 0 높이로 측정되어 리스트가 보이지 않는다.
+        enableDynamicSizing={false}
         onDismiss={() => setListModalVisible(false)}
         enableDismissOnClose
         style={{
@@ -238,7 +235,7 @@ export default function ListBottomSheet({
                 backgroundColor: selectedNum() ? '#EBF2FF' : 'transparent',
               }}>
               <FilterSVG />
-              {selectedNum() && (
+              {selectedNum() > 0 && (
                 <Text style={{color: '#A8A8A8'}}>{selectedNum()}</Text>
               )}
             </View>
@@ -252,7 +249,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.open)}}>
-                영업중
+                {t('bottom.open')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -265,7 +262,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.parking)}}>
-                주차 가능
+                {t('bottom.parkingSpaced')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -278,7 +275,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.score)}}>
-                평점 좋은 순
+                {t('bottom.bestRated')}
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -291,7 +288,7 @@ export default function ListBottomSheet({
               <Text
                 className="text-xs"
                 style={{color: selectTextColor(selectedObj.review)}}>
-                후기 많은 순
+                {t('bottom.mostReviewed')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -301,7 +298,8 @@ export default function ListBottomSheet({
             ) : (
               <FlatList
                 ref={flatListRef}
-                className="flex-1 w-full pt-2 flex-col"
+                // gesture-handler의 FlatList는 NativeWind interop 대상이 아니라 style로 지정한다.
+                style={{flex: 1, width: '100%', paddingTop: 8}}
                 data={result}
                 keyExtractor={(item, index) => index.toString()}
                 renderItem={({item, index}) => (

@@ -4,7 +4,7 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {RootStackParam} from '../../navigations';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import {MAIN_RED_LIGHT} from '../../config/consts/style';
 import {navigationState} from '../../atoms/navigationState';
 import {whichNavState} from '../../atoms/whichNavState';
@@ -12,8 +12,10 @@ import {RECENT_KEY} from '../../config/consts/storage';
 import {get, store} from '../../config/helpers/storage';
 import ShowMapHeader from '../../components/headers/ShowMapHeader';
 import ShowMap from '../../components/maps/showMap';
+import {useTranslation} from '../../hooks/useTranslation';
 
 export const ShowMapScreen = () => {
+  const {t} = useTranslation();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParam>>();
   //get params from navigation
   const route = useRoute<RouteProp<RootStackParam, 'ShowMap'>>();
@@ -22,7 +24,6 @@ export const ShowMapScreen = () => {
   const whichNav = useRecoilValue(whichNavState);
 
   const onSelect = async () => {
-    //FIXME: move this funtion to outside as a hook, reuse it in other components
     const newState = {
       name: placeName || addressName,
       coordinate,
@@ -64,7 +65,7 @@ export const ShowMapScreen = () => {
         }));
         break;
       default:
-        console.log('error while selecting place on map');
+        return;
     }
     const prev = await get(RECENT_KEY);
     await store(RECENT_KEY, {
@@ -81,7 +82,9 @@ export const ShowMapScreen = () => {
     navigation.navigate('Home');
   };
   return (
-    <SafeAreaView className="flex-1 bg-white w-full h-full">
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <View className="flex-1">
         <ShowMapHeader />
         <View className="flex-1">
@@ -96,7 +99,9 @@ export const ShowMapScreen = () => {
               backgroundColor: '#' + MAIN_RED_LIGHT,
             }}
             onPress={onSelect}>
-            <Text className="text-xl text-white font-semibold">선택</Text>
+            <Text className="text-xl text-white font-semibold">
+              {t('common.select')}
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

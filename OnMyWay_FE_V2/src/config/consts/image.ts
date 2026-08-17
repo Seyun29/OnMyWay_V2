@@ -4,6 +4,9 @@ const markerBasicOn = require('../../assets/images/markers/markerBasicOn.png');
 const markerStart = require('../../assets/images/markers/markerStart.png');
 const markerEnd = require('../../assets/images/markers/markerEnd.png');
 const markerStopover = require('../../assets/images/markers/markerStopover.png');
+const markerStartEn = require('../../assets/images/markers/en/markerStart.png');
+const markerEndEn = require('../../assets/images/markers/en/markerEnd.png');
+const markerStopoverEn = require('../../assets/images/markers/en/markerStopover.png');
 
 const markerSmallDefault = require('../../assets/images/markers/markerSmallDefault.png');
 const markerSmallOff = require('../../assets/images/markers/markerSmallOff.png');
@@ -12,9 +15,10 @@ const markerSmallOn = require('../../assets/images/markers/markerSmallOn.png');
 const markerSelected = require('../../assets/images/markers/markerSelected.png');
 
 export const markerList = {
-  start: markerStart,
-  end: markerEnd,
-  stopover: markerStopover,
+  navigation: {
+    ko: {start: markerStart, end: markerEnd, stopover: markerStopover},
+    en: {start: markerStartEn, end: markerEndEn, stopover: markerStopoverEn},
+  },
   selected: markerSelected,
   basic: {
     default: markerBasicDefault,

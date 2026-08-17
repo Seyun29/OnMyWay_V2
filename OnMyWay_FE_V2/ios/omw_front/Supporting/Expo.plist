@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>
+    <key>EXUpdatesEnabled</key>
+    <true/>
+    <key>EXUpdatesCheckOnLaunch</key>
+    <string>ALWAYS</string>
+    <key>EXUpdatesLaunchWaitMs</key>
+    <integer>0</integer>
+    <key>EXUpdatesURL</key>
+    <string>https://u.expo.dev/5900347e-72d0-4981-8b2d-8bad12f1d2d8</string>
+    <key>EXUpdatesEnableBsdiffPatchSupport</key>
+    <true/>
+    <key>EXUpdatesRuntimeVersion</key>
+    <string>file:fingerprint</string>
+  </dict>
+</plist>

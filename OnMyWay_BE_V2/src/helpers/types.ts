@@ -1,5 +1,5 @@
 export default interface SelectVerticesParams {
-  path: string[][];
+  path: number[][];
   totalDistance: number;
   radius: number;
 }

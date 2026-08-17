@@ -1,4 +1,4 @@
-import {atom} from 'recoil';
+import {atom} from '../state/atom';
 import {PlaceDetail} from '../config/types/coordinate';
 
 export const curPlaceState = atom<PlaceDetail | null>({

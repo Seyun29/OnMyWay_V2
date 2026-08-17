@@ -2,12 +2,6 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CodePushDeploymentKey</key>
-	<string>N9aAsOnESPwCLI-dn3jPpIW4qZPIyrPTFgpgP</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>지도에서 사용자의 현재 위치를 표시하고, 주변 장소를 추천하는 데 사용자의 현재 위치 권한이 필요합니다. 언제든지 설정에서 위치 권한을 철회할 수 있습니다.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>지도에서 사용자의 현재 위치를 표시하고, 주변 장소를 추천하는 데 사용자의 현재 위치 권한이 필요합니다. 언제든지 설정에서 위치 권한을 철회할 수 있습니다.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
@@ -28,31 +22,25 @@
 	<string>????</string>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>nmap</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<key>NMFClientId</key>
-	<string>vrzp6pdaaj</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<false/>
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
-		<key>NSAllowsArbitraryLoads</key>
-		<true/> 
-		<key>NSAllowsArbitraryLoadsInWebContent</key>
-		<true/>
-		<key>NSExceptionDomains</key>
-		<dict>
-			<key>alb-omw-986932733.ap-northeast-2.elb.amazonaws.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSExceptionRequiresForwardSecrecy</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
-		</dict>
 	</dict>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>지도에서 사용자의 현재 위치를 표시하고, 주변 장소를 추천하는 데 사용자의 현재 위치 권한이 필요합니다. 언제든지 설정에서 위치 권한을 철회할 수 있습니다.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>지도에서 사용자의 현재 위치를 표시하고, 주변 장소를 추천하는 데 사용자의 현재 위치 권한이 필요합니다. 언제든지 설정에서 위치 권한을 철회할 수 있습니다.</string>
+	<key>RCTNewArchEnabled</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen.storyboard</string>
 	<key>UIRequiredDeviceCapabilities</key>
@@ -64,10 +52,6 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>nmap</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>

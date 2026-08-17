@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { json, urlencoded } from 'body-parser';
+import { json, urlencoded } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { HttpExceptionFilter } from './common/exceptions/http-exception-filter/http-exception-filter.filter';
 import { SuccessInterceptor } from './common/interceptors/success.interceptor';
@@ -37,7 +37,14 @@ async function bootstrap() {
   const document: OpenAPIObject = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
 
-  const PORT = process.env.PORT || 3000;
-  await app.listen(PORT);
+  const portValue = process.env.PORT?.trim() || '3005';
+  const port = Number(portValue);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error(`Invalid server port: ${portValue}`);
+  }
+
+  // 로컬 기본값은 3005다. 배포 환경에서는 Railway 등 플랫폼이 주입한 PORT를 우선한다.
+  // 외부 HTTP/HTTPS 종료는 reverse proxy가 담당하고 Nest는 내부 포트에서 수신한다.
+  await app.listen(port, '0.0.0.0');
 }
 bootstrap();

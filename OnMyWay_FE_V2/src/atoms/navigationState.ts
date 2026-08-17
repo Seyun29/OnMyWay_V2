@@ -1,4 +1,4 @@
-import {atom} from 'recoil';
+import {atom} from '../state/atom';
 import {Navigation} from '../config/types/navigation';
 
 export const navigationState = atom<Navigation>({

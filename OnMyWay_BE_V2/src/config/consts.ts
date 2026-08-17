@@ -1,12 +1,18 @@
 import { config } from 'dotenv';
 
-config();
-
-export const OPENAI_HEADER_AUTH = process.env.OPENAI_HEADER_AUTH;
-export const OPENAI_BASE_URL = 'https://api.openai.com/v1/';
-export const OPENAI_API_URL = 'chat/completions';
+config({ quiet: true });
 
 export const KAKAO_API_KEY = process.env.KAKAO_API_KEY;
+
+export const GOOGLE_MAPS_SERVER_API_KEY =
+  process.env.GOOGLE_MAPS_SERVER_API_KEY;
+export const GOOGLE_GEOCODING_URL =
+  'https://maps.googleapis.com/maps/api/geocode/json';
+export const GOOGLE_PLACES_SEARCH_TEXT_URL =
+  'https://places.googleapis.com/v1/places:searchText';
+export const GOOGLE_PLACES_BASE_URL = 'https://places.googleapis.com/v1/places';
+export const GOOGLE_ROUTES_COMPUTE_URL =
+  'https://routes.googleapis.com/directions/v2:computeRoutes';
 
 export const KAKAO_MAP_BASE_URL = 'https://dapi.kakao.com/v2/local/';
 export const KAKAO_NAV_BASE_URL = 'https://apis-navi.kakaomobility.com/v1/';
@@ -43,10 +49,11 @@ export const CATEGORY_LIST = [
   'CE7',
   'HP8',
   'PM9',
-];
-//FIXME: fix it to be enum or literals
+] as const;
 
-export const CATEGORY_LABEL_TO_CODE = {
+export type KakaoCategoryCode = (typeof CATEGORY_LIST)[number];
+
+export const CATEGORY_LABEL_TO_CODE: Record<string, KakaoCategoryCode> = {
   대형마트: 'MT1',
   편의점: 'CS2',
   주차장: 'PK6',

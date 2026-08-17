@@ -1,29 +1,79 @@
-export const CATEGORY_LIST = [
-  {label: '음식점', code: 'FD6'},
-  {label: '카페', code: 'CE7'},
-  {label: '편의점', code: 'CS2'},
-  {label: '대형마트', code: 'MT1'},
-  {label: '주차장', code: 'PK6'},
-  {label: '숙박', code: 'AD5'},
-  {label: '병원', code: 'HP8'},
+import {TranslationKey} from '../language';
+
+export type CategoryId =
+  | 'restaurant'
+  | 'cafe'
+  | 'convenienceStore'
+  | 'supermarket'
+  | 'parking'
+  | 'lodging'
+  | 'hospital';
+
+export type CategoryCode =
+  | 'FD6'
+  | 'CE7'
+  | 'CS2'
+  | 'MT1'
+  | 'PK6'
+  | 'AD5'
+  | 'HP8';
+
+export type Category = {
+  id: CategoryId;
+  code: CategoryCode;
+  labelKey: TranslationKey;
+  queryKey: TranslationKey;
+};
+
+export type PlaceSearchQuery =
+  | {kind: 'keyword'; value: string}
+  | {kind: 'category'; categoryId: CategoryId};
+
+export const CATEGORY_LIST: readonly Category[] = [
+  {
+    id: 'restaurant',
+    code: 'FD6',
+    labelKey: 'category.restaurant',
+    queryKey: 'category.query.restaurant',
+  },
+  {
+    id: 'cafe',
+    code: 'CE7',
+    labelKey: 'category.cafe',
+    queryKey: 'category.query.cafe',
+  },
+  {
+    id: 'convenienceStore',
+    code: 'CS2',
+    labelKey: 'category.convenienceStore',
+    queryKey: 'category.query.convenienceStore',
+  },
+  {
+    id: 'supermarket',
+    code: 'MT1',
+    labelKey: 'category.supermarket',
+    queryKey: 'category.query.supermarket',
+  },
+  {
+    id: 'parking',
+    code: 'PK6',
+    labelKey: 'category.parking',
+    queryKey: 'category.query.parking',
+  },
+  {
+    id: 'lodging',
+    code: 'AD5',
+    labelKey: 'category.lodging',
+    queryKey: 'category.query.lodging',
+  },
+  {
+    id: 'hospital',
+    code: 'HP8',
+    labelKey: 'category.hospital',
+    queryKey: 'category.query.hospital',
+  },
 ];
 
-export const CODE_TO_LABEL = {
-  MT1: '대형마트',
-  CS2: '편의점',
-  PK6: '주차장',
-  FD6: '음식점',
-  AD5: '숙박',
-  CE7: '카페',
-  HP8: '병원',
-};
-
-export const LABEL_TO_CODE = {
-  대형마트: 'MT1',
-  편의점: 'CS2',
-  주차장: 'PK6',
-  음식점: 'FD6',
-  숙박: 'AD5',
-  카페: 'CE7',
-  병원: 'HP8',
-};
+export const CATEGORY_BY_ID = Object.fromEntries(
+  CATEGORY_LIST.map(category => [category.id, category]),
+) as Record<CategoryId, Category>;

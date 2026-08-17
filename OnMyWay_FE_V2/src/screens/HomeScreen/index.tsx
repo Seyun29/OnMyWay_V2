@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {Pressable, View, Text, TextInput, Button} from 'react-native';
+import {Pressable, View} from 'react-native';
 import NaverMap from '../../components/maps/naverMap';
-import MainBottomSheet from '../../components/bottomSheets/mainBotttomSheet';
-import {useRecoilState, useRecoilValue} from 'recoil';
+import MainBottomSheet from '../../components/bottomSheets/mainBottomSheet';
+// Displays the selected place and route detour details.
+import {useRecoilState, useRecoilValue} from '../../state/atom';
 import MainHeader from '../../components/headers/mainHeader';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {Drawer} from 'react-native-drawer-layout';
@@ -11,7 +12,6 @@ import {onSelectRouteState} from '../../atoms/onSelectRouteState';
 import SelectRouteMap from '../../components/maps/selectRouteMap';
 import {RouteDetail} from '../../config/types/routes';
 import {Coordinate} from '../../config/types/coordinate';
-import {login, logout, register} from '../../api/auth';
 import DrawerView from '../../components/drawer/drawerView';
 
 export const HomeScreen = () => {
@@ -26,7 +26,9 @@ export const HomeScreen = () => {
   } | null>(null);
 
   return (
-    <SafeAreaView className="flex-1 bg-white w-full h-full">
+    <SafeAreaView
+      edges={['top', 'left', 'right', 'bottom']}
+      style={{flex: 1, backgroundColor: '#FFFFFF'}}>
       <Drawer
         open={isDrawerOpen}
         onOpen={() => setIsDrawerOpen(true)}
@@ -52,6 +54,7 @@ export const HomeScreen = () => {
           </View>
           <MainBottomSheet
             selectedRoute={selectedRoute}
+            setSelectedRoute={setSelectedRoute}
             stopByData={stopByData}
             setStopByData={setStopByData}
           />

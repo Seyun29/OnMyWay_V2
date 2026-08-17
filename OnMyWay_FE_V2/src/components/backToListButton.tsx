@@ -1,8 +1,10 @@
 import React from 'react';
 import {TouchableOpacity, Text} from 'react-native';
 import BackToListSVG from '../assets/images/backToList.svg';
+import {useTranslation} from '../hooks/useTranslation';
 
 const BackToListButton = ({onPress}: {onPress: () => void}) => {
+  const {t} = useTranslation();
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -18,7 +20,9 @@ const BackToListButton = ({onPress}: {onPress: () => void}) => {
         elevation: 5,
       }}>
       <BackToListSVG width={20} height={20} />
-      <Text className="text-[#6A6A6A] font-semibold ml-1 text-xs">리스트</Text>
+      <Text className="text-[#6A6A6A] font-semibold ml-1 text-xs">
+        {t('common.list')}
+      </Text>
     </TouchableOpacity>
   );
 };

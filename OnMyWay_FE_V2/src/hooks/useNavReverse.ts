@@ -1,4 +1,4 @@
-import {useRecoilState} from 'recoil';
+import {useRecoilState} from '../state/atom';
 import {navigationState} from '../atoms/navigationState';
 
 // 커스텀 훅

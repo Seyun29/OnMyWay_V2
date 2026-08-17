@@ -1,22 +1,29 @@
 import {GET_STOPBY_DURATION} from '../config/consts/api';
 import {Coordinate} from '../config/types/coordinate';
 import {Navigation} from '../config/types/navigation';
+import {Priority} from '../config/types/routes';
 import {axiosInstance} from './axios';
 
 export const getStopByDuration = async (
   nav: Navigation,
   stopBy: Coordinate,
-  priority?: string,
+  priority?: Priority,
   avoidTolls?: boolean,
 ) => {
   try {
-    const origin = `${nav.start?.coordinate.longitude},${nav.start?.coordinate.latitude}`;
-    const destination = `${nav.end?.coordinate.longitude},${nav.end?.coordinate.latitude}`;
+    if (!nav.start || !nav.end) return null;
+
+    const origin = `${nav.start.coordinate.longitude},${nav.start.coordinate.latitude}`;
+    const destination = `${nav.end.coordinate.longitude},${nav.end.coordinate.latitude}`;
     const waypoints =
-      nav.wayPoints &&
-      nav.wayPoints
-        .map(x => `${x.coordinate.longitude},${x.coordinate.latitude}`)
-        .join(' | ');
+      nav.wayPoints.length > 0
+        ? nav.wayPoints
+            .map(
+              waypoint =>
+                `${waypoint.coordinate.longitude},${waypoint.coordinate.latitude}`,
+            )
+            .join(' | ')
+        : undefined;
 
     const response = await axiosInstance.get(GET_STOPBY_DURATION, {
       params: {
@@ -28,9 +35,8 @@ export const getStopByDuration = async (
         stopby: `${stopBy.longitude},${stopBy.latitude}`,
       },
     });
-    return response.data.data; //time in seconds
-  } catch (error) {
-    console.log('getStopByDuration error, Params: ', nav, stopBy);
+    return response.data.data;
+  } catch (_error) {
     return null;
   }
 };

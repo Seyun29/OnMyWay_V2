@@ -1,4 +1,4 @@
-import {axiosInstance} from './axios';
+import {axiosInstance, isStaleLanguageError} from './axios';
 import {COORD_TO_ADDRESS} from '../config/consts/api';
 
 export const getAddress = async (params: {
@@ -14,6 +14,7 @@ export const getAddress = async (params: {
     });
     return response.data.data[0];
   } catch (error) {
-    console.log('getAddress error, Params: ', params);
+    if (isStaleLanguageError(error)) return null;
+    return null;
   }
 };

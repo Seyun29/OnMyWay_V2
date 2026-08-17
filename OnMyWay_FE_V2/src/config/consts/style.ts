@@ -8,5 +8,6 @@ export const WINDOW_WIDTH = Dimensions.get('window').width;
 export const WINDOW_HEIGHT = Dimensions.get('window').height;
 
 export const SELECT_ROUTE_ITEM_WIDTH = WINDOW_WIDTH * 0.9;
+export const MAP_SEARCH_TOP_GAP = 10;
 
 export const ROUGH_HEADER_HEIGHT = 80; //roughly calculated as of now

@@ -1,12 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MapController } from './map.controller';
+import { MapModule } from './map.module';
 
 describe('MapController', () => {
   let controller: MapController;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      controllers: [MapController],
+      imports: [MapModule],
     }).compile();
 
     controller = module.get<MapController>(MapController);

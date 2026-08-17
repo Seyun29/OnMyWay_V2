@@ -1,4 +1,27 @@
 {
-  "name": "omw_front",
-  "displayName": "omw_front"
+  "expo": {
+    "name": "OnMyWay",
+    "slug": "onmyway",
+    "owner": "andrewjsy",
+    "version": "2.1.2",
+    "runtimeVersion": {
+      "policy": "fingerprint"
+    },
+    "android": {
+      "package": "com.omw.omw_front",
+      "versionCode": 17
+    },
+    "ios": {
+      "bundleIdentifier": "com.omw.onmywayapp",
+      "buildNumber": "17"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "5900347e-72d0-4981-8b2d-8bad12f1d2d8"
+      }
+    },
+    "updates": {
+      "url": "https://u.expo.dev/5900347e-72d0-4981-8b2d-8bad12f1d2d8"
+    }
+  }
 }

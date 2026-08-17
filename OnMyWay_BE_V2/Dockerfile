@@ -1,20 +1,32 @@
-FROM node:18.16.1-alpine
+FROM node:22.13.0-alpine AS build
 
-LABEL authors="Seyun Jang"
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
 
 WORKDIR /app
 
-COPY package.json /app
-COPY pnpm-lock.yaml /app
+RUN corepack enable && corepack prepare pnpm@10.15.1 --activate
 
-RUN npm install pnpm -g
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
-RUN npm install pm2 -g
+COPY . .
+RUN pnpm build && pnpm prune --prod
 
-RUN pnpm install
+FROM node:22.13.0-alpine AS runtime
 
-COPY . /app
+ENV NODE_ENV=production
+ENV PORT=3005
 
-EXPOSE 80
+WORKDIR /app
 
-CMD ["pnpm", "start:prod"]
+COPY --from=build --chown=node:node /app/package.json ./package.json
+COPY --from=build --chown=node:node /app/node_modules ./node_modules
+COPY --from=build --chown=node:node /app/dist ./dist
+
+USER node
+
+EXPOSE 3005
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 CMD wget -qO- "http://127.0.0.1:${PORT}/health" || exit 1
+
+CMD ["node", "dist/main.js"]

@@ -1,10 +1,11 @@
-//@ts-ignore
-import React, {useEffect, useState} from 'react';
-import {View, Text, Image, TouchableOpacity, Touchable} from 'react-native';
+import React from 'react';
+import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 import StarFilledSVG from '../../assets/images/starFilled.svg';
 import StarUnFilledSVG from '../../assets/images/starUnfilled.svg';
-import {useRecoilState} from 'recoil';
+import {useRecoilState} from '../../state/atom';
 import {selectedPlaceIndexState} from '../../atoms/selectedPlaceIndexState';
+import {useTranslation} from '../../hooks/useTranslation';
+import {PlaceDetail} from '../../config/types/coordinate';
 
 function Stars({scoreAvg}: {scoreAvg: number}) {
   const stars = [<StarFilledSVG key={1} />];
@@ -15,16 +16,17 @@ function Stars({scoreAvg}: {scoreAvg: number}) {
       stars.push(<StarUnFilledSVG key={i} />);
     }
   }
-  return stars;
+  return <>{stars}</>;
 }
 
 export default function ListBottomSheetComponent({
   placeInfo,
   onSelect,
 }: {
-  placeInfo: any;
-  onSelect: any;
+  placeInfo: PlaceDetail;
+  onSelect: () => void;
 }) {
+  const {t} = useTranslation();
   const {
     place_name,
     address_name,
@@ -36,21 +38,24 @@ export default function ListBottomSheetComponent({
     parking,
   } = placeInfo;
 
-  const placeName = place_name ? place_name : address_name;
+  const placeName = place_name || address_name || '';
+  const score = Number(scoreAvg ?? 0);
 
   return (
-    <TouchableOpacity className="py-2 flex-row w-full pt-3" onPress={onSelect}>
+    <TouchableOpacity style={styles.card} onPress={onSelect}>
       <Image
         source={
           photoUrl
             ? {uri: photoUrl}
             : require('../../assets/images/defaultThumbnail.png')
         }
-        style={{width: 70, height: 70, marginRight: 20, borderRadius: 12}}
+        style={styles.thumbnail}
       />
-      <View>
-        <View className="flex-row items-center gap-x-1.5">
+      <View style={styles.details}>
+        <View style={styles.titleRow}>
           <Text
+            numberOfLines={1}
+            style={styles.placeName}
             className={
               'font-semibold ' +
               (placeName.length > 14
@@ -63,41 +68,45 @@ export default function ListBottomSheetComponent({
             }>
             {place_name}
           </Text>
-          {open && (
+          {open ? (
             <View
               className="rounded-lg px-1 py-0.5 justify-center items-center"
               style={{
                 borderWidth: 1,
-                borderColor: open === 'Y' ? '#338A17' : '#FF4D4D',
+                borderColor: '#338A17',
               }}>
               <Text
                 className="text-xs"
                 style={{
-                  color: open === 'Y' ? '#338A17' : '#FF4D4D',
+                  color: '#338A17',
                 }}>
-                {open === 'Y' ? '영업중' : '영업종료'}
+                {t('bottom.open')}
               </Text>
             </View>
+          ) : (
+            <></>
           )}
-          {parking && (
+          {parking ? (
             <View
               className="rounded-lg px-1 py-0.5 justify-center items-center"
               style={{
                 borderWidth: 1,
-                borderColor: parking === 'Y' ? '#338A17' : '#FF4D4D',
+                borderColor: '#338A17',
               }}>
               <Text
                 className="text-xs"
                 style={{
-                  color: parking === 'Y' ? '#338A17' : '#FF4D4D',
+                  color: '#338A17',
                 }}>
-                {parking === 'Y' ? '주차가능' : '주차불가'}
+                {t('bottom.parking')}
               </Text>
             </View>
+          ) : (
+            <></>
           )}
         </View>
         <View className="flex-row items-center py-0.5">
-          {scoreAvg && (
+          {score > 0 ? (
             <>
               <Text
                 className="text-sm font-light text-center mr-1"
@@ -106,8 +115,10 @@ export default function ListBottomSheetComponent({
                 }}>
                 {scoreAvg}
               </Text>
-              <Stars scoreAvg={parseFloat(scoreAvg)} />
-              {commentCnt && (
+              <Stars scoreAvg={score} />
+              {commentCnt !== undefined &&
+              commentCnt !== null &&
+              commentCnt > 0 ? (
                 <Text
                   className="text-sm ml-1"
                   style={{
@@ -115,21 +126,28 @@ export default function ListBottomSheetComponent({
                   }}>
                   {`(${commentCnt})`}
                 </Text>
+              ) : (
+                <></>
               )}
             </>
+          ) : (
+            <></>
           )}
-          {reviewCnt && (
+          {reviewCnt !== undefined && reviewCnt !== null ? (
             <Text
               className={scoreAvg ? 'text-sm ml-2' : 'text-sm'}
               style={{
                 color: '#7C7C7C',
               }}>
-              {`리뷰 ${reviewCnt}`}
+              {t('common.reviewCount', {count: reviewCnt})}
             </Text>
+          ) : (
+            <></>
           )}
         </View>
         <Text
           className="text-xs"
+          numberOfLines={2}
           style={{
             color: '#7C7C7C',
           }}>
@@ -139,3 +157,35 @@ export default function ListBottomSheetComponent({
     </TouchableOpacity>
   );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    width: '100%',
+    minWidth: 0,
+    flexDirection: 'row',
+    paddingTop: 12,
+    paddingVertical: 8,
+  },
+  thumbnail: {
+    width: 70,
+    height: 70,
+    flexShrink: 0,
+    marginRight: 16,
+    borderRadius: 12,
+  },
+  details: {
+    flex: 1,
+    minWidth: 0,
+  },
+  titleRow: {
+    minWidth: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    columnGap: 6,
+  },
+  placeName: {
+    flex: 1,
+    minWidth: 0,
+    flexShrink: 1,
+  },
+});

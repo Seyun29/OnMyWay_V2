@@ -1,98 +1,98 @@
-import axios, {AxiosError} from 'axios';
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from 'axios';
 import {BASE_URL} from '../config/consts/api';
-import {get} from '../config/helpers/storage';
-// import {Alert} from 'react-native';
+import {AppLanguage, getRequestLanguage} from '../config/language';
+
+type LanguageRequestConfig = InternalAxiosRequestConfig & {
+  requestLanguage?: AppLanguage;
+};
+
+type StaleLanguageError = AxiosError & {
+  __CANCEL__: true;
+  isStaleLanguageResponse: true;
+};
+
+const withLanguageHeader = (config: InternalAxiosRequestConfig) => {
+  const language = getRequestLanguage();
+  (config as LanguageRequestConfig).requestLanguage = language;
+  config.headers.set('Accept-Language', language);
+  return config;
+};
+
+const rejectStaleLanguageResponse = (response: AxiosResponse) => {
+  const requestLanguage = (response.config as LanguageRequestConfig)
+    .requestLanguage;
+  if (requestLanguage && requestLanguage !== getRequestLanguage()) {
+    const error = new AxiosError(
+      'Response discarded because the app language changed.',
+      AxiosError.ERR_CANCELED,
+      response.config,
+      response.request,
+      response,
+    ) as StaleLanguageError;
+    error.name = 'CanceledError';
+    error.__CANCEL__ = true;
+    error.isStaleLanguageResponse = true;
+    throw error;
+  }
+  return response;
+};
+
+export const isStaleLanguageError = (
+  error: unknown,
+): error is StaleLanguageError =>
+  axios.isCancel(error) &&
+  (error as Partial<StaleLanguageError>).isStaleLanguageResponse === true;
+
+const attachLanguageInterceptors = (client: typeof axiosDefault) => {
+  client.interceptors.request.use(withLanguageHeader);
+  client.interceptors.response.use(rejectStaleLanguageResponse);
+};
 
 export const axiosDefault = axios.create({
   baseURL: BASE_URL,
-  // baseURL: 'http://localhost:8080',
   timeout: 20000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: {'Content-Type': 'application/json'},
 });
-
-axiosDefault.interceptors.response.use(
-  response => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    onError(error, error?.config?.url);
-    return Promise.reject(error);
-  },
-);
 
 export const axiosInstance = axios.create({
   baseURL: BASE_URL,
   timeout: 20000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
+  headers: {'Content-Type': 'application/json'},
 });
 
-axiosInstance.interceptors.request.use(async (config: any) => {
-  const accessToken = await get('accessToken');
-  // console.log("axiosPrivate interceptor request:", config.headers);
-  if (accessToken)
-    config.headers = {...config.headers, accessToken: accessToken};
-  // console.log("axiosPrivate interceptor, request header:", config.headers);
-  return config;
-});
+attachLanguageInterceptors(axiosDefault);
+attachLanguageInterceptors(axiosInstance);
 
-axiosInstance.interceptors.response.use(
-  response => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    //FIXME: uncomment if needed
-    // Alert.alert(
-    //   '오류',
-    //   '서버와의 통신에 문제가 발생했습니다. 다시 시도해주세요.',
-    // );
-    onError(error, error?.config?.url);
-    return Promise.reject(error);
-  },
-);
+const randomUserAgent = () => {
+  const userAgentList = [
+    'Mozilla/5.0',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)',
+    'Mozilla/5.0 (Linux; Android 11; Pixel 5)',
+    'Mozilla/5.0 (iPhone; CPU iPhone OS 15_0 like Mac OS X)',
+  ];
+  return userAgentList[Math.floor(Math.random() * userAgentList.length)];
+};
 
 export const kakaoInstance = axios.create({
-  baseURL: 'https://place.map.kakao.com/main/v/',
+  baseURL: 'https://place-api.map.kakao.com/places/panel3/',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
+    Referer: 'https://place.map.kakao.com/',
+    Origin: 'https://place.map.kakao.com',
+    Pf: 'web',
+    'Accept-language': 'ko',
+    'Accept-Encoding': 'gzip, deflate, br, zstd',
+    'User-Agent': 'Mozilla/5.0',
   },
 });
 
-kakaoInstance.interceptors.response.use(
-  response => {
-    return response;
-  },
-  async (error: AxiosError) => {
-    onError(error, error?.config?.url);
-    return Promise.reject(error);
-  },
-);
-
-const onError = (err: AxiosError, apiUrl: string | undefined) => {
-  if (err.response) {
-    console.log(
-      apiUrl,
-      ': ',
-      '요청이 이루어 졌으나 서버가 2xx의 범위를 벗어나는 상태 코드로 응답했습니다.',
-      // err.message,
-    );
-  } else if (err.request) {
-    console.log(
-      apiUrl,
-      ': ',
-      '요청이 이루어 졌으나 응답을 받지 못했습니다.',
-      err.request._response,
-    );
-  } else {
-    console.log(
-      apiUrl,
-      ': ',
-      '오류를 발생시킨 요청을 설정하는 중에 문제가 발생했습니다.',
-      err.message,
-    );
-  }
-};
+kakaoInstance.interceptors.request.use(config => {
+  config.headers['User-Agent'] = randomUserAgent();
+  return config;
+});
