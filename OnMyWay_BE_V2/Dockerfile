@@ -1,11 +1,10 @@
 FROM node:22.13.0-alpine AS build
 
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-
 WORKDIR /app
 
-RUN corepack enable && corepack prepare pnpm@10.15.1 --activate
+# Install the pinned package manager directly. The Corepack bundled with this
+# Node image can have stale registry signing keys and reject newer pnpm releases.
+RUN npm install --global pnpm@10.15.1
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
