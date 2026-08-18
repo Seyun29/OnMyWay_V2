@@ -1,16 +1,18 @@
 # Production 배포·OTA 체크리스트
 
-> 기준일: 2026-08-17 (월)
-> 공개 버전: Android/iOS `2.1.2 (16)` · 로컬 후보: `2.1.2 (17)`
+> 기준일: 2026-08-18 (화)
+> 공개 버전: Android/iOS `2.1.2 (16)` · 출시 후보: Android `2.1.2 (17)`, iOS `2.1.3 (19)`
+> 공통 OTA runtime: `2.1.2-17`
 > Android target API 대응 기한: 2026-08-31
 
 ## 현재 완료 상태
 - [x] 레거시 Jenkins ECR/ECS 배포 파일 제거
 - [x] 백엔드 Dockerfile을 Node `22.13.0`·pnpm `10.15.1` multi-stage production image로 갱신
+- [x] Backend Railway production 배포와 public HTTPS endpoint `/health` 확인
 - [x] Expo cloud project 연결과 EAS CLI 로그인
-- [x] Expo SDK 57/`expo-updates` 네이티브 통합, update URL, fingerprint runtime 구성
+- [x] Expo SDK 57/`expo-updates` 네이티브 통합, update URL과 공개 build 16을 격리한 runtime `2.1.2-17` 구성
 - [x] Android release AAB와 iOS unsigned compile 확인
-- [ ] Backend/OTA/Store production 배포는 아직 수행하지 않음
+- [ ] FE production backend 연결, OTA와 Store production 배포는 아직 수행하지 않음
 
 ## 1. 출시 기준점 고정
 - [ ] 이번 릴리스의 포함·제외 범위를 확정하고 release note 작성
@@ -23,16 +25,20 @@
 ## 2. Backend Railway Docker 배포
 
 > Railway의 **Watch Paths**는 Git 변경에 따른 재배포 범위다. 컨테이너에서는 `nest --watch`나 파일 watcher를 실행하지 않고 `node dist/main.js`만 실행한다.
+>
+> Production origin: `https://onmywayv2-production.up.railway.app`
+>
+> 2026-08-17 확인: [`GET /health`](https://onmywayv2-production.up.railway.app/health) → HTTP `200`, `{"success":true,"data":"ok"}`
 
 ### 2-1. Source·Docker build 설정
 
-- [ ] Railway project에서 GitHub 저장소를 연결하고 Backend service 생성
+- [x] Railway project에서 GitHub 저장소를 연결하고 Backend service 생성
 - [ ] Service Settings → Source의 production branch를 실제 release branch로 고정
 - [ ] **Root Directory**를 `/OnMyWay_BE_V2`로 설정
 - [ ] **Railway Config File**을 `/OnMyWay_BE_V2/railway.json`으로 설정. Config 파일 경로는 Root Directory가 자동 적용되지 않으므로 저장소 루트 기준 절대 경로를 사용한다.
 - [x] `railway.json`의 builder를 `DOCKERFILE`로 고정
 - [x] **Watch Paths**를 `/OnMyWay_BE_V2/**`로 설정. FE·docs만 바뀐 commit은 Backend를 재배포하지 않는다.
-- [ ] 배포 로그에서 `Using detected Dockerfile`과 build/runtime stage 성공 확인
+- [x] Docker image build, runtime startup과 production deployment 완료
 - [ ] Railway Build Command와 Start Command는 비워 둔다. 설치·build는 Dockerfile build stage, 실행은 Dockerfile `CMD ["node", "dist/main.js"]`가 담당한다.
 - [ ] Dockerfile이 Node `22.13.0`, pnpm `10.15.1`, production dependency, non-root `node` 사용자로 실행되는지 확인
 - [ ] production branch 자동 배포 사용 여부를 결정한다. 사용 시 merge 전 CI 통과를 필수로 하고, 수동 배포면 release SHA를 기록한다.
@@ -68,11 +74,13 @@
 | `PORT` | Railway | **직접 등록하지 않음**. Railway가 주입하며 앱이 `0.0.0.0:$PORT`로 수신 |
 | `NODE_ENV` | Dockerfile | `production`; Railway에서 중복 등록할 필요 없음 |
 
+`DEFAULT_MAP_PROVIDER`, `ROUTE_MAP_PROVIDER`, `OPENAI_HEADER_AUTH`는 현재 코드에서 사용하지 않으므로 Railway에 등록하지 않는다.
+
 설정 순서:
 
 1. [ ] Service → Variables → Raw Editor 또는 New Variable에서 위 5개 사용자 변수를 입력
 2. [ ] staging/preview와 production 환경이 있다면 key와 Swagger 계정을 환경별로 분리
-3. [ ] staged changes를 검토하고 Deploy하여 실제 컨테이너에 적용
+3. [x] staged changes를 검토하고 Deploy하여 실제 컨테이너에 적용
 4. [ ] 첫 정상 배포 후 API key와 Swagger password를 **Seal** 처리. Sealed value는 다시 조회·unseal할 수 없으므로 안전한 원본을 별도 보관
 5. [ ] 변수 변경 시 새 deployment가 생성되는지 확인하고 이전 deployment rollback 가능 상태 유지
 6. [ ] Docker build-time secret이 필요하지 않으므로 Dockerfile에 secret `ARG`/`ENV`나 `COPY .env`를 추가하지 않음
@@ -85,7 +93,7 @@
 - [ ] Railway health check는 배포 전환 시에만 실행되므로 외부 uptime monitor를 별도로 구성
 - [ ] production의 **Serverless/App Sleep은 비활성화**하여 모바일 첫 요청 cold start를 방지
 - [ ] 사용자와 지도 provider에 지연이 가장 낮은 단일 region을 선택하고 실제 한국 네트워크에서 측정
-- [ ] Public Networking에서 Railway HTTPS domain을 생성하고 FE의 production origin으로 확정
+- [x] Public Networking HTTPS domain을 생성하고 FE production origin을 `https://onmywayv2-production.up.railway.app`으로 확정
 - [ ] 현재 서비스는 stateless이므로 volume을 연결하지 않음. volume은 zero-downtime 전환을 제한할 수 있음
 - [ ] Dockerfile 자체 `HEALTHCHECK`와 별개로 Railway의 `/health` 설정이 deployment 화면에 표시되는지 확인
 
@@ -111,7 +119,7 @@ Railway Service Settings → Deploy → **Replica Limits**에서 replica당 상�
 
 ### 2-5. 배포·검증·rollback
 
-- [ ] `/health`가 Railway domain에서 HTTP `200`인지 확인
+- [x] Railway production [`/health`](https://onmywayv2-production.up.railway.app/health)가 HTTP `200`과 `{"success":true,"data":"ok"}`를 반환
 - [ ] 주소·장소·경로·경로상 검색·상세·첫/두 번째 경유지 production smoke test
 - [ ] Metrics에서 startup CPU, steady memory, restart count, response latency 기준선 기록
 - [ ] 로그에 API key, 요청 좌표, 검색어 원문, provider raw payload가 없는지 확인
@@ -123,19 +131,51 @@ Railway 설정 근거: [Dockerfile 배포](https://docs.railway.com/builds/docke
 외부 문서 내용은 라이선스 준수를 위해 재서술했다.
 
 ## 3. FE production 연결·보안
-- [ ] production `.env`의 `SERVER_BASEURL`을 Railway HTTPS origin으로 설정
-- [ ] production artifact에 localhost/개발 IP와 cleartext HTTP가 없는지 확인
+
+`SERVER_BASEURL`은 `react-native-dotenv`가 **JS bundle 생성 시점**에 치환한다. `package.json` 또는 `app.json`에 backend URL을 넣지 않는다. `app.json`의 `updates.url`은 Expo Updates 서버 주소이므로 그대로 유지한다. Store embedded bundle과 OTA bundle은 별도로 생성되므로 양쪽 모두 동일한 production environment를 명시해야 한다.
+
+- [x] `package.json` dependency/script 변경이 필요하지 않음을 확인
+- [x] `app.json`의 Expo `updates.url`과 backend URL을 분리해 유지
+- [x] `.env.example`에 Railway production endpoint 예시 추가
+- [x] 로컬 ignored `.env`의 `SERVER_BASEURL`이 Railway production origin과 일치하는지 확인
+- [ ] 값 변경 후 `pnpm start:reset`으로 Metro cache 초기화
+- [x] EAS project의 `production` environment에 `SERVER_BASEURL=https://onmywayv2-production.up.railway.app` 등록 확인
+- [x] Android/iOS native 지도 설정이 EAS environment를 우선하고 로컬 `.env`로 fallback하도록 구성
+- [ ] production Store build와 production OTA 모두 EAS `production` environment를 사용
+- [ ] production artifact에 localhost, `10.0.2.2`, 개발 IP와 cleartext HTTP가 없는지 확인
+- [ ] OTA 미수신·offline startup에서도 embedded bundle이 Railway production endpoint를 호출하는지 확인
 - [ ] Android Maps key에 package와 Play App Signing SHA-1 제한 적용
 - [ ] iOS Maps key에 bundle ID 제한, server key에 필요한 API만 허용
 - [ ] Google/Kakao attribution 및 개인정보처리방침·Data Safety·Apple privacy 정보 확인
 
-## 4. EAS Update 채널 구성
-- [ ] `eas.json`에 `development`, `preview`, `production` build profile 정의
-- [ ] profile별 channel/branch 매핑과 native request header를 구성
-- [ ] EAS CLI 버전, 게시 계정, Expo 2FA와 최소 publish 권한을 고정
+### 로컬 release bundle 확인
+
+ignored `OnMyWay_FE_V2/.env`에 production URL을 설정한 뒤 다음을 실행한다. `.env`는 커밋하지 않는다.
+
+```bash
+corepack pnpm@10.15.1 --dir OnMyWay_FE_V2 run bundle:android
+corepack pnpm@10.15.1 --dir OnMyWay_FE_V2 run bundle:ios
+```
+
+## 4. EAS Build·Update 채널 구성
+- [x] `eas.json`에 `development`, `preview`, `production` build profile 정의
+- [x] 각 profile에 동일 이름의 `environment`와 `channel`을 매핑
+- [x] `appVersionSource: local`로 기존 Android/iOS build 17을 유지하고 잘못 생성된 remote versionCode 2를 사용하지 않도록 설정
+- [x] EAS project의 `preview`·`production` environment에 `SERVER_BASEURL`과 native 지도 설정 변수 등록 확인
+- [x] EAS CLI `21.8.0`, 게시 계정 `andrewjsy`, project ID 연결 확인
+- [x] Android preview cloud build가 SDK 57·`2.1.2 (17)`·runtime `2.1.2-17`·`preview` channel로 성공
+- [x] 첫 Android Preview APK signer가 기존 Play Upload certificate와 불일치함을 발견하고 Production build를 차단
+- [x] 기존 `my-upload-key.keystore`를 EAS Android default credential로 등록. alias·비밀번호·fingerprint는 문서·Git·채팅에 기록하지 않음
+- [x] credential 교체 후 Android Preview cloud build를 재생성하고 APK signer가 기존 Play Upload certificate와 일치함을 확인
+- [x] 동일 credential로 Android Production AAB를 `production` environment/channel·runtime `2.1.2-17`로 생성
+- [x] Production AAB signer가 기존 Play Upload certificate와 일치함을 확인
+- [x] Production AAB embedded JS bundle에 Railway production origin이 포함되고 localhost·`10.0.2.2` 개발 origin이 없음을 확인
+- [ ] Production OTA 게시 시 `eas update --channel production --environment production` 사용
+- [ ] Store 제출은 실기기·OTA recovery·정책 gate 통과 후 별도로 수행
+- [ ] Expo 2FA와 최소 publish 권한을 고정
 - [ ] production publish 2인 검토와 감사 기록 절차 정의
 - [ ] Free plan OTA MAU 사용량을 확인하고 한도 도달 전 plan 변경 기준 설정
-- [ ] Preview와 Production binary/update의 runtime fingerprint 일치 확인
+- [ ] Preview와 Production binary/update의 `runtimeVersion`이 정확히 일치하는지 확인. native 변경 시 build 번호와 runtime을 함께 증가
 
 ## 5. Preview OTA·실기기 gate
 - [ ] Preview channel을 포함한 Android/iOS release 설치본 생성
@@ -161,16 +201,21 @@ Railway 설정 근거: [Dockerfile 배포](https://docs.railway.com/builds/docke
 - [ ] 실제 기기에서 공개 build 16→후보 upgrade와 fresh install 모두 검증
 
 ## 8. Android Store 배포 — 최우선
-- [ ] 기존 Play 앱의 Internal testing에 AAB 업로드하고 Play App Signing 연결 확인
+- [x] 기존 Play 앱용 `2.1.2 (17)` Production AAB 생성과 Upload certificate signer 일치 확인
+- [ ] EAS에 Google Play Service Account key를 대화형으로 등록하고 Internal testing `draft`에 AAB 업로드
+- [ ] Play Console에서 Play App Signing 연결과 draft artifact metadata 확인
 - [ ] pre-launch report, Android 15+, 권한·지도·검색·경로·경유지 smoke 통과
 - [ ] 동일 artifact를 Closed testing으로 승격
 - [ ] 정책 경고가 없으면 Production `5% → 25% → 100%` staged rollout
 - [ ] 2026-08-31 전 target API 35+ production 게시와 Play 경고 해제 확인
 
 ## 9. iOS Store 배포
-- [ ] 기존 App Store Connect 앱에 Archive 업로드
-- [ ] TestFlight Internal에서 upgrade/fresh install 및 OTA recovery gate 통과
-- [ ] `<NEXT_VERSION>` 생성 후 privacy·export compliance·심사 정보를 갱신
+- [x] 공개 `2.1.2`보다 높은 marketing version `2.1.3`과 build `19`로 EAS Production IPA 생성
+- [x] IPA embedded JS bundle에 Railway production origin이 있고 로컬 개발 origin이 없음을 확인
+- [x] `ITSAppUsesNonExemptEncryption=false`를 native Info.plist와 Expo config에 반영
+- [x] 기존 App Store Connect 앱에 `2.1.3 (19)` 업로드 및 처리 완료 — `VALID`, Internal TestFlight `IN_BETA_TESTING`
+- [ ] TestFlight Internal에서 공개 build 16→19 upgrade/fresh install 및 OTA recovery gate 통과
+- [ ] App Store Connect의 `2.1.3` 버전에 build 19를 연결하고 privacy·심사 정보·release note 갱신
 - [ ] App Review 제출 후 phased release
 - [ ] 심각한 문제 발생 시 release를 pause하고 더 높은 build로 수정
 

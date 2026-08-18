@@ -37,6 +37,39 @@ function GoogleImageMarker({
   onClick,
 }: MapMarkerProps) {
   const [tracksViewChanges, setTracksViewChanges] = React.useState(true);
+  const firstFrameRef = React.useRef<number | null>(null);
+  const secondFrameRef = React.useRef<number | null>(null);
+
+  const freezeAfterNativeCapture = React.useCallback(() => {
+    if (firstFrameRef.current !== null) {
+      cancelAnimationFrame(firstFrameRef.current);
+    }
+    if (secondFrameRef.current !== null) {
+      cancelAnimationFrame(secondFrameRef.current);
+    }
+
+    // Google custom markers are bitmap snapshots. Keep tracking through two
+    // committed frames so the loaded image reaches the native marker first.
+    firstFrameRef.current = requestAnimationFrame(() => {
+      firstFrameRef.current = null;
+      secondFrameRef.current = requestAnimationFrame(() => {
+        secondFrameRef.current = null;
+        setTracksViewChanges(false);
+      });
+    });
+  }, []);
+
+  React.useEffect(
+    () => () => {
+      if (firstFrameRef.current !== null) {
+        cancelAnimationFrame(firstFrameRef.current);
+      }
+      if (secondFrameRef.current !== null) {
+        cancelAnimationFrame(secondFrameRef.current);
+      }
+    },
+    [],
+  );
 
   return (
     <GoogleMarker
@@ -54,8 +87,8 @@ function GoogleImageMarker({
         style={{width, height}}
         resizeMode="contain"
         fadeDuration={0}
-        onLoad={() => setTracksViewChanges(false)}
-        onError={() => setTracksViewChanges(false)}
+        onLoad={freezeAfterNativeCapture}
+        onError={freezeAfterNativeCapture}
       />
     </GoogleMarker>
   );

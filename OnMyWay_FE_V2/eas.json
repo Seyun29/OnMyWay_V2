@@ -1,0 +1,40 @@
+{
+  "cli": {
+    "version": "21.8.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "base": {
+      "node": "22.13.0",
+      "pnpm": "10.15.1"
+    },
+    "development": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "development",
+      "environment": "development"
+    },
+    "preview": {
+      "extends": "base",
+      "distribution": "internal",
+      "channel": "preview",
+      "environment": "preview"
+    },
+    "production": {
+      "extends": "base",
+      "channel": "production",
+      "environment": "production"
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {
+        "ascAppId": "6503656527"
+      }
+    }
+  }
+}

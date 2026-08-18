@@ -17,8 +17,11 @@ react {
 def enableProguardInReleaseBuilds = true
 def jscFlavor = 'io.github.react-native-community:jsc-android:2026004.+'
 
-/** Reads KEY=value configuration from the ignored frontend .env file. */
+/** Reads KEY=value configuration from EAS environment or the ignored frontend .env file. */
 def readEnvValue(String name) {
+    def environmentValue = System.getenv(name)?.trim()
+    if (environmentValue) return environmentValue
+
     def envFile = file("$rootDir/../.env")
     if (!envFile.exists()) return ""
     def line = envFile.readLines().find { it.trim().startsWith("${name}=") }

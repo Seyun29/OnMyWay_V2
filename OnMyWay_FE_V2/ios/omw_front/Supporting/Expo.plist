@@ -13,6 +13,6 @@
     <key>EXUpdatesEnableBsdiffPatchSupport</key>
     <true/>
     <key>EXUpdatesRuntimeVersion</key>
-    <string>file:fingerprint</string>
+    <string>2.1.2-17</string>
   </dict>
 </plist>

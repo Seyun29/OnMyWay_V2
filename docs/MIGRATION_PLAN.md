@@ -470,8 +470,10 @@ npm run android        # Android 에뮬레이터
   - [x] RN `0.86.2`, React `19.2.3`, New Architecture/Hermes와 Android/iOS 최신 native template 이식
   - [x] 기존 CodePush/App Center package·wrapper·native 설정·키 제거
   - [x] Expo SDK 57/`expo-updates` exact dependency, EAS project/update URL, Android/iOS native client 연결
-  - [ ] `development`/`preview`/`production` channel 및 branch 매핑을 local Store build에 embed
-  - [x] EAS fingerprint 기반 `runtimeVersion` 설정 및 Android release fingerprint asset 생성 확인
+  - [x] EAS `development`/`preview`/`production` profile의 environment/channel 매핑과 Android Preview cloud build 확인
+  - [x] local/cloud fingerprint 차이로 fingerprint 정책을 폐기하고 명시적 `runtimeVersion` `2.1.2-17` 적용
+  - [x] 기존 Play Upload Key를 EAS Android default credential로 등록하고 새 Preview APK와 Production AAB signer 일치 확인
+  - [x] Android Production AAB를 `production` environment/channel·runtime `2.1.2-17`로 생성하고 embedded Railway origin 확인
   - [x] candidate 17에는 end-to-end update signing을 구성하지 않기로 결정
   - [ ] OTA 게시 권한을 최소화하고 production publish에 2인 검토 적용
   - [ ] Preview/Production 크래시 리포팅 구축
@@ -804,9 +806,7 @@ app config 개념 예시:
   "expo": {
     "name": "OnMyWay",
     "slug": "onmyway",
-    "runtimeVersion": {
-      "policy": "fingerprint"
-    },
+    "runtimeVersion": "<APP_VERSION>-<NATIVE_BUILD>",
     "updates": {
       "url": "https://u.expo.dev/<EAS_PROJECT_ID>"
     },

@@ -3,6 +3,16 @@
 > 최신 항목이 위. 작업이 끝날 때마다 같은 변경에서 이 로그를 갱신한다.
 > 비밀값(키·비밀번호·fingerprint)은 기록하지 않는다.
 
+## 2026-08-18 — EAS Android/iOS Production build·제출 준비
+
+- FE project root의 `eas.json`에서 pnpm `10.15.1`, SDK 57, `preview`/`production` environment·channel과 명시적 runtime `2.1.2-17`을 사용해 cloud build를 복구했다.
+- 첫 Android Preview APK에서 EAS가 생성한 remote keystore signer와 기존 Play Upload certificate 불일치를 발견해 Production build를 중단했다.
+- 기존 upload keystore를 EAS default credential로 등록한 뒤 Preview APK를 재생성했고, 값 비공개 비교로 signer 일치를 확인했다.
+- 같은 credential로 Android Production AAB `2.1.2 (17)` 생성과 signer 일치를 확인했다. embedded JS bundle은 Railway production origin을 포함하며 localhost·Android emulator 개발 origin을 포함하지 않는다. Google Play Service Account key가 아직 없어 EAS 제출은 대기 중이다.
+- 첫 iOS `2.1.2 (17)` 제출은 닫힌 pre-release train으로 거부됐다. marketing version을 `2.1.3`, build를 `18`로 올려 재제출했으나 수출 규정 선언이 없어 TestFlight에서 보류됐다.
+- native Info.plist와 Expo config에 면제 암호화 선언을 추가하고 iOS `2.1.3 (19)`를 재빌드·제출했다. App Store Connect 처리 결과 `VALID`, Internal TestFlight `IN_BETA_TESTING`이며 runtime은 Android와 동일한 `2.1.2-17`을 유지한다.
+- Production OTA 게시, 실기기 smoke와 OTA recovery 검증, Store production rollout/App Review 제출은 수행하지 않았다.
+
 ## 2026-08-15 (4) — 검색 반경 기능 과거 대비 감사
 
 - 공개 출시 기준 `release/v2.1.2`와 현재 FE를 비교해 경로상 검색의 반경 선택 UI가 삭제되지 않았음을 확인했다. 선택 경로가 있을 때 반경 버튼으로 slider를 열며, 동적 min/max와 0.5km step, km→m 변환 후 `/map/search-on-path` 전달이 유지된다.

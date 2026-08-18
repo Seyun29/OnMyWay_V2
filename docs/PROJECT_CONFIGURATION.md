@@ -1,6 +1,6 @@
 # OnMyWay 프로젝트 설정·빌드·릴리스 기준
 
-> 최종 확인: 2026-08-15. 이 문서는 재설정에 필요한 **이름·경로·버전·절차만** 기록한다. API key, 비밀번호, 인증서 fingerprint, `.env` 실제 값은 절대 기록하지 않는다.
+> 최종 확인: 2026-08-18. 이 문서는 재설정에 필요한 **이름·경로·버전·절차만** 기록한다. API key, 비밀번호, 인증서 fingerprint, `.env` 실제 값은 절대 기록하지 않는다.
 >
 > 아래 경로는 별도 설명이 없으면 저장소 루트 기준이다.
 
@@ -12,15 +12,19 @@
 2. [x] 사용자가 이 Mac의 interactive terminal에서 EAS CLI 로그인 완료.
 3. [x] iOS minimum `16.4` 상향 승인 및 app/test/Pods target 정렬.
 4. [x] RN `0.86.2`에 Expo SDK 57 modules와 `expo-updates` exact version을 manual bare integration.
-5. [x] update URL, fingerprint runtime policy, Android/iOS embedded bundle 구성을 native project에 반영.
-6. [ ] development/preview/production channel을 local Store build에 명시적으로 embed하고 preview OTA를 게시하지 않은 상태에서 검증.
-7. [ ] Free plan에서 preview OTA, offline startup, update-server 장애, incompatible runtime rejection, rollback과 embedded recovery를 실제 iOS/Android release 설치로 검증한다.
+5. [x] update URL, 공개 build 16과 분리된 명시적 runtime `2.1.2-17`, Android/iOS embedded bundle 구성을 native project에 반영.
+6. [x] development/preview/production EAS profile에 같은 이름의 environment/channel을 연결하고 Android preview cloud build 성공.
+7. [x] 기존 Play Upload Key를 EAS Android credential로 등록하고 재생성한 Preview APK signer가 로컬 release certificate와 일치하는지 확인.
+8. [x] 같은 credential과 `production` environment/channel로 Android Production AAB를 생성하고 signer·embedded backend origin을 검증.
+9. [ ] Free plan에서 preview OTA, offline startup, update-server 장애, incompatible runtime rejection, rollback과 embedded recovery를 실제 iOS/Android release 설치로 검증한다.
 
-현재 V3 candidate 17은 end-to-end update signing 없이 Free plan으로 시작한다. 회원·결제 기능이 생겨도 Free/Starter 사용은 가능하며 인증·권한·영수증 검증·entitlement는 서버 기준으로 처리한다. B2B/enterprise signed artifact나 별도 공급망 threat model이 생길 때만 signing certificate를 포함한 새 Store binary와 Production plan을 검토한다.
+첫 Android Preview cloud build에서 EAS가 잘못 생성한 remote keystore의 signer 불일치를 발견해 Production build를 차단했다. 이후 Git에서 제외된 기존 `my-upload-key.keystore`를 EAS default credential로 등록하고 Preview APK를 재생성해 signer 일치를 확인했다. 동일 credential로 SDK 57, `2.1.2 (17)`, runtime `2.1.2-17`, `production` channel의 Android Production AAB 생성과 signer 검증도 완료했다. embedded JS bundle에는 Railway production origin이 포함되고 로컬 개발 origin은 없다. 실제 alias·비밀번호·certificate fingerprint는 기록하지 않으며 Store 업로드는 아직 수행하지 않았다.
+
+현재 출시 후보는 Android `2.1.2 (17)`, iOS `2.1.3 (19)`이며 end-to-end update signing 없이 Free plan으로 시작한다. 두 바이너리는 native API가 같아 runtime `2.1.2-17`을 공유한다. 회원·결제 기능이 생겨도 Free/Starter 사용은 가능하며 인증·권한·영수증 검증·entitlement는 서버 기준으로 처리한다. B2B/enterprise signed artifact나 별도 공급망 threat model이 생길 때만 signing certificate를 포함한 새 Store binary와 Production plan을 검토한다.
 
 2026-08-13 공식 공개 가격 기준 Free는 `$0/월`·OTA 1,000 MAU hard quota다. 한도를 소진하면 초과 과금 없이 update delivery가 제한되므로 게시 전에 Starter로 올려야 한다. Starter는 `$19/월`에 3,000 MAU를 포함하고 3,001~200,000은 `$0.005/MAU`, Production은 `$199/월`에 50,000 MAU를 포함한다. 자체 end-to-end update signing은 Production/Enterprise에서만 제공된다. 상세 초과 비용은 [Expo pricing](https://expo.dev/pricing), [billing FAQ](https://docs.expo.dev/billing/faq/)와 `FEATURE_INSIGHTS.md`를 기준으로 한다.
 
-Local EAS login, project 연결, Expo SDK 57/`expo-updates` native 구성과 local native compile은 완료했다. development/preview/production channel embedding과 실제 OTA/runtime recovery 검증은 아직 완료하지 않았다. Store identity와 다음 candidate `2.1.2 (17+)`는 변경하지 않는다.
+Local EAS login, project 연결, Expo SDK 57/`expo-updates` native 구성과 local native compile을 완료했다. Android `2.1.2 (17)` Preview/Production cloud build 및 Upload Key 검증을 완료했지만 Google Play Service Account key가 없어 Play 제출은 대기 중이다. iOS는 닫힌 `2.1.2` train을 피해 `2.1.3 (19)`로 빌드·제출했으며 App Store Connect에서 `VALID`, Internal TestFlight `IN_BETA_TESTING` 상태다. Android/iOS 모두 runtime `2.1.2-17`과 embedded Railway production origin을 사용한다. OTA/runtime recovery와 실기기 smoke는 아직 완료하지 않았다.
 
 ## 1. 설정 원본 위치
 
@@ -37,13 +41,15 @@ Local EAS login, project 연결, Expo SDK 57/`expo-updates` native 구성과 loc
 
 ## 2. Store identity와 현재 출시 기준
 
-| 플랫폼  | ID                   | 공개 버전 | 공개 build/code  | 다음 local candidate | 추가 identity           |
-| ------- | -------------------- | --------: | ----------------: | -------------------: | ----------------------- |
-| Android | `com.omw.omw_front`  |   `2.1.2` |  `versionCode 16` |     `versionCode 17` | 동일 upload key 유지    |
-| iOS     | `com.omw.onmywayapp` |   `2.1.2` |        build `16` |           build `17` | Apple Team `63SCY9KWZL` |
+| 플랫폼  | ID                   | 공개 버전 | 공개 build/code  | 현재 출시 후보          | 추가 identity           |
+| ------- | -------------------- | --------: | ----------------: | -----------------------: | ----------------------- |
+| Android | `com.omw.omw_front`  |   `2.1.2` |  `versionCode 16` | `2.1.2`, versionCode `17` | 동일 upload key 유지    |
+| iOS     | `com.omw.onmywayapp` |   `2.1.2` |        build `16` |      `2.1.3`, build `19` | Apple Team `63SCY9KWZL` |
 
 - authoritative source: `temp/onmyway/omw_front`, ref `release/v2.1.2`, commit `74abb3607bbf21a57b26d433fc97ee51f5ed416e`.
-- 다음 Store 제출은 Android `versionCode`, iOS build 모두 `17` 이상이어야 한다.
+- Android 후보는 기존 build보다 높은 versionCode `17`이므로 marketing version `2.1.2`를 유지할 수 있다.
+- iOS는 공개 `2.1.2` train이 닫혀 marketing version `2.1.3`과 build `19`를 사용한다.
+- 두 플랫폼은 native API 호환성이 같아 OTA runtime `2.1.2-17`을 공유한다.
 - FE `package.json`의 `version: 1.0.6`은 npm package metadata이며 Store 버전 기준이 아니다.
 
 ## 3. Android release signing

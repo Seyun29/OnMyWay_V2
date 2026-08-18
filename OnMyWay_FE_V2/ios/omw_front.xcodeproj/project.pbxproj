@@ -354,7 +354,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "ENV_FILE=\"${SRCROOT}/../.env\"\nPLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nread_env() {\n  grep -E \"^$1=\" \"$ENV_FILE\" 2>/dev/null | head -1 | cut -d '=' -f2- | tr -d '\\r' | xargs\n}\nset_plist_value() {\n  if [ -n \"$2\" ] && [ -f \"$PLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Delete :$1\" \"$PLIST\" 2>/dev/null || true\n    /usr/libexec/PlistBuddy -c \"Add :$1 string $2\" \"$PLIST\"\n  fi\n}\nif [ -f \"$ENV_FILE\" ]; then\n  set_plist_value GMSApiKey \"$(read_env GOOGLE_MAPS_IOS_API_KEY)\"\n  set_plist_value NMFClientId \"$(read_env NAVER_MAP_CLIENT_ID)\"\nfi\n";
+			shellScript = "ENV_FILE=\"${SRCROOT}/../.env\"\nPLIST=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\nread_env() {\n  VALUE=\"$(printenv \"$1\" 2>/dev/null || true)\"\n  if [ -n \"$VALUE\" ]; then\n    printf '%s' \"$VALUE\"\n    return\n  fi\n  grep -E \"^$1=\" \"$ENV_FILE\" 2>/dev/null | head -1 | cut -d '=' -f2- | tr -d '\\r' | xargs\n}\nset_plist_value() {\n  if [ -n \"$2\" ] && [ -f \"$PLIST\" ]; then\n    /usr/libexec/PlistBuddy -c \"Delete :$1\" \"$PLIST\" 2>/dev/null || true\n    /usr/libexec/PlistBuddy -c \"Add :$1 string $2\" \"$PLIST\"\n  fi\n}\nset_plist_value GMSApiKey \"$(read_env GOOGLE_MAPS_IOS_API_KEY)\"\nset_plist_value NMFClientId \"$(read_env NAVER_MAP_CLIENT_ID)\"\n";
 		};
 		9FA41A3BF8B46259E868AD05 /* [Expo] Configure project */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -563,7 +563,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 63SCY9KWZL;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = omw_front/Info.plist;
@@ -573,7 +573,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.1.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -598,7 +598,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 17;
+				CURRENT_PROJECT_VERSION = 20;
 				DEVELOPMENT_TEAM = 63SCY9KWZL;
 				INFOPLIST_FILE = omw_front/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = OnMyWay;
@@ -607,7 +607,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.1.2;
+				MARKETING_VERSION = 2.1.3;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
